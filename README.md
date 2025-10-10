@@ -91,6 +91,22 @@ After pushing your branch to GitHub:
 - In the **second column**, select your branch.
 - Click **“Create pull request.”**
 
+After pushing your branch:
+
+1. Go to your repository on GitHub.
+2. Open the **"Pull requests"** tab.  
+   ![Pull requests tab](readme-images/step-1.png)
+
+3. Click **"New pull request"**.  
+   ![New pull request button](readme-images/step-2.png)
+
+4. In the **first column**, select `develop` — this is the main development branch.  
+   In the **second column**, select your feature branch.  
+   ![Compare branches](readme-images/step-3.png)
+
+5. Click **"Create pull request"** and write a short description.  
+   ![Create PR form](readme-images/step-4.png)
+
 ---
 
 ## After merging your branch into develop
