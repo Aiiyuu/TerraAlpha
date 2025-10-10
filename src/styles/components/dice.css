@@ -9,7 +9,7 @@
 	padding: 60px 0 40px;
 	border-radius: 30px;
 	box-shadow: 0 0 20px rgba(0, 0, 0, .1);
-	transition: top 400ms ease;
+	transition: top 1s cubic-bezier(0.25, 1.2, 0.5, 1);
 
 	/* Dice parameter styles */
 	--dice-scale: 2;
@@ -32,7 +32,7 @@
 
 @keyframes rolling {
 	50% {
-		transform: rotateX(455deg) rotateY(455deg);
+		transform: rotateX(855deg) rotateY(855deg);
 	}
 }
 

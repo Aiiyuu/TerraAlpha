@@ -20,7 +20,7 @@ export function throwDice() {
   const random = Math.floor(Math.random() * 6) + 1;
   diceContainer?.classList.add("dice-container--roling");
 
-  dice.style.animation = `rolling ${ANIMATION_DURATION}ms ease`;
+  dice.style.animation = `rolling ${ANIMATION_DURATION}ms linear`;
 
   setTimeout(() => {
     switch (random) {
