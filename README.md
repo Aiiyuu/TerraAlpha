@@ -5,7 +5,7 @@ Follow these steps carefully to keep the project organized and prevent merge con
 
 ---
 
-## 🚀 Before Starting Work
+## Step 1: 🚀 Before Starting Work
 
 Always run the following command first:
 
@@ -18,7 +18,7 @@ git pull origin develop
 
 ---
 
-## 🌿 When you want to add something new to the game
+## Step 2: 🌿 When you want to add something new to the game
 
 You need to create a new branch:
 
@@ -42,7 +42,7 @@ git checkout -b feature/player-movement
 
 ---
 
-## 🛠 After making changes
+## Step 3: 🛠 After making changes
 
 ```bash
 npm run lint
@@ -62,7 +62,7 @@ git commit -m "Your commit message"
 
 > Saves your changes locally with a message describing what you did.
 
-## 📤 Push your changes to GitHub
+## Step 4: 📤 Push your changes to GitHub
 
 ```bash
 git push origin <branch_name>
@@ -80,7 +80,7 @@ git push origin feature/player-movement
 
 ---
 
-## 🔁 Create a Pull Request (PR)
+## Step 5: 🔁 Create a Pull Request (PR)
 
 After pushing your branch to GitHub:
 
@@ -127,7 +127,7 @@ git pull origin develop
 
 ---
 
-## 🧹 Delete your feature branch
+## Step 6: 🧹 Delete your feature branch
 
 ```bash
 git push origin --delete <branch_name>
@@ -159,7 +159,7 @@ git branch -D feature/player-movement
 
 ---
 
-## 🌍 If you want to deploy the changes
+## Step 7: 🌍 If you want to deploy the changes
 
 ```bash
 npm run build
