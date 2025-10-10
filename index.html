@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
   <head>
     <meta charset="utf-8" />
@@ -13,8 +13,6 @@
     <link rel="stylesheet" href="./src/styles/style.css" />
   </head>
 
-     <script src="./src/dice.js" type="module"></script>
-
   <body class="section">
     <!-- Header / Clock -->
     <header class="has-text-centered mb-5">
@@ -27,15 +25,9 @@
     </header>
 
     <main class="columns is-variable is-6">
-
-      <!-- DICE -->
-      <div id="dice-overlay" style="display:none;">
-      <div id="dice-popup"></div>
-      </div>
-
       <!-- PLAYER 1 -->
       <section class="column has-text-centered" id="player1">
-        <h2 class="title is-4 has-text-white has-text-outline">PLAYER 1</h2>
+        <h2 class="title is-4 has-text-danger">PLAYER 1</h2>
 
         <div class="field has-addons is-justify-content-center mb-4">
           <div class="control is-expanded">
@@ -79,7 +71,7 @@
           <div class="cell square grey" data-qa="r1c3">
             <span class="corner-text">13</span>
           </div>
-          <div class="cell circle red"  data-qa="r1c4"></div>
+          <div class="cell circle red" data-qa="r1c4"></div>
           <div class="cell square grey" data-qa="r1c5">
             <span class="corner-text">11</span>
           </div>
@@ -93,11 +85,11 @@
           <div class="cell square grey" data-qa="r2c1">
             <span class="corner-text">16</span>
           </div>
-          <div class="cell empty"       data-qa="r2c2"></div>
-          <div class="cell empty"       data-qa="r2c3"></div>
-          <div class="cell square white"data-qa="r2c4"></div>
-          <div class="cell empty"       data-qa="r2c5"></div>
-          <div class="cell empty"       data-qa="r2c6"></div>
+          <div class="cell empty" data-qa="r2c2"></div>
+          <div class="cell empty" data-qa="r2c3"></div>
+          <div class="cell square white" data-qa="r2c4"></div>
+          <div class="cell empty" data-qa="r2c5"></div>
+          <div class="cell empty" data-qa="r2c6"></div>
           <div class="cell square grey" data-qa="r2c7">
             <span class="corner-text">8</span>
           </div>
@@ -105,31 +97,31 @@
           <div class="cell square grey" data-qa="r3c1">
             <span class="corner-text">17</span>
           </div>
-          <div class="cell empty"       data-qa="r3c2"></div>
-          <div class="cell empty"       data-qa="r3c3"></div>
-          <div class="cell square white"data-qa="r3c4"></div>
-          <div class="cell empty"       data-qa="r3c5"></div>
-          <div class="cell empty"       data-qa="r3c6"></div>
+          <div class="cell empty" data-qa="r3c2"></div>
+          <div class="cell empty" data-qa="r3c3"></div>
+          <div class="cell square white" data-qa="r3c4"></div>
+          <div class="cell empty" data-qa="r3c5"></div>
+          <div class="cell empty" data-qa="r3c6"></div>
           <div class="cell square grey" data-qa="r3c7">
             <span class="corner-text">7</span>
           </div>
 
-          <div class="cell circle red"  data-qa="r4c1"></div>
-          <div class="cell square white"data-qa="r4c2"></div>
-          <div class="cell square white"data-qa="r4c3"></div>
-          <div class="cell square white"data-qa="r4c4"></div>
-          <div class="cell square white"data-qa="r4c5"></div>
-          <div class="cell square white"data-qa="r4c6"></div>
-          <div class="cell circle red"  data-qa="r4c7"></div>
+          <div class="cell circle red" data-qa="r4c1"></div>
+          <div class="cell square white" data-qa="r4c2"></div>
+          <div class="cell square white" data-qa="r4c3"></div>
+          <div class="cell square white" data-qa="r4c4"></div>
+          <div class="cell square white" data-qa="r4c5"></div>
+          <div class="cell square white" data-qa="r4c6"></div>
+          <div class="cell circle red" data-qa="r4c7"></div>
 
           <div class="cell square grey" data-qa="r5c1">
             <span class="corner-text">19</span>
           </div>
-          <div class="cell empty"       data-qa="r5c2"></div>
-          <div class="cell empty"       data-qa="r5c3"></div>
-          <div class="cell circle white"data-qa="r5c4"></div>
-          <div class="cell empty"       data-qa="r5c5"></div>
-          <div class="cell empty"       data-qa="r5c6"></div>
+          <div class="cell empty" data-qa="r5c2"></div>
+          <div class="cell empty" data-qa="r5c3"></div>
+          <div class="cell circle white" data-qa="r5c4"></div>
+          <div class="cell empty" data-qa="r5c5"></div>
+          <div class="cell empty" data-qa="r5c6"></div>
           <div class="cell square grey" data-qa="r5c7">
             <span class="corner-text">5</span>
           </div>
@@ -137,11 +129,11 @@
           <div class="cell square grey" data-qa="r6c1">
             <span class="corner-text">20</span>
           </div>
-          <div class="cell empty"       data-qa="r6c2"></div>
-          <div class="cell empty"       data-qa="r6c3"></div>
-          <div class="cell circle white"data-qa="r6c4"></div>
-          <div class="cell empty"       data-qa="r6c5"></div>
-          <div class="cell empty"       data-qa="r6c6"></div>
+          <div class="cell empty" data-qa="r6c2"></div>
+          <div class="cell empty" data-qa="r6c3"></div>
+          <div class="cell circle white" data-qa="r6c4"></div>
+          <div class="cell empty" data-qa="r6c5"></div>
+          <div class="cell empty" data-qa="r6c6"></div>
           <div class="cell square grey" data-qa="r6c7">
             <span class="corner-text">4</span>
           </div>
@@ -155,7 +147,7 @@
           <div class="cell square grey" data-qa="r7c3">
             <span class="corner-text">23</span>
           </div>
-          <div class="cell circle white"data-qa="r7c4"></div>
+          <div class="cell circle white" data-qa="r7c4"></div>
           <div class="cell square grey" data-qa="r7c5">
             <span class="corner-text">1</span>
           </div>
@@ -168,18 +160,22 @@
         </div>
 
         <div class="buttons is-centered mt-4">
-          <button class="button is-danger" data-qa="end-turn">Пoходити№1</button>
-          <button class="button is-info" data-qa="start-turn">Походити№2</button>
+          <button class="button is-danger" data-qa="end-turn">
+            Пoходити№1
+          </button>
+          <button class="button is-info" data-qa="start-turn">
+            Походити№2
+          </button>
         </div>
 
         <div class="buttons is-centered mt-4">
-          <button class="button is-danger" id="roll1">КИНУТИ-№1</button>
-          <button class="button is-info" id="roll2">КИНУТИ-№2</button>
+          <button class="button dice-button is-danger" data-qa="end-turn">КИНУТИ-№1</button>
+          <button class="button dice-button is-info" data-qa="start-turn">КИНУТИ-№2</button>
         </div>
       </section>
 
       <section class="column has-text-centered" id="player2">
-        <h2 class="title is-4 has-text-white has-text-outline">PLAYER 2</h2>
+        <h2 class="title is-4 has-text-link">PLAYER 2</h2>
 
         <div class="field has-addons is-justify-content-center mb-4">
           <div class="control is-expanded">
@@ -211,5 +207,10 @@
         </div>
       </section>
     </main>
+
+    <div class="dice-container"></div>
+
+    <!-- Script files -->
+     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

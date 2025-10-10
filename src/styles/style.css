@@ -1,3 +1,6 @@
+@import url('./components/dice.css');
+
+
 body {
   background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
   background-size: cover;
@@ -109,37 +112,6 @@ body {
   box-shadow: none;
 }
 
-
-#dice-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 9999;
-}
-
-#dice-popup {
-  width: 200px;
-  height: 200px;
-  background: #fff;
-  border-radius: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-  position: relative;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  transform: scale(0.8);
-  opacity: 0;
-}
-
-#dice-overlay.show #dice-popup {
-  transform: scale(1);
-  opacity: 1;
-}
 .has-text-outline {
   text-shadow:
     -1px -1px 0 #000,
