@@ -1,19 +1,35 @@
 @import url('./components/dice.css');
 @import url('./components/chat.css');
 @import url('./components/dialog.css');
+@import url('./components/timer.css');
 
 html, body, * {
   user-select: none; /* eslint-disable-line css/use-baseline */
-}
-
-* {
   box-sizing: border-box;
 }
 
 body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  padding-top: 0;
   background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
   background-size: cover;
 }
+
+main {
+  display: flex;
+  justify-content: space-between;
+}
+
+main > section {
+  padding: 69px 20px 20px 20px;
+}
+
+main > section.middle-section {
+  padding-top: 0;
+}
+
 
 .hand-grid {
   display: grid;
