@@ -3,6 +3,10 @@ import {createPlayer, showPlayerContent, addMessage} from "./components/player.t
 import {formatTime} from "./utility/getFormattedDate.ts";
 import type {Player} from "./types/player.ts";
 
+import { createSteps } from './components/steps.ts';
+
+createSteps();
+
 const PING = 1000;
 let diceIsRolling = false;
 
