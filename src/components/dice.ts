@@ -63,8 +63,8 @@ export function throwDice(random: number) {
 
   setTimeout(() => {
     diceContainer?.classList.remove("dice-container--roling");
-    dice.style.transform = 'none';
     isRolling = false;
+    dice.style.transform = 'none';
   }, HIDE_DICE_DELAY);
 }
 

@@ -3,4 +3,5 @@ export interface Player {
   name: string;
   itsTurn: boolean,
   diceHistory: number[],
+  diceStreak: number[],
 }
