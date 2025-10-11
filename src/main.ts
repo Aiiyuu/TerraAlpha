@@ -1,9 +1,8 @@
-// === src/main.ts ===
 import { throwDice, setupDice, HIDE_DICE_DELAY } from './components/dice';
 import { createPlayer, showPlayerContent, addMessage } from './components/player.ts';
 import type { Player } from './types/player.ts';
 
-import { createSteps, hideAllSteps, showStepsSequence } from './components/steps.ts';
+import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled } from './components/steps.ts';
 
 window.addEventListener('load', () => {
   const redDiceBtn = document.querySelector<HTMLButtonElement>('.player1.button.dice-button');
@@ -81,12 +80,13 @@ window.addEventListener('load', () => {
     }
 
     setTimeout(() => {
-      const activeNow = getActivePlayer(); 
+      const activeNow = getActivePlayer();
       const needAnotherThrow = randomNumber === 6;
 
       showStepsSequence(rollerColor, activeNow.diceStreak);
-
       showPlayerContent(activeNow.id);
+
+      setStepsEnabled(rollerColor, !needAnotherThrow);
 
       setVisible(getDiceBtnById(activeNow.id), needAnotherThrow);
       setVisible(getMoveBtnById(activeNow.id), !needAnotherThrow);
@@ -108,8 +108,7 @@ window.addEventListener('load', () => {
 
   function onMoveClick(byPlayerId: 'player1' | 'player2') {
     const active = getActivePlayer();
-    if (active.id !== byPlayerId) return; 
-
+    if (active.id !== byPlayerId) return;
 
     if (active.id === 'player1') {
       player1 = updatePlayer1({ diceStreak: [] });
