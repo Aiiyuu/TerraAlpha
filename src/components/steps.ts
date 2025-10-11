@@ -1,3 +1,4 @@
+// === src/components/steps.ts ===
 type PlayerColor = 'red' | 'blue';
 
 let redBlock: HTMLElement | null = null;
@@ -9,12 +10,17 @@ export function createSteps() {
 
   if (!redMoveBtn || !blueMoveBtn) return;
 
-  redBlock = createStepBlock('red');
-  blueBlock = createStepBlock('blue');
+  redBlock = document.createElement('div');
+  redBlock.className = 'steps-block steps-red is-hidden';
+  redBlock.setAttribute('data-qa', 'red-steps');
 
-  // червоний — ЗЛІВА від "Пoходити№1"
+  blueBlock = document.createElement('div');
+  blueBlock.className = 'steps-block steps-blue is-hidden';
+  blueBlock.setAttribute('data-qa', 'blue-steps');
+
+  // Червоний — зліва (перед кнопкою «Пoходити№1»)
   redMoveBtn.parentElement?.insertBefore(redBlock, redMoveBtn);
-  // синій — ПРАВОРУЧ від "Походити№2"
+  // Синій — справа (після «Походити№2»)
   blueMoveBtn.parentElement?.insertBefore(blueBlock, blueMoveBtn.nextSibling);
 
   hideAllSteps();
@@ -25,45 +31,33 @@ export function hideAllSteps() {
   blueBlock?.classList.add('is-hidden');
 }
 
-export function showStepsForValues(color: PlayerColor, values: number[]) {
+/**
+ * Показати блок потрібного кольору і ЗІБРАТИ кнопки рівно в тому порядку,
+ * як у масиві `values`. Дублікати зберігаються.
+ */
+export function showStepsSequence(color: PlayerColor, values: number[]) {
   if (!redBlock || !blueBlock) return;
-
-  const allowed = new Set(values.filter(v => Number.isFinite(v) && v >= 1 && v <= 6));
 
   const target = color === 'red' ? redBlock : blueBlock;
   const other = color === 'red' ? blueBlock : redBlock;
 
-  other.classList.add('is-hidden');  
-  target.classList.remove('is-hidden'); 
+  other.classList.add('is-hidden');
+  target.classList.remove('is-hidden');
 
-  const allBtns = target.querySelectorAll<HTMLButtonElement>('.step-btn');
-  allBtns.forEach(btn => {
-    const step = Number(btn.dataset.step);
-    if (allowed.has(step)) {
-      btn.classList.remove('is-hidden');
-      btn.disabled = false;
-    } else {
-      btn.classList.add('is-hidden');
-      btn.disabled = true;
-    }
-  });
-}
+  // Перебудовуємо контент під поточну серію кидків
+  target.innerHTML = '';
 
-function createStepBlock(color: PlayerColor) {
-  const block = document.createElement('div');
-  block.className = `steps-block steps-${color} is-hidden`;
-  block.setAttribute('data-qa', `${color}-steps`);
+  values.forEach((v, idx) => {
+    if (!Number.isFinite(v) || v < 1 || v > 6) return;
 
-  for (let i = 1; i <= 6; i += 1) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = String(i);
-    btn.dataset.step = String(i);
+    btn.textContent = String(v);
+    btn.dataset.step = String(v);
+    btn.dataset.index = String(idx);
     btn.className = `step-btn button is-${color === 'red' ? 'danger' : 'info'}`;
-    btn.setAttribute('data-qa', `${color}-step-${i}`);
 
-    block.appendChild(btn);
-  }
-
-  return block;
+    // За потреби можна додати onClick на рух: btn.addEventListener('click', () => move(v));
+    target.appendChild(btn);
+  });
 }
