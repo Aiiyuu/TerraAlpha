@@ -2,9 +2,9 @@ import { throwDice, setupDice, HIDE_DICE_DELAY } from "./components/dice";
 import { createPlayer, showPlayerContent, addMessage } from "./components/player.ts";
 import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled } from "./components/steps.ts";
 import { setupDialog } from "./components/dialog.ts";
+import { setupTimer, createTimer } from "./components/timer.ts";
 
 import type { Player } from "./types/player.ts";
-
 
 /* Wait until the initial HTML document is fully loaded and parsed,
 so we can safely select DOM elements and attach event listeners. */
@@ -16,6 +16,7 @@ window.addEventListener('load', () => {
   const blueMoveBtn = document.querySelector<HTMLButtonElement>('.player2.move-button');
 
   setupDialog();
+  setupTimer();
   setupDice();
   createSteps();
   hideAllSteps();

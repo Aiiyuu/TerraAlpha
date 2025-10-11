@@ -30,6 +30,10 @@
   justify-content: flex-end;
 }
 
+.chat-blue .chat-item {
+  margin-left: auto;
+}
+
 .chat-item {
   background-color: var(--chat-color, #f0f0f0);
   color: white;
