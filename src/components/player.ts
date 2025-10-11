@@ -61,7 +61,7 @@ export function showPlayerContent(id: string) {
 }
 
 /**
- * This function adds message to the player chat block
+ * This function adds phrases.ts to the player chat block
  * @param id
  * @param message
  */
