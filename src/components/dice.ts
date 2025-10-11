@@ -6,9 +6,9 @@ if (!diceContainer) {
   throw new Error("Dice container is not found.");
 }
 
-const ANIMATION_DURATION = 4000;
+const ANIMATION_DURATION = 2000;
 const ANIMATION_END_DELAY = 50;
-const HIDE_DICE_DELAY = ANIMATION_DURATION + 2000;
+const HIDE_DICE_DELAY = ANIMATION_DURATION + 1000;
 
 /**
  * This function generates a random value from 1 to 6 (including)

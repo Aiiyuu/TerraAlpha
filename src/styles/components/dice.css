@@ -32,7 +32,7 @@
 
 @keyframes rolling {
 	50% {
-		transform: rotateX(855deg) rotateY(855deg);
+		transform: rotateX(455deg) rotateY(455deg);
 	}
 }
 
