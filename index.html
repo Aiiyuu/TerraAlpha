@@ -10,8 +10,8 @@
       href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
     />
 
-    <script type="module" crossorigin src="/Testing_game/assets/index-C7q1xGIe.js"></script>
-    <link rel="stylesheet" crossorigin href="/Testing_game/assets/index-Cf8VVHQr.css">
+    <script type="module" crossorigin src="/Testing_game/assets/index-CmyMfgjB.js"></script>
+    <link rel="stylesheet" crossorigin href="/Testing_game/assets/index-DphqZEsz.css">
   </head>
 
   <body class="section">
@@ -27,7 +27,7 @@
 
     <main class="columns is-variable is-6">
       <!-- PLAYER 1 -->
-      <section class="column has-text-centered" id="player1">
+      <section class="panel column has-text-centered" id="player1">
         <h2 class="title is-4 has-text-danger">PLAYER 1</h2>
 
         <div class="field has-addons is-justify-content-center mb-4">
@@ -44,8 +44,8 @@
           </div>
         </div>
 
-        <div class="chat mb-5">
-          <div class="bubble is-red" data-qa="p1-chat"></div>
+        <div class="chat chat-red">
+          <ul class="chat-wrapper player1" data-qa="p1-chat"></ul>
         </div>
 
         <div class="hand-grid mx-auto" data-qa="p1-hand">
@@ -161,21 +161,21 @@
         </div>
 
         <div class="buttons is-centered mt-4">
-          <button class="button is-danger" data-qa="end-turn">
+          <button class="player1 move-button button is-danger" data-qa="end-turn">
             Пoходити№1
           </button>
-          <button class="button is-info" data-qa="start-turn">
+          <button class="player2 move-button button is-info" data-qa="start-turn">
             Походити№2
           </button>
         </div>
 
         <div class="buttons is-centered mt-4">
-          <button class="button dice-button is-danger" data-qa="end-turn">КИНУТИ-№1</button>
-          <button class="button dice-button is-info" data-qa="start-turn">КИНУТИ-№2</button>
+          <button class="player1 button dice-button is-danger" data-qa="end-turn">КИНУТИ-№1</button>
+          <button class="player2 button dice-button is-info" data-qa="start-turn">КИНУТИ-№2</button>
         </div>
       </section>
 
-      <section class="column has-text-centered" id="player2">
+      <section class="panel column has-text-centered" id="player2">
         <h2 class="title is-4 has-text-link">PLAYER 2</h2>
 
         <div class="field has-addons is-justify-content-center mb-4">
@@ -192,8 +192,8 @@
           </div>
         </div>
 
-        <div class="chat mb-5">
-          <div class="bubble is-blue" data-qa="p2-chat"></div>
+        <div class="chat chat-blue">
+          <ul class="chat-wrapper player2" data-qa="p2-chat"></ul>
         </div>
 
         <div class="hand-grid mx-auto" data-qa="p2-hand">
