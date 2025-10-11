@@ -4,26 +4,27 @@
   grid-template-columns: repeat(3, 40px);
   grid-template-rows: repeat(2, 40px);
   gap: 6px;
+  align-items: center;
+  justify-items: center;
   margin: 0 10px;
 }
 
+.steps-block.is-hidden {
+  display: none;
+}
+
 .step-btn {
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: transform 0.1s ease;
+  font-weight: 700;
+  border-radius: 8px;
+  line-height: 1;
+  padding: 0.5rem 0;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .step-btn:hover {
-  transform: scale(1.1);
+  transform: translateY(-1px);
 }
 
-.steps-red .step-btn {
-  background-color: #ff3b3b;
-  color: white;
-}
-
-.steps-blue .step-btn {
-  background-color: #007bff;
-  color: white;
+.buttons.is-centered {
+  align-items: center;
 }
