@@ -1,4 +1,3 @@
-// === src/components/steps.ts ===
 type PlayerColor = 'red' | 'blue';
 
 let redBlock: HTMLElement | null = null;
@@ -13,9 +12,9 @@ export function createSteps() {
   redBlock = createStepBlock('red');
   blueBlock = createStepBlock('blue');
 
-  // червоний — зліва (перед кнопкою "Пoходити№1")
+  // червоний — ЗЛІВА від "Пoходити№1"
   redMoveBtn.parentElement?.insertBefore(redBlock, redMoveBtn);
-  // синій — справа (після кнопки "Походити№2")
+  // синій — ПРАВОРУЧ від "Походити№2"
   blueMoveBtn.parentElement?.insertBefore(blueBlock, blueMoveBtn.nextSibling);
 
   hideAllSteps();
@@ -26,24 +25,21 @@ export function hideAllSteps() {
   blueBlock?.classList.add('is-hidden');
 }
 
-export function showStepsFor(color: PlayerColor, value: number) {
+export function showStepsForValues(color: PlayerColor, values: number[]) {
   if (!redBlock || !blueBlock) return;
-  if (value < 1 || value > 6) return;
+
+  const allowed = new Set(values.filter(v => Number.isFinite(v) && v >= 1 && v <= 6));
 
   const target = color === 'red' ? redBlock : blueBlock;
   const other = color === 'red' ? blueBlock : redBlock;
 
+  other.classList.add('is-hidden');  
+  target.classList.remove('is-hidden'); 
 
-  other.classList.add('is-hidden');
-
-
-  target.classList.remove('is-hidden');
-
-
-  const all = target.querySelectorAll<HTMLButtonElement>('.step-btn');
-  all.forEach(btn => {
+  const allBtns = target.querySelectorAll<HTMLButtonElement>('.step-btn');
+  allBtns.forEach(btn => {
     const step = Number(btn.dataset.step);
-    if (step === value) {
+    if (allowed.has(step)) {
       btn.classList.remove('is-hidden');
       btn.disabled = false;
     } else {
@@ -62,11 +58,9 @@ function createStepBlock(color: PlayerColor) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = String(i);
-    btn.dataset.step = String(i);                    // <= важливо!
+    btn.dataset.step = String(i);
     btn.className = `step-btn button is-${color === 'red' ? 'danger' : 'info'}`;
     btn.setAttribute('data-qa', `${color}-step-${i}`);
-
-
 
     block.appendChild(btn);
   }
