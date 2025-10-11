@@ -1,4 +1,3 @@
-
 .hand-grid .cell-btn {
   width: 48px;
   height: 48px;
@@ -10,15 +9,15 @@
   background-repeat: no-repeat;
   cursor: pointer;
   margin: 4px;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   opacity: 0.85;
+  outline: none;
 }
 
 .hand-grid .cell-btn:hover,
 .hand-grid .cell-btn:focus {
   transform: scale(1.1);
   opacity: 1;
-  outline: none;
 }
 
 #player1 .hand-grid [data-qa$='cell-1'],
@@ -28,15 +27,14 @@
 #player1 .hand-grid [data-qa$='cell-5'],
 #player1 .hand-grid [data-qa$='cell-6'],
 #player1 .hand-grid [data-qa$='cell-7'] {
-  background-image: url('/src/assets/images/ShipR.png'); /* червоний корабель */
+  background-image: url('/src/assets/images/ShipR.png');
 }
 
 #player1 .hand-grid [data-qa$='cell-8'] {
-  background-image: url('/src/assets/images/main_shipR.png'); /* головний червоний */
-  transform: scale(1.1);
+  background-image: url('/src/assets/images/main_shipR.png');
+  transform: scale(1.2);
 }
 
-/* === PLAYER 2 — сині кораблі === */
 #player2 .hand-grid [data-qa$='cell-1'],
 #player2 .hand-grid [data-qa$='cell-2'],
 #player2 .hand-grid [data-qa$='cell-3'],
@@ -44,10 +42,27 @@
 #player2 .hand-grid [data-qa$='cell-5'],
 #player2 .hand-grid [data-qa$='cell-6'],
 #player2 .hand-grid [data-qa$='cell-7'] {
-  background-image: url('/src/assets/images/ShipB.png'); /* синій корабель */
+  background-image: url('/src/assets/images/ShipB.png');
 }
 
 #player2 .hand-grid [data-qa$='cell-8'] {
-  background-image: url('/src/assets/images/main_shipB.png'); /* головний синій */
-  transform: scale(1.1);
+  background-image: url('/src/assets/images/main_shipB.png');
+  transform: scale(1.2);
+}
+
+#player1 .hand-grid .cell-btn:hover,
+#player1 .hand-grid .cell-btn:focus {
+  box-shadow: 0 0 0 2px red;
+}
+
+#player2 .hand-grid .cell-btn:hover,
+#player2 .hand-grid .cell-btn:focus {
+  box-shadow: 0 0 0 2px blue;
+}
+
+#player1 .hand-grid [data-qa$='cell-8']:hover,
+#player1 .hand-grid [data-qa$='cell-8']:focus,
+#player2 .hand-grid [data-qa$='cell-8']:hover,
+#player2 .hand-grid [data-qa$='cell-8']:focus {
+  transform: scale(1.5);
 }
