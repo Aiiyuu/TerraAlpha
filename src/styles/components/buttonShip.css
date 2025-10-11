@@ -1,6 +1,4 @@
-/* === buttonShip.css === */
 
-/* Прозорий стиль усіх кнопок у hand-grid */
 .hand-grid .cell-btn {
   width: 48px;
   height: 48px;
@@ -16,7 +14,6 @@
   opacity: 0.85;
 }
 
-/* Hover / Focus ефекти */
 .hand-grid .cell-btn:hover,
 .hand-grid .cell-btn:focus {
   transform: scale(1.1);
@@ -24,7 +21,6 @@
   outline: none;
 }
 
-/* === PLAYER 1 — червоні кораблі === */
 #player1 .hand-grid [data-qa$='cell-1'],
 #player1 .hand-grid [data-qa$='cell-2'],
 #player1 .hand-grid [data-qa$='cell-3'],
