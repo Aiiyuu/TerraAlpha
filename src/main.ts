@@ -1,16 +1,20 @@
-import { throwDice, setupDice, HIDE_DICE_DELAY } from './components/dice';
-import { createPlayer, showPlayerContent, addMessage } from './components/player.ts';
-import type { Player } from './types/player.ts';
+import {throwDice, setupDice, HIDE_DICE_DELAY} from "./components/dice";
+import {createPlayer, showPlayerContent, addMessage} from "./components/player.ts";
+import { createSteps, hideAllSteps, showStepsSequence } from './components/steps.ts';
 
-import { createSteps, hideAllSteps, showStepsForValues } from './components/steps.ts';
+import type {Player} from "./types/player.ts";
+import {setupDialog} from "./components/dialog.ts";
 
 /* Wait until the initial HTML document is fully loaded and parsed,
 so we can safely select DOM elements and attach event listeners. */
 window.addEventListener('load', () => {
-  const diceBtns: HTMLButtonElement[] = [
-    ...document.querySelectorAll<HTMLButtonElement>('.dice-button'),
-  ];
+  const redDiceBtn = document.querySelector<HTMLButtonElement>('.player1.button.dice-button');
+  const blueDiceBtn = document.querySelector<HTMLButtonElement>('.player2.button.dice-button');
 
+  const redMoveBtn = document.querySelector<HTMLButtonElement>('.player1.move-button');
+  const blueMoveBtn = document.querySelector<HTMLButtonElement>('.player2.move-button');
+
+  setupDialog();
   setupDice();
   createSteps();
   hideAllSteps();
@@ -21,84 +25,125 @@ window.addEventListener('load', () => {
   let player1: Player = getPlayer1();
   let player2: Player = getPlayer2();
 
-  player1 = updatePlayer1({ itsTurn: true });
-  showPlayerContent(player1.id); 
-  addMessage(player1.id, 'Your turn, throw the dice!');
+  let diceIsRolling = false;
 
+  const getActivePlayer = (): Player => (player1.itsTurn ? player1 : player2);
+  const getInactivePlayer = (): Player => (player1.itsTurn ? player2 : player1);
   const getColorById = (playerId: string): 'red' | 'blue' =>
     playerId === 'player1' ? 'red' : 'blue';
+  const getDiceBtnById = (playerId: string) => (playerId === 'player1' ? redDiceBtn : blueDiceBtn);
+  const getMoveBtnById = (playerId: string) => (playerId === 'player1' ? redMoveBtn : blueMoveBtn);
 
-  const getPlayerByColor = (color: 'red' | 'blue'): Player =>
-    color === 'red' ? player1 : player2;
+  const setVisible = (el: HTMLElement | null, visible: boolean) => {
+    if (!el) return;
+    el.classList.toggle('is-hidden', !visible);
+    el.toggleAttribute('disabled', !visible);
+  };
 
-  const uniqueSteps = (arr: number[]) =>
-    Array.from(
-      new Set(arr.filter((n) => Number.isFinite(n) && n >= 1 && n <= 6)),
-    );
+  const showStartOfTurnUI = (playerId: 'player1' | 'player2') => {
+    setVisible(getDiceBtnById(playerId), true);
+    setVisible(getMoveBtnById(playerId), false);
+    const otherId = playerId === 'player1' ? 'player2' : 'player1';
+    setVisible(getDiceBtnById(otherId), false);
+    setVisible(getMoveBtnById(otherId), false);
+  };
 
-  function manageDice() {
-    const roller = player1.itsTurn ? player1 : player2;
-    const rollerColor: 'red' | 'blue' = getColorById(roller.id);
+  player1 = updatePlayer1({ itsTurn: true });
+  showPlayerContent(player1.id);
+  showStartOfTurnUI('player1');
+  addMessage(player1.id, 'Your turn, throw the dice!');
 
+  function onDiceClick(e: Event) {
+    if (diceIsRolling) return;
+
+    const active = getActivePlayer();
+    const clickedBtn = e.currentTarget as HTMLButtonElement;
+    const expectedDiceBtn = getDiceBtnById(active.id);
+    if (clickedBtn !== expectedDiceBtn) {
+      return;
+    }
+
+    const rollerColor: 'red' | 'blue' = getColorById(active.id);
     const randomNumber = Math.floor(Math.random() * 6) + 1;
     const steps = randomNumber === 6 ? 5 : randomNumber;
 
-    showPlayerContent('none');
+    diceIsRolling = true;
+
+    setVisible(expectedDiceBtn, false);
+
     hideAllSteps();
     throwDice(randomNumber);
 
-    const nextDiceHistory = [...roller.diceHistory, steps];
-    const nextDiceStreak = [...roller.diceStreak, steps];
+    const nextDiceHistory = [...active.diceHistory, steps];
+    const nextDiceStreak = [...active.diceStreak, steps];
 
-    if (roller.id === 'player1') {
-      player1 = updatePlayer1({
-        diceHistory: nextDiceHistory,
-        diceStreak: nextDiceStreak,
-      });
+    if (active.id === 'player1') {
+      player1 = updatePlayer1({ diceHistory: nextDiceHistory, diceStreak: nextDiceStreak });
     } else {
-      player2 = updatePlayer2({
-        diceHistory: nextDiceHistory,
-        diceStreak: nextDiceStreak,
-      });
+      player2 = updatePlayer2({ diceHistory: nextDiceHistory, diceStreak: nextDiceStreak });
     }
 
     setTimeout(() => {
+      const activeNow = getActivePlayer(); 
+      const needAnotherThrow = randomNumber === 6;
 
-      const rollerNow = getPlayerByColor(rollerColor);
+      showStepsSequence(rollerColor, activeNow.diceStreak);
 
-      const allowed = uniqueSteps(rollerNow.diceStreak);
-      showStepsForValues(rollerColor, allowed);
+      showPlayerContent(activeNow.id);
 
-      const sum = rollerNow.diceStreak.slice().reverse().join(' + ');
+      setVisible(getDiceBtnById(activeNow.id), needAnotherThrow);
+      setVisible(getMoveBtnById(activeNow.id), !needAnotherThrow);
 
-      if (randomNumber === 6) {
+      setVisible(getDiceBtnById(getInactivePlayer().id), false);
+      setVisible(getMoveBtnById(getInactivePlayer().id), false);
 
-        showPlayerContent(rollerNow.id);
-        addMessage(
-          rollerNow.id,
-          `You rolled a ${randomNumber}! You got ${sum} steps, and you got a bonus throw!`,
-        );
-        return;
-      }
-
-      addMessage(
-        rollerNow.id,
-        `You rolled a ${randomNumber}! Now you have ${sum} steps`,
-      );
-
-      if (player1.itsTurn) {
-        player1 = updatePlayer1({ itsTurn: false });
-        player2 = updatePlayer2({ itsTurn: true });
+      const sum = activeNow.diceStreak.slice().reverse().join(' + ');
+      if (needAnotherThrow) {
+        addMessage(activeNow.id, `You rolled a ${randomNumber}! Current steps: ${sum}. Bonus throw!`);
       } else {
-        player1 = updatePlayer1({ itsTurn: true });
-        player2 = updatePlayer2({ itsTurn: false });
+        addMessage(activeNow.id, `You rolled a ${randomNumber}! Current steps: ${sum}.`);
+        addMessage(activeNow.id, `Press "Походити" to end your turn.`);
       }
 
-      const activePlayer = player1.itsTurn ? player1 : player2;
-      showPlayerContent(activePlayer.id);
-      addMessage(activePlayer.id, 'Your turn, throw the dice!');
+      diceIsRolling = false;
     }, HIDE_DICE_DELAY);
   }
 
-  diceBtns.forEach((btn) => btn.addEventListener('click', manageDice));
+  function onMoveClick(byPlayerId: 'player1' | 'player2') {
+    const active = getActivePlayer();
+    if (active.id !== byPlayerId) return; 
+
+
+    if (active.id === 'player1') {
+      player1 = updatePlayer1({ diceStreak: [] });
+    } else {
+      player2 = updatePlayer2({ diceStreak: [] });
+    }
+    hideAllSteps();
+
+    if (player1.itsTurn) {
+      player1 = updatePlayer1({ itsTurn: false });
+      player2 = updatePlayer2({ itsTurn: true });
+    } else {
+      player1 = updatePlayer1({ itsTurn: true });
+      player2 = updatePlayer2({ itsTurn: false });
+    }
+
+    const next = getActivePlayer();
+    showPlayerContent(next.id);
+
+    if (next.id === 'player1') {
+      showStartOfTurnUI('player1');
+    } else {
+      showStartOfTurnUI('player2');
+    }
+
+    addMessage(next.id, 'Your turn, throw the dice!');
+  }
+
+  redDiceBtn?.addEventListener('click', onDiceClick);
+  blueDiceBtn?.addEventListener('click', onDiceClick);
+
+  redMoveBtn?.addEventListener('click', () => onMoveClick('player1'));
+  blueMoveBtn?.addEventListener('click', () => onMoveClick('player2'));
 });

@@ -1,0 +1,81 @@
+.dialog {
+  color: #fff;
+
+  --transition-time: 300ms;
+  --dialog-radius: 10px;
+}
+
+.dialog.dialog-red {
+  --dialog-color: #ff4d4f;
+}
+
+.dialog.dialog-blue {
+  --dialog-color: #1890ff;
+}
+
+.dialog.dialog-red .dialog-button:hover {
+  --dialog-color: #ff7b7d;
+}
+
+.dialog.dialog-blue .dialog-button:hover {
+  --dialog-color: #45a0f4;
+}
+
+.dialog.dialog--active .dialog-button:after {
+  transform: rotate(-90deg);
+}
+
+.dialog-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px 10px;
+  margin-bottom: 25px;
+  transition: background-color var(--transition-time) ease;
+  border-radius: var(--dialog-radius);
+
+  background-color: var(--dialog-color, #132440);
+  font-weight: bold;
+}
+
+.dialog-button:after {
+  display: inline-block;
+  content: "";
+
+  margin-left: 10px;
+  width: 15px;
+  height: 15px;
+  transform: rotate(90deg);
+  transition: transform var(--transition-time) ease;
+
+  background-image: url("../assets/icons/arrow.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.dialog-list {
+  overflow-y: hidden;
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+
+  border-radius: var(--dialog-radius);
+  background-color: var(--dialog-color, #132440);
+}
+
+.dialog-list-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px 20px;
+  transition: background-color var(--transition-time) ease;
+}
+
+.dialog.dialog-red .dialog-list-item:hover {
+  background-color: #ff7b7d;
+}
+
+.dialog.dialog-blue .dialog-list-item:hover {
+  background-color: #45a0f4;
+}

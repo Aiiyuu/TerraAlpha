@@ -1,5 +1,6 @@
 @import url('./components/dice.css');
 @import url('./components/chat.css');
+@import url('./components/dialog.css');
 
 body {
   background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
