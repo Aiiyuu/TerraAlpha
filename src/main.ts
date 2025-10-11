@@ -1,10 +1,6 @@
 import {throwDice, setupDice, HIDE_DICE_DELAY} from "./components/dice";
 import {createPlayer, showPlayerContent, addMessage} from "./components/player.ts";
-import {formatTime} from "./utility/getFormattedDate.ts";
 import type {Player} from "./types/player.ts";
-
-const PING = 1000;
-let diceIsRolling = false;
 
 /* Wait until the initial HTML document is fully loaded and parsed,
 so we can safely select DOM elements and attach event listeners. */
@@ -23,46 +19,56 @@ window.addEventListener("load", () => {
   // Start the game and make the first user its turn
   player1 = updatePlayer1({itsTurn: true});
   showPlayerContent(player1.id) // make move buttons visible
+  addMessage(player1.id, 'Your turn, throw the dice!');
 
-  diceBtns.forEach((btn: Element) => btn.addEventListener("click", () => {
-    if (diceIsRolling) {
-      return;
-    }
-
+  function manageDice() {
     const randomNumber = Math.floor(Math.random() * 6) + 1;
-    const date = formatTime(new Date());
+    const steps = randomNumber === 6 ? 5 : randomNumber;
+    let activePlayer = player1.itsTurn ? player1 : player2;
 
-    diceIsRolling = true;
+    showPlayerContent('none'); // hide player's button
     throwDice(randomNumber);
 
+    const newState: Partial<Player> = {
+      diceHistory: [...activePlayer.diceHistory, steps],
+      diceStreak: [...activePlayer.diceStreak, steps],
+    };
+
     if (player1.itsTurn) {
-      player1 = updatePlayer1({diceHistory: [...player1.diceHistory, randomNumber]});
+      player1 = updatePlayer1(newState);
     } else if (player2.itsTurn) {
-      player2 = updatePlayer2({diceHistory: [...player2.diceHistory, randomNumber]});
+      player2 = updatePlayer2(newState);
     }
 
     setTimeout(() => {
+      activePlayer = player1.itsTurn ? player1 : player2;
+      const sum = activePlayer.diceStreak.reverse().join(' + ');
+
+      if (randomNumber === 6) {
+        showPlayerContent(activePlayer.id);
+        addMessage(activePlayer.id, `You rolled a ${randomNumber}! You got ${sum} steps, and you got a bonus throw!`);
+
+        return;
+      }
+
+      addMessage(activePlayer.id, `You rolled a ${randomNumber}! Now you have ${sum} steps`);
+
       if (player1.itsTurn) {
         player1 = updatePlayer1({itsTurn: false});
         player2 = updatePlayer2({itsTurn: true});
 
-        addMessage(player1.id, `${date}: You rolled a ${randomNumber}`);
-      } else if (player2.itsTurn) {
+      } else {
         player1 = updatePlayer1({itsTurn: true});
         player2 = updatePlayer2({itsTurn: false});
-
-        addMessage(player2.id, `${date}: You rolled a ${randomNumber}`);
       }
 
-      diceIsRolling = false;
+      activePlayer = player1.itsTurn ? player1 : player2;
+      showPlayerContent(activePlayer.id);
+
+      addMessage(activePlayer.id, 'Your turn, throw the dice!');
     }, HIDE_DICE_DELAY);
-  }));
+  }
 
-  // This is used for dynamic elements on the screen
-  setInterval(() => {
-    const activePlayer = player1.itsTurn ? player1 : player2;
-
-    showPlayerContent(activePlayer.id);
-  }, PING);
+  diceBtns.forEach((btn: Element) => btn.addEventListener("click", manageDice));
 });
 
