@@ -1,5 +1,6 @@
-import {PHRASE_REMOVAL_DELAY, phrases} from "../config.ts";
-import type {Phrase} from "../types/phrase.ts";
+import { PHRASE_REMOVAL_DELAY, phrases } from "../config.ts";
+import type { Phrase } from "../types/phrase.ts";
+import arrowIcon from '../assets/icons/arrow.png';
 
 const dialogs = [...document.querySelectorAll(".dialog")] as HTMLElement[];
 
@@ -58,7 +59,16 @@ export function setupDialog() {
   dialogs.forEach(dialog => {
     const userName: string = dialog.getAttribute('data-userName') || 'Невідомий гравець';
     const dialogList = dialog.querySelector(".dialog-list") as HTMLElement;
-    const dialogButton: Element | null = dialog.querySelector(".dialog-button");
+    const dialogButton = dialog.querySelector(".dialog-button") as HTMLElement;
+
+    // Dynamically load arrow icon for the button
+    const style: HTMLStyleElement = document.createElement('style');
+    style.textContent = `
+      .dialog-button::after {
+        background-image: url(${arrowIcon});
+      }
+    `;
+    document.head.appendChild(style);
 
     if (!dialogList) {
       throw new Error("Dialog is not found!");
