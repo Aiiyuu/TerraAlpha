@@ -2,6 +2,8 @@ import {throwDice, setupDice, HIDE_DICE_DELAY} from "./components/dice";
 import {createPlayer, showPlayerContent, addMessage} from "./components/player.ts";
 import { createSteps } from './components/steps.ts';
 
+import type {Player} from "./types/player.ts";
+
 /* Wait until the initial HTML document is fully loaded and parsed,
 so we can safely select DOM elements and attach event listeners. */
 window.addEventListener("load", () => {
