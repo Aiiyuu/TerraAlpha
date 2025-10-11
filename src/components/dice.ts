@@ -8,20 +8,20 @@ if (!diceContainer) {
 
 const ANIMATION_DURATION = 2000;
 const ANIMATION_END_DELAY = 50;
-const HIDE_DICE_DELAY = ANIMATION_DURATION + 1000;
+export const HIDE_DICE_DELAY = ANIMATION_DURATION + 1000;
 
 let isRolling = false;
 
 /**
  * This function generates a random value from 1 to 6 (including)
  * and fires the animation of the dice
+ * @param {number} random
  */
-export function throwDice() {
+export function throwDice(random: number) {
   if (isRolling) return;
 
   const dice = document.querySelector(".dice") as HTMLDivElement;
 
-  const random = Math.floor(Math.random() * 6) + 1;
   diceContainer?.classList.add("dice-container--roling");
 
   dice.style.animation = `rolling ${ANIMATION_DURATION}ms linear`;
@@ -63,6 +63,7 @@ export function throwDice() {
 
   setTimeout(() => {
     diceContainer?.classList.remove("dice-container--roling");
+    dice.style.transform = 'none';
     isRolling = false;
   }, HIDE_DICE_DELAY);
 }

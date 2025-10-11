@@ -1,30 +1,9 @@
 @import url('./components/dice.css');
-
+@import url('./components/chat.css');
 
 body {
   background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
   background-size: cover;
-}
-
-.bubble {
-  background: #eee;
-  border-radius: 12px;
-  min-height: 400px;
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  max-width: 220px;
-}
-
-.bubble.is-blue {
-  background: #3f78ff50;
-  border: 1px solid #3f78ff;
-  margin-left: auto;
-}
-
-.bubble.is-red {
-  background: #ffdddd50;
-  border: 1px solid #e33;
-  color: #b00;
 }
 
 .hand-grid {
@@ -118,4 +97,12 @@ body {
      1px -1px 0 #000,
     -1px  1px 0 #000,
      1px  1px 0 #000;
+}
+
+.active {
+  visibility: visible;
+}
+
+.hidden {
+  visibility: hidden;
 }
