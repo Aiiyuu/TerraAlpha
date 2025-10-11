@@ -34,6 +34,7 @@
   margin-bottom: 25px;
   transition: background-color var(--transition-time) ease;
   border-radius: var(--dialog-radius);
+  cursor: pointer;
 
   background-color: var(--dialog-color, #132440);
   font-weight: bold;
@@ -57,8 +58,10 @@
 
 .dialog-list {
   overflow-y: hidden;
-  display: grid;
-  grid-template-rows: repeat(5, 1fr);
+  height: 0;
+  margin-bottom: 25px;
+
+  transition: all var(--transition-time) ease;
 
   border-radius: var(--dialog-radius);
   background-color: var(--dialog-color, #132440);
@@ -78,4 +81,59 @@
 
 .dialog.dialog-blue .dialog-list-item:hover {
   background-color: #45a0f4;
+}
+
+.dialog-list-item img {
+  height: 50px;
+}
+
+.dialog-list-item p {
+  text-align: start;
+  font-weight: bold;
+  margin-left: 15px;
+}
+
+.dialog-phrase {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-50%);
+  animation: fly 15s forwards linear;
+}
+
+.dialog-phrase-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 15px;
+
+  color: #fff;
+  background-color: rgba(19, 36, 64, 0.4);
+  border: 1px solid #132440;
+  border-radius: 20px;
+}
+
+.dialog-phrase img {
+  margin-right: 20px;
+  height: 100px;
+}
+
+.dialog-phrase-wrapper span {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.dialog-phrase-wrapper p {
+  font-weight: normal;
+}
+
+@keyframes fly {
+  from {
+    top: 100vh;
+  }
+  to {
+    top: -100vh;
+  }
 }

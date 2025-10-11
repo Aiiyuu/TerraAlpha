@@ -1,27 +1,31 @@
-import type {Phrases} from "./types/phrases.ts";
+import type {Phrase} from "./types/phrase.ts";
 
-type InitialPhrase = Pick<Phrases, 'text' | 'img'>;
-
-export const phrases: InitialPhrase[] = [
+export const PHRASE_REMOVAL_DELAY = 15000;
+export const phrases: Phrase[] = [
   {
-    text: 'lorem1',
-    img: '',
+    id: 1,
+    text: 'О, повезло, повезло!',
+    img: './src/assets/images/phrases/lucky.png',
   },
   {
-    text: 'lorem2',
-    img: '',
+    id: 2,
+    text: 'Ех, ти лузер!',
+    img: './src/assets/images/phrases/looser.png',
   },
   {
-    text: 'lorem3',
-    img: '',
+    id: 3,
+    text: 'Зараз я тобі покажу, де раки зимують!',
+    img: './src/assets/images/phrases/angry.png',
   },
   {
-    text: 'lorem4',
-    img: '',
+    id: 4,
+    text: 'Ще один крок і перемога!',
+    img: './src/assets/images/phrases/win.png',
   },
   {
-    text: 'lorem5',
-    img: '',
+    id: 5,
+    text: 'Ти мене не обженеш!',
+    img: './src/assets/images/phrases/laugh.png',
   }
 ];
 
