@@ -1,7 +1,10 @@
 @import url('./components/navbar.css');
 @import url('./components/header.css');
+@import url('./components/form-section.css');
+@import url('./components/avatars.css');
 @import url('./components/ribbons.css');
 @import url('./components/buttons.css');
+@import url('./components/rooms-table.css');
 @import url('./components/dice.css');
 @import url('./components/chat.css');
 @import url('./components/dialog.css');
@@ -16,7 +19,11 @@ html, body, * {
   padding: 0;
 }
 
-button {
+a {
+  text-decoration: none;
+}
+
+button, input, input:focus {
   border: none;
   background-color: transparent;
   outline: none;
@@ -34,6 +41,7 @@ body {
   --page-margin: 40px;
   --base-text-color: #A4B7C7;
   --purple-color: #6A0DAD;
+  --green-color: #4CAF50;
   --light-color: #FBFDFE;
   --dark-color: #132440;
   --base-transition-duration: 300ms;
@@ -59,10 +67,9 @@ body {
   padding-top: 0;
 }
 
-#game {
+#game, .header {
   display: none;
 }
-
 
 .hand-grid {
   display: grid;
@@ -85,7 +92,6 @@ body {
   font-weight: 600;
   pointer-events: none;
 }
-
 
 .cell-btn {
   width: 64px;

@@ -1,4 +1,6 @@
 .navbar {
+  max-width: var(--max-page-width);
+
   position: relative;
   z-index: 5;
 
@@ -12,10 +14,6 @@
   padding: 50px var(--page-margin);
 
   --navbar-list-gap: 60px;
-}
-
-.navbar a {
-  text-decoration: none;
 }
 
 .navbar-brand {

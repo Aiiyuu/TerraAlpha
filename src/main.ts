@@ -1,4 +1,6 @@
 import { setupAdaptiveMenuBtn } from "./components/navbar.ts";
+import { setUpRoomsTable } from "./components/rooms.ts";
+import { setUpdAvatars } from "./components/avatars.ts";
 import { setupRibbons } from "./components/ribbons.ts";
 import { throwDice, setupDice, HIDE_DICE_DELAY } from "./components/dice";
 import { createPlayer, showPlayerContent, addMessage } from "./components/player.ts";
@@ -19,6 +21,8 @@ window.addEventListener('load', () => {
   const blueMoveBtn = document.querySelector<HTMLButtonElement>('.player2.move-button');
 
   setupDialog();
+  setUpdAvatars();
+  setUpRoomsTable();
   setupRibbons();
   setupTimer();
   setupDice();

@@ -21,7 +21,7 @@
   --dialog-color: #4578FF;
 }
 
-.dialog.dialog--active .dialog-button:after {
+.dialog.dialog--active .dialog-button::after {
   transform: rotate(-90deg);
 }
 
@@ -40,7 +40,7 @@
   font-weight: bold;
 }
 
-.dialog-button:after {
+.dialog-button::after {
   display: inline-block;
   content: "";
 

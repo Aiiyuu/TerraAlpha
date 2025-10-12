@@ -56,6 +56,53 @@
 </header>
 
 <main>
+  <section id="form-section" class="form-section">
+    <div class="form-wrapper">
+      <form class="form">
+        <a href="#" class="form-brand">Якийсь <span>Логотип</span></a>
+
+        <div class="field-group">
+          <div class="field field--floating">
+            <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
+            <input type="text" id="player-name" class="field-input" placeholder=" "/>
+            <label for="player-name" class="field-label">Імʼя гравця</label>
+          </div>
+
+          <div class="field field--floating">
+            <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
+            <input type="text" id="room-name" class="field-input" placeholder=" "/>
+            <label for="room-name" class="field-label">Імʼя кімнати</label>
+          </div>
+
+          <div class="field field-color">
+            <label for="color" class="field-label">Колі гравця</label>
+            <input type="color" id="color" class="field-input field-color" value="#6A0DAD" />
+          </div>
+
+          <div id="avatar-dropdown" class="avatar-dropdown">
+            <div class="avatar-dropdown-list"></div>
+            <button class="avatar-dropdown-btn">Аватарки</button>
+          </div>
+
+          <table class="rooms-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Назва</th>
+                <th>Автор</th>
+                <th>Дата</th>
+                <th>Ігроки</th>
+              </tr>
+            </thead>
+            <tbody id="rooms-table"></tbody>
+          </table>
+        </div>
+      </form>
+
+      <button class="button button--purple">Створити кімнату</button>
+    </div>
+  </section>
+
   <div id="game">
     <!-- PLAYER 1 -->
     <section id="player1">
