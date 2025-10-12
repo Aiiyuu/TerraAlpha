@@ -5,15 +5,15 @@ import { setUpdAvatars } from "./components/avatars.ts";
 import { setupRibbons } from "./components/ribbons.ts";
 import { throwDice, setupDice, HIDE_DICE_DELAY } from "./components/dice";
 import { createPlayer, showPlayerContent, addMessage } from "./components/player.ts";
-import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled } from "./components/steps.ts";
+import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled, clearPlanned } from "./components/steps.ts";
 import { setupDialog } from "./components/dialog.ts";
 import { setupTimer, createTimer } from "./components/timer.ts";
 import { loadCellIcons } from "./components/cells.ts";
+import { setActivePlayer } from "./components/moveShips.ts";
+import { setupForecast } from "./components/forecast.ts";
 
 import type { Player } from "./types/player.ts";
 
-/* Wait until the initial HTML document is fully loaded and parsed,
-so we can safely select DOM elements and attach event listeners. */
 window.addEventListener('load', () => {
   const redDiceBtn = document.querySelector<HTMLButtonElement>('.player1.button.dice-button');
   const blueDiceBtn = document.querySelector<HTMLButtonElement>('.player2.button.dice-button');
@@ -54,6 +54,12 @@ window.addEventListener('load', () => {
     el.toggleAttribute('disabled', !visible);
   };
 
+  const setShownDisabled = (el: HTMLElement | null, disabled: boolean) => {
+    if (!el) return;
+    el.classList.remove('is-hidden');
+    el.toggleAttribute('disabled', disabled);
+  };
+
   const showStartOfTurnUI = (playerId: 'player1' | 'player2') => {
     setVisible(getDiceBtnById(playerId), true);
     setVisible(getMoveBtnById(playerId), false);
@@ -62,10 +68,13 @@ window.addEventListener('load', () => {
     setVisible(getMoveBtnById(otherId), false);
   };
 
+  setupForecast(() => (player1.itsTurn ? 'red' : 'blue'));
+
   player1 = updatePlayer1({ itsTurn: true });
   showPlayerContent(player1.id);
   showStartOfTurnUI('player1');
   addMessage(player1.id, 'Your turn, throw the dice!');
+  setActivePlayer('red');
 
   function onDiceClick(e: Event) {
     if (diceIsRolling) return;
@@ -107,7 +116,12 @@ window.addEventListener('load', () => {
       setStepsEnabled(rollerColor, !needAnotherThrow);
 
       setVisible(getDiceBtnById(activeNow.id), needAnotherThrow);
-      setVisible(getMoveBtnById(activeNow.id), !needAnotherThrow);
+
+      if (needAnotherThrow) {
+        setVisible(getMoveBtnById(activeNow.id), false);
+      } else {
+        setShownDisabled(getMoveBtnById(activeNow.id), true);
+      }
 
       setVisible(getDiceBtnById(getInactivePlayer().id), false);
       setVisible(getMoveBtnById(getInactivePlayer().id), false);
@@ -127,6 +141,9 @@ window.addEventListener('load', () => {
   function onMoveClick(byPlayerId: 'player1' | 'player2') {
     const active = getActivePlayer();
     if (active.id !== byPlayerId) return;
+
+    const activeColor: 'red' | 'blue' = getColorById(active.id);
+    clearPlanned(activeColor);
 
     if (active.id === 'player1') {
       player1 = updatePlayer1({ diceStreak: [] });
@@ -148,8 +165,10 @@ window.addEventListener('load', () => {
 
     if (next.id === 'player1') {
       showStartOfTurnUI('player1');
+      setActivePlayer('red');
     } else {
       showStartOfTurnUI('player2');
+      setActivePlayer('blue');
     }
 
     addMessage(next.id, 'Your turn, throw the dice!');

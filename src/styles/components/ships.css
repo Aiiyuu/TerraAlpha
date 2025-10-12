@@ -1,4 +1,5 @@
 .hand-grid .cell-btn {
+  --ship-scale: 1; 
   width: 48px;
   height: 48px;
   border: none;
@@ -12,13 +13,15 @@
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   opacity: 0.85;
   outline: none;
+  transform: scale(var(--ship-scale)); 
 }
 
 .hand-grid .cell-btn:hover,
 .hand-grid .cell-btn:focus {
-  transform: scale(1.1);
+  --ship-scale: 1.1; 
   opacity: 1;
 }
+
 
 #player1 .hand-grid [data-qa$='cell-1'],
 #player1 .hand-grid [data-qa$='cell-2'],
@@ -32,7 +35,7 @@
 
 #player1 .hand-grid [data-qa$='cell-8'] {
   background-image: url('/src/assets/ships/main_shipR.png');
-  transform: scale(1.2);
+  --ship-scale: 1.2; 
 }
 
 #player2 .hand-grid [data-qa$='cell-1'],
@@ -47,22 +50,78 @@
 
 #player2 .hand-grid [data-qa$='cell-8'] {
   background-image: url('/src/assets/ships/main_shipB.png');
-  transform: scale(1.2);
+  --ship-scale: 1.2; 
 }
 
 #player1 .hand-grid .cell-btn:hover,
-#player1 .hand-grid .cell-btn:focus {
-  box-shadow: 0 0 0 2px red;
-}
+#player1 .hand-grid .cell-btn:focus { box-shadow: 0 0 0 2px red; }
 
 #player2 .hand-grid .cell-btn:hover,
-#player2 .hand-grid .cell-btn:focus {
-  box-shadow: 0 0 0 2px blue;
-}
+#player2 .hand-grid .cell-btn:focus { box-shadow: 0 0 0 2px blue; }
 
 #player1 .hand-grid [data-qa$='cell-8']:hover,
 #player1 .hand-grid [data-qa$='cell-8']:focus,
 #player2 .hand-grid [data-qa$='cell-8']:hover,
 #player2 .hand-grid [data-qa$='cell-8']:focus {
-  transform: scale(1.5);
+  --ship-scale: 1.5; 
+}
+
+[data-qa^='p1-cell-']:not(.ignore-ship-style) {
+  background-image: url('/src/assets/ships/ShipR.png');
+}
+[data-qa='p1-cell-8']:not(.ignore-ship-style) {
+  background-image: url('/src/assets/ships/main_shipR.png');
+  --ship-scale: 1.2; 
+}
+
+[data-qa^='p2-cell-']:not(.ignore-ship-style) {
+  background-image: url('/src/assets/ships/ShipB.png');
+}
+[data-qa='p2-cell-8']:not(.ignore-ship-style) {
+  background-image: url('/src/assets/ships/main_shipB.png');
+  --ship-scale: 1.2; 
+}
+
+.board .cell > .cell-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  opacity: 1;
+  outline: none;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.board .cell.is-forecast > .cell-btn { position: relative; z-index: 3; }
+
+.board .cell > .cell-btn:hover:not(.is-disabled),
+.board .cell > .cell-btn:focus:not(.is-disabled) { --ship-scale: 1.1; }
+
+.board .cell > .cell-btn[data-qa^="p1-cell-"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa^="p1-cell-"]:focus:not(.is-disabled) {
+  box-shadow: 0 0 0 2px red;
+}
+
+.board .cell > .cell-btn[data-qa^="p2-cell-"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa^="p2-cell-"]:focus:not(.is-disabled) {
+  box-shadow: 0 0 0 2px blue;
+}
+
+.board .cell > .cell-btn[data-qa="p1-cell-8"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p1-cell-8"]:focus:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p2-cell-8"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p2-cell-8"]:focus:not(.is-disabled) {
+  --ship-scale: 1.5;
+}
+
+.ship.is-disabled,
+[data-ship].is-disabled,
+.hand-grid .cell-btn.is-disabled,
+.board .cell > .cell-btn.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  box-shadow: none !important;
 }
