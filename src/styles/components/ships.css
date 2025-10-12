@@ -66,3 +66,12 @@
 #player2 .hand-grid [data-qa$='cell-8']:focus {
   transform: scale(1.5);
 }
+
+/* ships.css (додай або доповни) */
+.ship.is-disabled,
+[data-ship].is-disabled,
+.hand-grid .cell-btn.is-disabled {
+  opacity: 0.5;
+  pointer-events: none; /* критично */
+  box-shadow: none !important;
+}

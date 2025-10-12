@@ -4,6 +4,7 @@ import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled } from ".
 import { setupDialog } from "./components/dialog.ts";
 import { setupTimer, createTimer } from "./components/timer.ts";
 import { loadCellIcons } from "./components/cells.ts";
+import { setActivePlayer } from "./components/moveShips.ts";
 
 import type { Player } from "./types/player.ts";
 
@@ -56,6 +57,7 @@ window.addEventListener('load', () => {
   showPlayerContent(player1.id);
   showStartOfTurnUI('player1');
   addMessage(player1.id, 'Your turn, throw the dice!');
+  setActivePlayer('red');
 
   function onDiceClick(e: Event) {
     if (diceIsRolling) return;
@@ -138,8 +140,12 @@ window.addEventListener('load', () => {
 
     if (next.id === 'player1') {
       showStartOfTurnUI('player1');
+
+      setActivePlayer('red');
     } else {
       showStartOfTurnUI('player2');
+
+      setActivePlayer('blue');
     }
 
     addMessage(next.id, 'Your turn, throw the dice!');
