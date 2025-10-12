@@ -1,11 +1,11 @@
-// src/components/forecast.ts
 import { getPlannedMove } from './steps.ts';
 
 export type PlayerColor = 'red' | 'blue';
 
 let lastHighlighted: HTMLElement | null = null;
 let currentPlanned: number | null = null;
-let activeColor: PlayerColor = 'red'; // оновлюємо з moveShips (див. setup нижче)
+let lastHoveredShipEl: HTMLElement | null = null;
+let getActiveColorRef: () => PlayerColor = () => 'red';
 
 function clearForecast() {
   if (lastHighlighted) {
@@ -14,103 +14,120 @@ function clearForecast() {
   }
 }
 
-/** Знаходимо клітинку поля за індексом (field-<n>) */
 function getFieldCellByIndex(index: number): HTMLElement | null {
   if (!Number.isFinite(index) || index <= 0) return null;
-  return document.querySelector<HTMLElement>(`[data-qa="field-${index}"]`);
+  return document.querySelector<HTMLElement>(`.board [data-qa="field-${index}"]`);
 }
 
-/** Чи корабель у "руці" (панелі стартових фішок) */
-function isInHand(el: HTMLElement): boolean {
-  return !!el.closest('.hand-grid');
+function parseFieldQa(qa: string | null): number | null {
+  if (!qa) return null;
+  const m = qa.match(/^field-(\d+)$/);
+  return m ? Number(m[1]) : null;
 }
 
-/** Підсвітити прогноз для конкретного корабля */
-function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor) {
+function getShipColor(el: HTMLElement): PlayerColor | null {
+  const qa = el.getAttribute('data-qa') || '';
+  if (qa.startsWith('p1-cell-')) return 'red';
+  if (qa.startsWith('p2-cell-')) return 'blue';
+  if (el.closest('#player1, .player1')) return 'red';
+  if (el.closest('#player2, .player2')) return 'blue';
+  return null;
+}
+
+function isShipEl(el: HTMLElement | null): boolean {
+  return !!el?.closest?.('.cell-btn, [data-ship], .ship');
+}
+
+function getFromFieldIndexIfOnBoard(el: HTMLElement): number | null {
+  const parentCell = el.closest<HTMLElement>('.board .cell');
+  if (!parentCell) return null;
+  return parseFieldQa(parentCell.getAttribute('data-qa'));
+}
+
+function computeTargetIndex(shipEl: HTMLElement, planned: number): number | null {
+  if (!Number.isFinite(planned) || planned <= 0) return null;
+  const fromOnBoard = getFromFieldIndexIfOnBoard(shipEl);
+  return fromOnBoard !== null ? fromOnBoard + planned : planned;
+}
+
+function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, planned: number | null) {
   clearForecast();
-  if (!currentPlanned || currentPlanned <= 0) return;
-
-  let targetIndex: number | null = null;
-
-  if (isInHand(shipEl)) {
-    // кейс з ТЗ: корабель у руці -> просто field-<planned>
-    targetIndex = currentPlanned;
-  } else {
-    // якщо корабель вже на полі — спробуємо зчитати його поточний індекс з батьківського поля
-    // очікуємо що контейнер має data-qa="field-<n>"
-    const field = shipEl.closest<HTMLElement>('[data-qa^="field-"]');
-    if (!field) return;
-    const qa = field.getAttribute('data-qa') || '';
-    const m = qa.match(/field-(\d+)/);
-    const from = m ? Number(m[1]) : NaN;
-    if (!Number.isFinite(from)) return;
-    targetIndex = from + currentPlanned;
-  }
-
-  if (!targetIndex) return;
-  const cell = getFieldCellByIndex(targetIndex);
+  if (!Number.isFinite(planned) || (planned as number) <= 0) return;
+  const targetIndex = computeTargetIndex(shipEl, planned as number);
+  if (!Number.isFinite(targetIndex!)) return;
+  const cell = getFieldCellByIndex(targetIndex as number);
   if (!cell) return;
-
   cell.classList.add('is-forecast');
   lastHighlighted = cell;
 }
 
-/** Публічна ініціалізація: викликати один раз при старті гри */
 export function setupForecast(getActiveColor: () => PlayerColor) {
-  // збережемо спосіб дізнатись активний колір
-  activeColor = getActiveColor();
+  getActiveColorRef = getActiveColor;
 
-  // 1) слухаємо зміну planned з steps.ts
   document.addEventListener('steps:planned-change', (e: Event) => {
-    const { color, planned } = (e as CustomEvent).detail as {
-      color: PlayerColor; planned: number | null;
-    };
-    // оновлюємо тільки для активного кольору (щоб чужі дії не впливали)
-    if (color !== getActiveColor()) return;
+    const { color, planned } = (e as CustomEvent).detail as { color: PlayerColor; planned: number | null; };
+    if (color !== getActiveColorRef()) return;
     currentPlanned = planned;
-    // перерахунок прогнозу на поточному фокусі (якщо є)
-    const focused = document.activeElement as HTMLElement | null;
-    if (focused && (focused.matches('.hand-grid .cell-btn, [data-ship], .ship'))) {
-      highlightForecastForShip(focused, color);
-    } else {
+    if (lastHoveredShipEl) {
+      const shipColor = getShipColor(lastHoveredShipEl);
+      if (shipColor && shipColor === color) {
+        highlightForecastForShip(lastHoveredShipEl, color, currentPlanned);
+        return;
+      }
+    }
+    clearForecast();
+  });
+
+  document.addEventListener('steps:request-forecast', (e: Event) => {
+    const { color, planned, shipQa, fromCellQa } = (e as CustomEvent).detail as { color: PlayerColor; planned: number; shipQa?: string | null; fromCellQa?: string | null; };
+    if (color !== getActiveColorRef()) return;
+    let shipEl: HTMLElement | null = null;
+    if (shipQa) shipEl = document.querySelector<HTMLElement>(`.cell-btn[data-qa="${shipQa}"]`);
+    if (!shipEl) shipEl = lastHoveredShipEl;
+    if (!Number.isFinite(planned) || planned <= 0) { clearForecast(); return; }
+    if (fromCellQa) {
       clearForecast();
+      const from = parseFieldQa(fromCellQa);
+      if (from !== null) {
+        const target = from + planned;
+        const cell = getFieldCellByIndex(target);
+        if (cell) {
+          cell.classList.add('is-forecast');
+          lastHighlighted = cell;
+        }
+      }
+      return;
+    }
+    if (shipEl) {
+      highlightForecastForShip(shipEl, color, planned);
     }
   });
 
-  // 2) делегуємо фокус/ховер на кораблі
-  document.addEventListener('focusin', (e) => {
-    const el = (e.target as HTMLElement)?.closest<HTMLElement>('.hand-grid .cell-btn, [data-ship], .ship');
+  document.addEventListener('pointerenter', (ev) => {
+    const el = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship');
     if (!el) return;
-    const color: PlayerColor =
-      el.closest('#player1, .player1') ? 'red' :
-      el.closest('#player2, .player2') ? 'blue' : activeColor;
+    const color = getShipColor(el) ?? getActiveColorRef();
+    if (color !== getActiveColorRef()) return;
+    lastHoveredShipEl = el;
+    const planned = getPlannedMove(getActiveColorRef());
+    currentPlanned = planned;
+    highlightForecastForShip(el, color, planned);
+  }, true);
 
-    // фокусимо тільки активного гравця
-    if (color !== getActiveColor()) return;
-
-    // беремо останній planned напряму (на випадок, якщо події ще не прийшли)
-    currentPlanned = getPlannedMove(getActiveColor());
-    highlightForecastForShip(el, color);
-  });
-
-  document.addEventListener('mouseover', (e) => {
-    const el = (e.target as HTMLElement)?.closest<HTMLElement>('.hand-grid .cell-btn, [data-ship], .ship');
-    if (!el) return;
-    const color: PlayerColor =
-      el.closest('#player1, .player1') ? 'red' :
-      el.closest('#player2, .player2') ? 'blue' : activeColor;
-    if (color !== getActiveColor()) return;
-
-    currentPlanned = getPlannedMove(getActiveColor());
-    highlightForecastForShip(el, color);
-  });
-
-  // 3) очищення при втраті фокуса / виході курсора
-  document.addEventListener('focusout', () => clearForecast());
-  document.addEventListener('mouseout', (e) => {
-    const rel = (e as MouseEvent).relatedTarget as HTMLElement | null;
-    if (!rel || !rel.closest('.hand-grid, [data-ship], .ship')) {
+  document.addEventListener('pointerleave', (ev) => {
+    const leftEl = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship');
+    if (!leftEl) return;
+    const toEl = ev.relatedTarget as HTMLElement | null;
+    if (isShipEl(toEl)) return;
+    if (lastHoveredShipEl === leftEl) {
+      lastHoveredShipEl = null;
       clearForecast();
     }
+  }, true);
+
+  document.addEventListener('focusout', (ev) => {
+    const next = ev.relatedTarget as HTMLElement | null;
+    if (next && (next.closest('.hand-grid') || next.closest('.board') || isShipEl(next))) return;
+    clearForecast();
   });
 }
