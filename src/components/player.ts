@@ -1,5 +1,5 @@
-import type {Player} from "../types/player.ts";
-import {formatTime} from "../utility/getFormattedDate.ts";
+import type { Player } from "../types/player.ts";
+import { formatTime } from "../utility/getFormattedDate.ts";
 
 const elements: Element[] = [
   ...document.querySelectorAll('.dice-button'),
@@ -29,7 +29,7 @@ export function createPlayer(id: string, name: string): CreatePlayerResult {
   }
 
   function updatePlayer(newState: Partial<Player>): Player {
-    player = {...player, ...newState};
+    player = { ...player, ...newState };
 
     return player;
   };
@@ -67,7 +67,7 @@ export function showPlayerContent(id: string) {
  */
 export function addMessage(id: string, message: string) {
   chatElements.forEach((chat: Element) => {
-    if(chat.classList.contains(id)) {
+    if (chat.classList.contains(id)) {
       const date = formatTime(new Date());
 
       const chatItem: HTMLLIElement = document.createElement("li");
