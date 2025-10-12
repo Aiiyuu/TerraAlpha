@@ -9,8 +9,6 @@ import { setupForecast } from "./components/forecast.ts";
 
 import type { Player } from "./types/player.ts";
 
-/* Wait until the initial HTML document is fully loaded and parsed,
-so we can safely select DOM elements and attach event listeners. */
 window.addEventListener('load', () => {
   const redDiceBtn = document.querySelector<HTMLButtonElement>('.player1.button.dice-button');
   const blueDiceBtn = document.querySelector<HTMLButtonElement>('.player2.button.dice-button');
@@ -46,6 +44,12 @@ window.addEventListener('load', () => {
     el.toggleAttribute('disabled', !visible);
   };
 
+  const setShownDisabled = (el: HTMLElement | null, disabled: boolean) => {
+    if (!el) return;
+    el.classList.remove('is-hidden');
+    el.toggleAttribute('disabled', disabled);
+  };
+
   const showStartOfTurnUI = (playerId: 'player1' | 'player2') => {
     setVisible(getDiceBtnById(playerId), true);
     setVisible(getMoveBtnById(playerId), false);
@@ -54,10 +58,8 @@ window.addEventListener('load', () => {
     setVisible(getMoveBtnById(otherId), false);
   };
 
-  // Ініціалізація прогнозу (знати активний колір)
   setupForecast(() => (player1.itsTurn ? 'red' : 'blue'));
 
-  // Стартує червоний
   player1 = updatePlayer1({ itsTurn: true });
   showPlayerContent(player1.id);
   showStartOfTurnUI('player1');
@@ -101,11 +103,15 @@ window.addEventListener('load', () => {
       showStepsSequence(rollerColor, activeNow.diceStreak);
       showPlayerContent(activeNow.id);
 
-      // Якщо випав 6 — кидок бонусний, кнопки степс тимчасово блокуємо
       setStepsEnabled(rollerColor, !needAnotherThrow);
 
       setVisible(getDiceBtnById(activeNow.id), needAnotherThrow);
-      setVisible(getMoveBtnById(activeNow.id), !needAnotherThrow);
+
+      if (needAnotherThrow) {
+        setVisible(getMoveBtnById(activeNow.id), false);
+      } else {
+        setShownDisabled(getMoveBtnById(activeNow.id), true);
+      }
 
       setVisible(getDiceBtnById(getInactivePlayer().id), false);
       setVisible(getMoveBtnById(getInactivePlayer().id), false);
@@ -126,7 +132,6 @@ window.addEventListener('load', () => {
     const active = getActivePlayer();
     if (active.id !== byPlayerId) return;
 
-    // перед передачею ходу — очищаємо запланований хід активного гравця
     const activeColor: 'red' | 'blue' = getColorById(active.id);
     clearPlanned(activeColor);
 

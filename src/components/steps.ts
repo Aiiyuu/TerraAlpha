@@ -77,6 +77,31 @@ function resolveMoveButtons() {
   return { redMoveBtn, blueMoveBtn };
 }
 
+function getMoveBtn(color: PlayerColor) {
+  const { redMoveBtn, blueMoveBtn } = resolveMoveButtons();
+  return color === 'red' ? redMoveBtn : blueMoveBtn;
+}
+
+function setMoveBtnInteractivity(color: PlayerColor, enabled: boolean) {
+  const el = getMoveBtn(color);
+  if (!el) return;
+  if (el instanceof HTMLButtonElement) {
+    el.disabled = !enabled;
+  } else {
+    el.classList.toggle('is-disabled', !enabled);
+    el.setAttribute('aria-disabled', String(!enabled));
+    if (!enabled) {
+      (el as HTMLElement).style.pointerEvents = 'none';
+      (el as HTMLElement).setAttribute('tabindex', '-1');
+      el.setAttribute('data-locked', 'true');
+    } else {
+      (el as HTMLElement).style.pointerEvents = '';
+      (el as HTMLElement).removeAttribute('tabindex');
+      el.removeAttribute('data-locked');
+    }
+  }
+}
+
 function mountBlocks(redMoveBtn: HTMLElement, blueMoveBtn: HTMLElement) {
   if (!redBlock) {
     redBlock = document.createElement('div');
@@ -150,11 +175,10 @@ function finishStepFor(color: PlayerColor) {
   if (rest.length > 0) {
     renderButtons(block, rest, color);
     block.classList.remove('is-hidden');
+    setMoveBtnInteractivity(color, false);
   } else {
-    const { redMoveBtn, blueMoveBtn } = resolveMoveButtons();
     block.classList.add('is-hidden');
-    const moveBtn = color === 'red' ? redMoveBtn : blueMoveBtn;
-    if (moveBtn) moveBtn.classList.remove('is-hidden');
+    setMoveBtnInteractivity(color, true);
   }
 }
 
@@ -285,6 +309,33 @@ export function createSteps() {
   document.addEventListener('pointerenter', (e) => handleShipPointer(e as PointerEvent, 'enter'), true);
   document.addEventListener('pointerleave', (e) => handleShipPointer(e as PointerEvent, 'leave'), true);
   document.addEventListener('click', (e) => handleShipPointer(e as unknown as PointerEvent, 'click'), true);
+
+  document.addEventListener('click', (e) => {
+    if (!activeColor) return;
+    const btn = (e.target as HTMLElement)?.closest('.move-button');
+    if (!btn) return;
+    const lock = btn.getAttribute('aria-disabled') === 'true' || btn.getAttribute('data-locked') === 'true' || (btn as HTMLElement).style.pointerEvents === 'none';
+    const isActiveBtn = btn === getMoveBtn(activeColor);
+    if (isActiveBtn && lock) {
+      e.stopImmediatePropagation?.();
+      e.preventDefault();
+    }
+  }, true);
+
+  document.addEventListener('keydown', (e) => {
+    if (!activeColor) return;
+    const btn = getMoveBtn(activeColor);
+    if (!btn) return;
+    const locked = btn.getAttribute('aria-disabled') === 'true' || btn.getAttribute('data-locked') === 'true' || (btn as HTMLElement).style.pointerEvents === 'none' || (btn instanceof HTMLButtonElement && btn.disabled);
+    if (!locked) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      const targetEl = e.target as HTMLElement;
+      if (targetEl && (targetEl.closest('.move-button') === btn)) {
+        e.stopImmediatePropagation?.();
+        e.preventDefault();
+      }
+    }
+  }, true);
 }
 
 export function hideAllSteps() {
@@ -293,14 +344,18 @@ export function hideAllSteps() {
 }
 
 export function showStepsSequence(color: PlayerColor, values: number[]) {
-  if (!redBlock || !blueBlock) createSteps();
-  if (!redBlock || !blueBlock) return;
+  if (!redBlock || !blueBlock) {
+    createSteps();
+    requestAnimationFrame(() => showStepsSequence(color, values));
+    return;
+  }
   activeColor = color;
   activePlanned[color] = null;
   const target = getBlock(color);
   const other = color === 'red' ? blueBlock : redBlock;
   other.classList.add('is-hidden');
   renderButtons(target, values, color);
+  setMoveBtnInteractivity(color, false);
 }
 
 export function getRemainingForColor(color: PlayerColor): number[] {
