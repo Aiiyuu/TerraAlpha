@@ -4,14 +4,38 @@
   <meta charset="utf-8"/>
   <title>Terra Alpha</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"/>
-
   <link rel="stylesheet" href="./src/styles/style.css"/>
-  <link rel="stylesheet" href="./src/styles/components/ships.css"/>
+
+  <!-- Link custom fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
+<header>
+  <nav class="navbar">
+    <a href="#" class="navbar-brand">Якийсь <span>Логотип</span></a>
+
+    <ul class="navbar-list">
+      <li class="navbar-item">
+        <a class="navbar-link" href="#">lorem</a>
+      </li>
+      <li class="navbar-item">
+        <a class="navbar-link" href="#">lorem</a>
+      </li>
+      <li class="navbar-item">
+        <a class="navbar-link" href="#">lorem</a>
+      </li>
+    </ul>
+
+    <button class="navbar-menu-btn">
+      <div class="navbar-lines"></div>
+    </button>
+  </nav>
+</header>
+
 <main>
   <div id="game">
     <!-- PLAYER 1 -->
@@ -194,9 +218,9 @@
 
 <div class="dice-container"></div>
 
-<div id="dialog-container" class="dialog-container">
+<div id="dialog-container" class="dialog-container"></div>
 
-</div>
+<div id="ribbons-container" class="ribbons"></div>
 <!-- Script files -->
 <script type="module" src="./src/main.ts"></script>
 </body>

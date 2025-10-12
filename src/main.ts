@@ -1,3 +1,5 @@
+import { setupAdaptiveMenuBtn } from "./components/navbar.ts";
+import { setupRibbons } from "./components/ribbons.ts";
 import { throwDice, setupDice, HIDE_DICE_DELAY } from "./components/dice";
 import { createPlayer, showPlayerContent, addMessage } from "./components/player.ts";
 import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled } from "./components/steps.ts";
@@ -17,11 +19,13 @@ window.addEventListener('load', () => {
   const blueMoveBtn = document.querySelector<HTMLButtonElement>('.player2.move-button');
 
   setupDialog();
+  setupRibbons();
   setupTimer();
   setupDice();
   createSteps();
   hideAllSteps();
   loadCellIcons();
+  setupAdaptiveMenuBtn();
 
   const [updatePlayer1, getPlayer1] = createPlayer('player1', 'player1');
   const [updatePlayer2, getPlayer2] = createPlayer('player2', 'player2');

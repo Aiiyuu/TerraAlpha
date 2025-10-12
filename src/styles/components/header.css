@@ -1,0 +1,6 @@
+header {
+  width: 100vw;
+  height: 100vh;
+  background-size: contain;
+  background: url("../assets/images/decorations/decoration1.png") no-repeat center center;
+}

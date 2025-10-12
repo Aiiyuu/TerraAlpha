@@ -1,21 +1,41 @@
+@import url('./components/navbar.css');
+@import url('./components/header.css');
+@import url('./components/ribbons.css');
 @import url('./components/dice.css');
 @import url('./components/chat.css');
 @import url('./components/dialog.css');
 @import url('./components/timer.css');
-@import url('components/board.css');
+@import url('./components/board.css');
+@import url('./components/ships.css');
 
 html, body, * {
   user-select: none; /* eslint-disable-line css/use-baseline */
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  border: none;
+  background-color: transparent;
+  outline: none;
 }
 
 body {
+  font-family: "Outfit", sans-serif;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   padding-top: 0;
-  background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
   background-size: cover;
+
+  --max-page-width: 1400px;
+  --page-margin: 40px;
+  --base-text-color: #A4B7C7;
+  --purple-color: #6A0DAD;
+  --light-color: #FBFDFE;
+  --dark-color: #132440;
+  --base-transition-duration: 300ms;
 }
 
 #game {
@@ -26,6 +46,8 @@ body {
 
   padding: var(--base-padding);
   padding-top: 0;
+
+  background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
 }
 
 #game > section {
@@ -34,6 +56,10 @@ body {
 
 #game > section.middle-section {
   padding-top: 0;
+}
+
+#game {
+  display: none;
 }
 
 
