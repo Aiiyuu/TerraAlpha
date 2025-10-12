@@ -1,0 +1,16 @@
+.button {
+  cursor: pointer;
+  padding: 15px 20px;
+  border-radius: 10px;
+
+  transition: opacity var(--base-transition-duration) ease;
+}
+
+.button:hover {
+  opacity: 0.7;
+}
+
+.button.button--purple {
+  background: var(--purple-color);
+  color: var(--light-color)
+}

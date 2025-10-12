@@ -1,7 +1,6 @@
 .navbar {
-  position: sticky;
+  position: relative;
   z-index: 5;
-  top: 0;
 
   max-width: var(--max-page-width);
   margin-inline: auto;
@@ -48,6 +47,7 @@
   top: 0;
   left: 0;
   padding: 140px 40px;
+  font-size: 26px;
 
   transition: opacity var(--base-transition-duration) ease,
   transform var(--base-transition-duration) ease;
@@ -159,6 +159,7 @@
 
 @media (min-width: 1220px) {
   .navbar-list {
+    font-size: 16px;
     padding: 0;
     position: static;
     transform: translate(0, 0);
