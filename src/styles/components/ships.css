@@ -27,11 +27,11 @@
 #player1 .hand-grid [data-qa$='cell-5'],
 #player1 .hand-grid [data-qa$='cell-6'],
 #player1 .hand-grid [data-qa$='cell-7'] {
-  background-image: url('/src/assets/images/ShipR.png');
+  background-image: url('/src/assets/ships/ShipR.png');
 }
 
 #player1 .hand-grid [data-qa$='cell-8'] {
-  background-image: url('/src/assets/images/main_shipR.png');
+  background-image: url('/src/assets/ships/main_shipR.png');
   transform: scale(1.2);
 }
 
@@ -42,11 +42,11 @@
 #player2 .hand-grid [data-qa$='cell-5'],
 #player2 .hand-grid [data-qa$='cell-6'],
 #player2 .hand-grid [data-qa$='cell-7'] {
-  background-image: url('/src/assets/images/ShipB.png');
+  background-image: url('/src/assets/ships/ShipB.png');
 }
 
 #player2 .hand-grid [data-qa$='cell-8'] {
-  background-image: url('/src/assets/images/main_shipB.png');
+  background-image: url('/src/assets/ships/main_shipB.png');
   transform: scale(1.2);
 }
 
