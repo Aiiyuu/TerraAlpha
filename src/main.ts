@@ -3,6 +3,7 @@ import { createPlayer, showPlayerContent, addMessage } from "./components/player
 import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled } from "./components/steps.ts";
 import { setupDialog } from "./components/dialog.ts";
 import { setupTimer, createTimer } from "./components/timer.ts";
+import { loadCellIcons } from "./components/cells.ts";
 
 import type { Player } from "./types/player.ts";
 
@@ -20,6 +21,7 @@ window.addEventListener('load', () => {
   setupDice();
   createSteps();
   hideAllSteps();
+  loadCellIcons();
 
   const [updatePlayer1, getPlayer1] = createPlayer('player1', 'player1');
   const [updatePlayer2, getPlayer2] = createPlayer('player2', 'player2');

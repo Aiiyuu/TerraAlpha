@@ -6,19 +6,19 @@
 }
 
 .dialog.dialog-red {
-  --dialog-color: #ff4d4f;
+  --dialog-color: #DD0303;
 }
 
 .dialog.dialog-blue {
-  --dialog-color: #1890ff;
+  --dialog-color: #0046FF;
 }
 
 .dialog.dialog-red .dialog-button:hover {
-  --dialog-color: #ff7b7d;
+  --dialog-color: #FF4C4C;
 }
 
 .dialog.dialog-blue .dialog-button:hover {
-  --dialog-color: #45a0f4;
+  --dialog-color: #4578FF;
 }
 
 .dialog.dialog--active .dialog-button:after {

@@ -2,6 +2,7 @@
 @import url('./components/chat.css');
 @import url('./components/dialog.css');
 @import url('./components/timer.css');
+@import url('components/board.css');
 
 html, body, * {
   user-select: none; /* eslint-disable-line css/use-baseline */
@@ -41,14 +42,6 @@ main > section.middle-section {
   padding: 8px;
   width: max-content;
 }
-
-.cell {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 
 .corner-text {
   position: absolute;
