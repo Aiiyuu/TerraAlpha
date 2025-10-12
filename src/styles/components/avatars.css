@@ -32,13 +32,10 @@
 }
 
 .avatar-dropdown-list {
-  transform: translateY(-100%) scale(0.8);
+  transform: scale(0.8);
   overflow: hidden;
   opacity: 0;
-
-  position: absolute;
-  left: 0;
-  height: 0;
+  margin-bottom: 50px;
 
   transition: height var(--base-transition-duration) ease;
 }
@@ -76,15 +73,11 @@
 }
 
 @media (min-width: 900px) {
-  .avatar-dropdown {
-    position: relative;
-  }
-
   .avatar-dropdown-list-wrapper {
     --cols: 4;
   }
 
   .avatar-dropdown-list {
-    transform: translateY(-100%) scale(1);
+    transform: scale(1);
   }
 }

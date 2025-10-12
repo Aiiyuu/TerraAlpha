@@ -21,6 +21,7 @@ let height: number;
 export function setUpdAvatars() {
   loadArrowIcon();
   loadListItems();
+  hideDropdown();
 
   avatarDropdownBtn.addEventListener("click", toggleDropdown);
 }
@@ -52,6 +53,7 @@ function loadListItems() {
     img.classList.add("avatar-dropdown-item");
     img.src = avatar.img;
     listWrapper.appendChild(img);
+    img.setAttribute('data-id', String(avatar.id));
 
     if (!height) {
       const computedStyles: CSSStyleDeclaration = window.getComputedStyle(img);
@@ -59,7 +61,7 @@ function loadListItems() {
     }
 
     img.addEventListener("click", (event: PointerEvent) => {
-      selectAvatar(event.target as HTMLElement, avatar.id);
+      selectAvatar(event.target as HTMLElement);
     });
 
     avatarList.appendChild(listWrapper);
@@ -104,9 +106,8 @@ function toggleDropdown() {
  * Adds the "is-selected" class to the selected avatar and removes
  * the "is-selected" class from other avatars if necessary.
  * @param {HTMLElement} avatar
- * @param {number} id - The ID of the selected avatar.
  */
-function selectAvatar(avatar: HTMLElement, id: number) {
+function selectAvatar(avatar: HTMLElement) {
   if (!avatarItems) {
     avatarItems = [...document.querySelectorAll('.avatar-dropdown-item')] as HTMLElement[];
   }
@@ -119,6 +120,4 @@ function selectAvatar(avatar: HTMLElement, id: number) {
 
   avatar.classList.add("is-selected");
   hideDropdown();
-
-  console.log(id);
 }

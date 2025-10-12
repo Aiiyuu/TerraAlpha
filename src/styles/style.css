@@ -11,6 +11,7 @@
 @import url('./components/timer.css');
 @import url('./components/board.css');
 @import url('./components/ships.css');
+@import url('./components/game.css');
 
 html, body, * {
   user-select: none; /* eslint-disable-line css/use-baseline */
@@ -47,27 +48,7 @@ body {
   --base-transition-duration: 300ms;
 }
 
-#game {
-  display: flex;
-  justify-content: space-between;
-
-  --base-padding: 30px;
-
-  padding: var(--base-padding);
-  padding-top: 0;
-
-  background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
-}
-
-#game > section {
-  padding-top: 30px;
-}
-
-#game > section.middle-section {
-  padding-top: 0;
-}
-
-#game, .header {
+.is-hidden {
   display: none;
 }
 

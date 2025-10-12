@@ -13,7 +13,7 @@
   position: relative;
 }
 
-.rooms-table tr {
+.rooms-table tbody tr {
   position: relative;
   cursor: pointer;
   transition: background-color var(--base-transition-duration) ease;
@@ -30,7 +30,7 @@
 
 .rooms-table tbody tr td:first-child::after {
   pointer-events: none;
-  content: "Приєднатися";
+  content: "Грати";
 
   display: flex;
   justify-content: center;

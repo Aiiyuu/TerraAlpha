@@ -1,4 +1,5 @@
-import type {Room} from "../types/room.ts";
+import type { Room } from "../types/room.ts";
+import { getRoomsFromServer } from "../server/server.ts";
 
 export const rooms: Room[] = [
   {
@@ -16,7 +17,7 @@ export const rooms: Room[] = [
         color: '#6A0DAD',
       }
     ],
-    date: '24.10.2025',
+    date: new Date(),
   },
   {
     id: 2,
@@ -33,6 +34,8 @@ export const rooms: Room[] = [
         color: '#BF092F',
       }
     ],
-    date: '26.09.2025',
+    date: new Date(),
   },
 ]
+
+rooms.unshift(...getRoomsFromServer());

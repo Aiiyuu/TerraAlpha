@@ -17,3 +17,17 @@ export function setupRibbons() {
 export function toggleRibbons() {
   ribbonsContainer.classList.toggle('is-active');
 }
+
+/**
+ * Fires the ribbon animation.
+ */
+export function fireRibbons() {
+  ribbonsContainer.classList.add('is-active');
+}
+
+/**
+ * Hides the ribbon animation.
+ */
+export function hideRibbons() {
+  ribbonsContainer.classList.remove('is-active');
+}

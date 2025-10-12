@@ -1,3 +1,4 @@
+import { setUpNavigation } from "./components/navigation.ts";
 import { setupAdaptiveMenuBtn } from "./components/navbar.ts";
 import { setUpRoomsTable } from "./components/rooms.ts";
 import { setUpdAvatars } from "./components/avatars.ts";
@@ -20,6 +21,7 @@ window.addEventListener('load', () => {
   const redMoveBtn = document.querySelector<HTMLButtonElement>('.player1.move-button');
   const blueMoveBtn = document.querySelector<HTMLButtonElement>('.player2.move-button');
 
+  setUpNavigation();
   setupDialog();
   setUpdAvatars();
   setUpRoomsTable();

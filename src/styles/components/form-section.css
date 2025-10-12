@@ -27,7 +27,7 @@
   margin-bottom: 50px;
 }
 
-.field-group > *:last-child {
+.field-group {
   margin-bottom: 0;
 }
 

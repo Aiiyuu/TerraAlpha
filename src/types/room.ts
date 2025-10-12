@@ -5,5 +5,5 @@ export interface Room {
   authorId: number;
   name: string;
   players: Player[];
-  date: string;
+  date: Date;
 }

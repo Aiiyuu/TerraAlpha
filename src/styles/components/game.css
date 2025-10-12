@@ -1,0 +1,22 @@
+#game {
+  display: flex;
+  justify-content: space-between;
+
+  width: 100vw;
+  height: 100vh;
+
+  --base-padding: 30px;
+
+  padding: var(--base-padding);
+  padding-top: 0;
+
+  background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
+}
+
+#game > section {
+  padding-top: 30px;
+}
+
+#game > section.middle-section {
+  padding-top: 0;
+}
