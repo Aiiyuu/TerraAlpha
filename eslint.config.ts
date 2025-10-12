@@ -12,7 +12,6 @@ export default defineConfig([
     extends: ["js/recommended"],
     languageOptions: { globals: globals.browser },
     rules: {
-      "indent": ["error", 2],
       "object-curly-spacing": ["error", "always"],
     }
   },
