@@ -11,6 +11,10 @@ export default defineConfig([
     plugins: { js },
     extends: ["js/recommended"],
     languageOptions: { globals: globals.browser },
+    rules: {
+      "indent": ["error", 2],
+      "object-curly-spacing": ["error", "always"],
+    }
   },
   tseslint.configs.recommended,
   {
@@ -18,5 +22,8 @@ export default defineConfig([
     plugins: { css },
     language: "css/css",
     extends: ["css/recommended"],
+    rules: {
+      "css/no-important": "off",
+    },
   },
 ]);
