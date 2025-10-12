@@ -1,10 +1,11 @@
 import { throwDice, setupDice, HIDE_DICE_DELAY } from "./components/dice";
 import { createPlayer, showPlayerContent, addMessage } from "./components/player.ts";
-import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled } from "./components/steps.ts";
+import { createSteps, hideAllSteps, showStepsSequence, setStepsEnabled, clearPlanned } from "./components/steps.ts";
 import { setupDialog } from "./components/dialog.ts";
 import { setupTimer, createTimer } from "./components/timer.ts";
 import { loadCellIcons } from "./components/cells.ts";
 import { setActivePlayer } from "./components/moveShips.ts";
+import { setupForecast } from "./components/forecast.ts";
 
 import type { Player } from "./types/player.ts";
 
@@ -53,6 +54,10 @@ window.addEventListener('load', () => {
     setVisible(getMoveBtnById(otherId), false);
   };
 
+  // Ініціалізація прогнозу (знати активний колір)
+  setupForecast(() => (player1.itsTurn ? 'red' : 'blue'));
+
+  // Стартує червоний
   player1 = updatePlayer1({ itsTurn: true });
   showPlayerContent(player1.id);
   showStartOfTurnUI('player1');
@@ -96,6 +101,7 @@ window.addEventListener('load', () => {
       showStepsSequence(rollerColor, activeNow.diceStreak);
       showPlayerContent(activeNow.id);
 
+      // Якщо випав 6 — кидок бонусний, кнопки степс тимчасово блокуємо
       setStepsEnabled(rollerColor, !needAnotherThrow);
 
       setVisible(getDiceBtnById(activeNow.id), needAnotherThrow);
@@ -120,6 +126,10 @@ window.addEventListener('load', () => {
     const active = getActivePlayer();
     if (active.id !== byPlayerId) return;
 
+    // перед передачею ходу — очищаємо запланований хід активного гравця
+    const activeColor: 'red' | 'blue' = getColorById(active.id);
+    clearPlanned(activeColor);
+
     if (active.id === 'player1') {
       player1 = updatePlayer1({ diceStreak: [] });
     } else {
@@ -140,11 +150,9 @@ window.addEventListener('load', () => {
 
     if (next.id === 'player1') {
       showStartOfTurnUI('player1');
-
       setActivePlayer('red');
     } else {
       showStartOfTurnUI('player2');
-
       setActivePlayer('blue');
     }
 

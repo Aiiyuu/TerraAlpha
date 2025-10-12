@@ -136,3 +136,45 @@
   bottom: 0;
   left: 0;
 }
+
+/* === Forecast highlight + pulse marker === */
+.board [data-qa^="field-"].is-forecast,
+.board .cell.is-forecast {
+  position: relative;
+  box-shadow: 0 0 0 3px #22c55e inset, 0 0 6px rgba(34,197,94,.6) !important;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+/* пульсуюче коло */
+.board [data-qa^="field-"].is-forecast::after,
+.board .cell.is-forecast::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.7);
+  transform: translate(-50%, -50%) scale(1);
+  animation: forecast-pulse 1.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* сама анімація пульсації */
+@keyframes forecast-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+}
