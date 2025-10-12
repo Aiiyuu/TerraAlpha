@@ -56,6 +56,9 @@
 }
 
 .dialog-list {
+  position: absolute;
+  z-index: 2;
+
   overflow-y: hidden;
   height: 0;
   margin-bottom: 25px;
@@ -80,6 +83,10 @@
 
 .dialog.dialog-blue .dialog-list-item:hover {
   background-color: #45a0f4;
+}
+
+.dialog.dialog-blue .dialog-list {
+  right: var(--base-padding);
 }
 
 .dialog-list-item img {

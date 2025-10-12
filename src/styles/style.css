@@ -18,16 +18,21 @@ body {
   background-size: cover;
 }
 
-main {
+#game {
   display: flex;
   justify-content: space-between;
+
+  --base-padding: 30px;
+
+  padding: var(--base-padding);
+  padding-top: 0;
 }
 
-main > section {
-  padding: 69px 20px 20px 20px;
+#game > section {
+  padding-top: 30px;
 }
 
-main > section.middle-section {
+#game > section.middle-section {
   padding-top: 0;
 }
 
