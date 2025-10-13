@@ -1,3 +1,4 @@
+@import url('./components/animations.css');
 @import url('./components/navbar.css');
 @import url('./components/header.css');
 @import url('./components/form-section.css');
@@ -46,9 +47,11 @@ body {
   --light-color: #FBFDFE;
   --dark-color: #132440;
   --base-transition-duration: 300ms;
+  --scroll-animation-duration: 800ms;
 
   --player1-color: var(--purple-color);
   --player2-color: var(--purple-color);
+
 }
 
 .is-hidden {

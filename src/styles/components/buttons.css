@@ -1,4 +1,4 @@
-.button {
+.btn {
   cursor: pointer;
   padding: 15px 20px;
   border-radius: 10px;
@@ -7,11 +7,11 @@
   border: none !important;
 }
 
-.button:hover {
-  opacity: 0.7;
+.btn:hover {
+  opacity: 0.7 !important;
 }
 
-.button.button--purple {
+.btn.btn--purple {
   background: var(--purple-color);
   color: var(--light-color)
 }

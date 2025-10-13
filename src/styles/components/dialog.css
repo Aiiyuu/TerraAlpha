@@ -117,12 +117,3 @@
 .dialog-phrase-wrapper p {
   font-weight: normal;
 }
-
-@keyframes fly {
-  from {
-    top: 100vh;
-  }
-  to {
-    top: -100vh;
-  }
-}

@@ -37,16 +37,6 @@
   animation: slide-fade 300ms ease;
 }
 
-@keyframes slide-fade {
-  from {
-    opacity: 0;
-    transform: translateY(200%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 #player1 .chat-item {
   background-color: var(--player1-color);
