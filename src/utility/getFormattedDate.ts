@@ -1,18 +1,25 @@
 /**
- * Formats a date input into a string with format 'HH:MM'.
+ * Returns a human-readable time difference from the current date to the provided date.
+ * For example, "36 minutes ago", "2 hours ago", or "5 days ago".
  *
- * @param dateInput - A Date object or a string/number that can be parsed into a Date.
- * @returns A string representing the time in 'HH:MM' 24-hour format.
- *
- * @example
- * formatTime('2025-10-11T12:50:00Z') // '12:50'
- * formatTime(new Date()) // '09:30' (depending on current time)
+ * @param {Date} dateInput - The date to compare against the current date.
+ * @returns {string} A human-readable string representing the time difference.
  */
-export function formatTime(dateInput: Date | string | number): string {
+export function timeAgo(dateInput: string): string {
+  const now = new Date();
   const date = new Date(dateInput);
+  const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const minutesAgo = Math.floor(secondsAgo / 60);
+  const hoursAgo = Math.floor(minutesAgo / 60);
+  const daysAgo = Math.floor(hoursAgo / 24);
 
-  const hours: string = date.getHours().toString().padStart(2, '0');
-  const minutes: string = date.getMinutes().toString().padStart(2, '0');
-
-  return `${hours}:${minutes}`;
+  if (secondsAgo < 60) {
+    return `${secondsAgo} секунд${secondsAgo === 1 ? '' : 's'} тому`;
+  } else if (minutesAgo < 60) {
+    return `${minutesAgo} хвилин${minutesAgo === 1 ? '' : 's'} тому`;
+  } else if (hoursAgo < 24) {
+    return `${hoursAgo} годин${hoursAgo === 1 ? '' : 's'} тому`;
+  } else {
+    return `${daysAgo} днів${daysAgo === 1 ? '' : 's'} тому`;
+  }
 }

@@ -6,7 +6,9 @@
 }
 
 .rooms-table thead th {
+  text-align: start;
   padding-bottom: 20px;
+  padding-inline: 10px;
 }
 
 .rooms-table tbody > div {
@@ -14,6 +16,7 @@
 }
 
 .rooms-table tbody tr {
+  text-align: start;
   position: relative;
   cursor: pointer;
   transition: background-color var(--base-transition-duration) ease;
@@ -50,7 +53,6 @@
   color: var(--light-color);
 }
 
-
 .rooms-table td img {
   height: 60px;
 }
@@ -60,6 +62,7 @@
 }
 
 .rooms-table td {
-  padding: 10px;
+  vertical-align: middle;
+  padding: 10px 10px;
   margin: 0;
 }

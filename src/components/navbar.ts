@@ -1,8 +1,8 @@
 import { toggleRibbons } from "./ribbons.ts";
 
-const navbar = document.querySelector('.navbar') as HTMLElement;
-const navbarMenuBtn = document.querySelector('.navbar-menu-btn') as HTMLElement;
-const navbarLineWrapper = document.querySelector('.navbar-lines') as HTMLElement;
+const navbar = document.querySelector('.nav') as HTMLElement;
+const navbarMenuBtn = document.querySelector('.nav-menu-btn') as HTMLElement;
+const navbarLineWrapper = document.querySelector('.nav-lines') as HTMLElement;
 
 /**
  * This function is responsible for setting up an adaptive menu on small devices

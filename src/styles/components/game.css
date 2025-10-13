@@ -20,3 +20,52 @@
 #game > section.middle-section {
   padding-top: 0;
 }
+
+.player1.move-button,
+.player1.dice-button {
+  background-color: var(--player1-color);
+  color: var(--light-color);
+}
+
+.player2.move-button,
+.player2.dice-button {
+  background-color: var(--player2-color);
+  color: var(--light-color);
+}
+
+
+#player1 .player-name {
+  color: var(--player1-color);
+}
+
+#player2 .player-name {
+  color: var(--player2-color);
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 30px;
+}
+
+#player1 .player-info {
+  flex-direction: row-reverse;
+}
+
+#player1 .player-avatar {
+  margin-right: 20px;
+}
+
+#player2 .player-avatar {
+  margin-left: 20px;
+}
+
+.player-avatar {
+  height: 60px;
+}
+
+.player-name {
+  font-size: 30px;
+  font-weight: bold;
+}

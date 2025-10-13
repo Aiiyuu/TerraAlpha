@@ -23,8 +23,7 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  filter: invert(100%) sepia(100%) saturate(1000%) hue-rotate(180deg) brightness(50%);
-
+  filter: brightness(0.64) saturate(1.5);
 }
 
 .avatar-dropdown.is-collapsed .avatar-dropdown-btn::after {

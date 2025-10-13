@@ -4,6 +4,7 @@
   border-radius: 10px;
 
   transition: opacity var(--base-transition-duration) ease;
+  border: none !important;
 }
 
 .button:hover {

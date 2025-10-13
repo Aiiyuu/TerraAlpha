@@ -1,5 +1,10 @@
 import { fireRibbons, hideRibbons } from "./ribbons.ts";
-import { createRoom } from "../server/rooms.ts";
+import { addNewPlayerToRoom, createRoom, getRandomRoom} from "../server/rooms.ts";
+import {createNewPlayer, createRandomPlayer} from "../server/player.ts";
+import type { Player } from "../types/player.ts";
+import type { Room } from "../types/room.ts";
+import { updateRoom } from "../server/server.ts";
+import {startGame} from "./game.ts";
 
 const RIBBONS_ANIMATION_DURATION = 1000;
 
@@ -20,6 +25,24 @@ export function setUpNavigation() {
   const createGameBtn = document.querySelector("#navigation-create-room-btn") as HTMLElement;
 
   selectGameBtn.addEventListener("click", () => {
+    const roomBtns = [...document.querySelectorAll('.select-room-button')] as HTMLElement[];
+
+    roomBtns.forEach(roomBtn => {
+      roomBtn.addEventListener("click", () => {
+        const roomId = Number(roomBtn.getAttribute("data-room-id"));
+        const player: Player = createNewPlayer();
+
+        const updatedRoom: Room | undefined = addNewPlayerToRoom(roomId, player);
+
+        if (updatedRoom) {
+          updateRoom(updatedRoom);
+
+          startGame(updatedRoom.players[0], updatedRoom.players[1])
+          animatePageSwitching(showGame);
+        }
+      });
+    });
+
     animatePageSwitching(showSelectGamePage);
   });
 
@@ -28,7 +51,20 @@ export function setUpNavigation() {
   });
 
   fastGameBtn.addEventListener("click", () => {
+    const player: Player = createRandomPlayer();
+    const randomRoom: Room = getRandomRoom();
+
+    if (!randomRoom) {
+      alert("Вільної кімнати не знайдено, створіть свою кімнату");
+      return;
+    }
+
+    updateRoom(randomRoom);
+
+    addNewPlayerToRoom(randomRoom.id, player);
     animatePageSwitching(showGame);
+
+    startGame(randomRoom.players[0], randomRoom.players[1])
   });
 
   form.addEventListener("submit", (event: SubmitEvent) => {
@@ -61,6 +97,7 @@ function showCreateGamePage() {
  */
 function showGame() {
   home.classList.add('is-hidden');
+  selectGamePage.classList.add('is-hidden');
   game.classList.remove('is-hidden');
 }
 

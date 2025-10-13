@@ -46,6 +46,9 @@ body {
   --light-color: #FBFDFE;
   --dark-color: #132440;
   --base-transition-duration: 300ms;
+
+  --player1-color: var(--purple-color);
+  --player2-color: var(--purple-color);
 }
 
 .is-hidden {

@@ -1,5 +1,5 @@
 export interface Player {
-  id: number;
+  id: string;
   avatar?: number;
   name: string;
   itsTurn: boolean,

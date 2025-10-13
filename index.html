@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <link rel="stylesheet" href="./src/styles/style.css"/>
 
-<!--  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"/>-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"/>
 
   <!-- Link custom fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,23 +17,23 @@
 
 <body>
 <header id="home" class="header">
-  <nav class="navbar">
-    <a href="#" class="navbar-brand">Якийсь <span>Логотип</span></a>
+  <nav class="nav">
+    <a href="#" class="nav-brand">Якийсь <span>Логотип</span></a>
 
-    <ul class="navbar-list">
-      <li class="navbar-item">
-        <a class="navbar-link" href="#">lorem</a>
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a class="nav-link" href="#">lorem</a>
       </li>
-      <li class="navbar-item">
-        <a class="navbar-link" href="#">lorem</a>
+      <li class="nav-item">
+        <a class="nav-link" href="#">lorem</a>
       </li>
-      <li class="navbar-item">
-        <a class="navbar-link" href="#">lorem</a>
+      <li class="nav-item">
+        <a class="nav-link" href="#">lorem</a>
       </li>
     </ul>
 
-    <button class="navbar-menu-btn">
-      <div class="navbar-lines"></div>
+    <button class="nav-menu-btn">
+      <div class="nav-lines"></div>
     </button>
   </nav>
 
@@ -63,22 +63,22 @@
       <div class="form">
         <a href="#" class="form-brand">Якийсь <span>Логотип</span></a>
 
-        <div class="field-group">
-          <div id="room-field" class="field field--floating">
+        <div class="form-field-group">
+          <div id="room-field" class="form-field form-field--floating">
             <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
-            <input type="text" id="room-name" class="field-input" placeholder=" " required/>
-            <label for="room-name" class="field-label">Імʼя кімнати</label>
+            <input type="text" id="room-name" class="form-field-input" placeholder=" " required/>
+            <label for="room-name" class="form-field-label">Імʼя кімнати</label>
           </div>
 
-          <div class="field field--floating">
+          <div class="form-field form-field--floating">
             <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
-            <input type="text" id="player-name" class="field-input" placeholder=" " required/>
-            <label for="player-name" class="field-label">Імʼя гравця</label>
+            <input type="text" id="player-name" class="form-field-input" placeholder=" " required/>
+            <label for="player-name" class="form-field-label">Імʼя гравця</label>
           </div>
 
-          <div class="field field-color">
-            <label for="color" class="field-label">Колір гравця</label>
-            <input type="color" id="color" class="field-input field-color" value="#6A0DAD"/>
+          <div class="form-field form-field-color">
+            <label for="color" class="form-field-label">Колір гравця</label>
+            <input type="color" id="color" class="form-field-input form-field-color" value="#6A0DAD"/>
           </div>
 
           <div id="avatar-dropdown" class="avatar-dropdown">
@@ -108,7 +108,9 @@
   <div id="game" class="is-hidden">
     <!-- PLAYER 1 -->
     <section id="player1">
-      <h2 class="title is-4 has-text-danger">PLAYER 1</h2>
+      <div class="player-info">
+        <h2 class="player-name">PLAYER 1</h2>
+      </div>
 
       <div class="dialog dialog-red" data-userName="Player 1">
         <div class="dialog-button">Вибрати фразу</div>
@@ -257,8 +259,11 @@
       </div>
     </section>
 
+    <!-- PLAYER 2 -->
     <section id="player2">
-      <h2 class="title is-4 has-text-link">PLAYER 2</h2>
+      <div class="player-info">
+        <h2 class="player-name">PLAYER 2</h2>
+      </div>
 
       <div class="dialog dialog-blue" data-userName="Player 2">
         <div class="dialog-button">Вибрати фразу</div>

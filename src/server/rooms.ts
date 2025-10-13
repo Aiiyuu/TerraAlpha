@@ -1,47 +1,53 @@
 import { getRandomId } from "../utility/getRandomId.ts";
+import { rooms } from "../api/rooms.ts";
 import type { Room } from "../types/room.ts";
 import type { Player } from "../types/player.ts";
 import { addRoomToServer } from "./server.ts";
+import { createNewPlayer } from "./player.ts";
 
+/**
+ * Creates a new room with player and pushes it to the server
+ */
 export function createRoom() {
   const roomNameInput = document.getElementById('room-name') as HTMLInputElement;
-  const playerNameInput = document.getElementById('player-name') as HTMLInputElement;
-  const playerColorInput = document.getElementById('color') as HTMLInputElement;
-
-  const newPlayer: Player = {
-    id: getRandomId(),
-    avatar: getAvatarId(),
-    name: playerNameInput.value,
-    itsTurn: true,
-    diceHistory: [],
-    diceStreak: [],
-    color: playerColorInput.value,
-  }
+  const player: Player = createNewPlayer();
 
   const newRoom: Room = {
     id: getRandomId(),
-    authorId: newPlayer.id,
+    authorId: player.id,
     name: roomNameInput.value,
-    players: [newPlayer],
+    players: [player],
     date: new Date(),
   }
 
   addRoomToServer(newRoom);
 }
 
+/**
+ * Adds player to the room
+ */
+export function addNewPlayerToRoom(roomId: number, newPlayer: Player): Room | undefined {
+  const room: Room | undefined = rooms.find(item => item.id === roomId);
+
+  if (!room) {
+    alert('Кімната не знайдена');
+    return;
+  }
+
+  if (room.players.length >= 2) {
+    alert('Ця кімната вже переповнена');
+    return;
+  }
+
+  room.players.push(newPlayer);
+  return room;
+}
 
 /**
- * finds and returns selected avatar id;
+ * Returns a random room from rooms
  */
-function getAvatarId() {
-  const avatars = [...document.querySelectorAll('.avatar-dropdown-item')] as HTMLImageElement[];
-  let id = 0;
-
-  avatars.forEach(avatar => {
-    if (avatar.classList.contains('is-selected')) {
-      id = Number(avatar.getAttribute('data-id'));
-    }
-  });
-
-  return id;
+export function getRandomRoom(): Room {
+  const availableRooms = rooms.filter(room => room.players.length < 2);
+  const randomIndex = Math.floor(Math.random() * availableRooms.length);
+  return availableRooms[randomIndex];
 }
