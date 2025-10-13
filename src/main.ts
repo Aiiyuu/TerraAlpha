@@ -8,7 +8,8 @@ import { setupDialog } from "./components/dialog.ts";
 import { setupTimer } from "./components/timer.ts";
 import { loadCellIcons } from "./components/cells.ts";
 
-// Load UI elements when browser is loaded
+import { setupShipFinish } from "./components/shipFinish.ts";
+
 window.addEventListener('load', () => {
   setUpNavigation();
   setupDialog();
@@ -19,4 +20,5 @@ window.addEventListener('load', () => {
   setupDice();
   loadCellIcons();
   setupAdaptiveMenuBtn();
+  setupShipFinish();
 });

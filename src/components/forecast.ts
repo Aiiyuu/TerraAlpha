@@ -89,23 +89,32 @@ function getParentFieldQa(el: HTMLElement): string | null {
   return parentCell?.getAttribute('data-qa') ?? null;
 }
 
-function getFromFieldIndexIfOnBoard(el: HTMLElement): number | null {
-  const qa = getParentFieldQa(el);
-  if (!qa) return null;
-  const plain = parseFieldQa(qa);
-  if (plain !== null) return plain;
-  const sp = parseSpecialFieldQa(qa);
-  return sp ? sp.base : null;
-}
-
 function targetHasButton(cell: HTMLElement): boolean {
   return !!cell.querySelector('.cell-btn, button, [data-ship], .ship');
 }
 
 const SPECIAL_MULTI = new Set([6, 12, 18]);
 
+function isFinalQa(qa: string | null): qa is 'final-0' | 'final-1' | 'final-2' {
+  return qa === 'final-0' || qa === 'final-1' || qa === 'final-2';
+}
+
+function computeFinalTargetQaFromStart(parentQa: string, steps: number): string | null {
+  if (parentQa === 'final-2') {
+    if (steps >= 2) return 'final-0';
+    if (steps === 1) return 'final-1';
+    return null;
+  }
+  if (parentQa === 'final-1') {
+    if (steps >= 1) return 'final-0';
+    return null;
+  }
+  return null;
+}
+
 function pickForecastCell(targetIndex: number): HTMLElement | null {
   if (!Number.isFinite(targetIndex)) return null;
+
   if (SPECIAL_MULTI.has(targetIndex)) {
     const candidatesQa = [`field-${targetIndex}-1`, `field-${targetIndex}-2`];
     for (const qa of candidatesQa) {
@@ -114,7 +123,39 @@ function pickForecastCell(targetIndex: number): HTMLElement | null {
     }
     return null;
   }
+
+  if (targetIndex >= 28) {
+    const cell = getCellByQa('final-0');
+    return cell || null;
+  }
+
+  if (targetIndex === 27) {
+    const cell = getCellByQa('final-1');
+    if (cell && !targetHasButton(cell)) return cell;
+    return null;
+  }
+
+  if (targetIndex === 26 || targetIndex === 25) {
+    const cell = getCellByQa('final-2');
+    if (cell && !targetHasButton(cell)) return cell;
+    return null;
+  }
+
+  if (targetIndex === 24) {
+    const cell2 = getCellByQa('final-2');
+    if (cell2 && !targetHasButton(cell2)) return cell2;
+    const cell1 = getCellByQa('final-1');
+    if (cell1 && !targetHasButton(cell1)) return cell1;
+    return null;
+  }
+
   const cell = getFieldCellByIndex(targetIndex);
+  if (cell && !targetHasButton(cell)) return cell;
+  return null;
+}
+
+function pickFinalForecastCell(finalQa: 'final-0' | 'final-1' | 'final-2'): HTMLElement | null {
+  const cell = getCellByQa(finalQa);
   if (cell && !targetHasButton(cell)) return cell;
   return null;
 }
@@ -123,6 +164,7 @@ function computeTargetIndexForShip(shipEl: HTMLElement, steps: number): number |
   if (!Number.isFinite(steps) || steps <= 0) return null;
   const parentQa = getParentFieldQa(shipEl);
   if (!parentQa) return steps;
+  if (isFinalQa(parentQa)) return null;
   const sp = parseSpecialFieldQa(parentQa);
   if (sp && SPECIAL_MULTI.has(sp.base)) {
     const minSteps = sp.sub + 1;
@@ -136,6 +178,7 @@ function computeTargetIndexForShip(shipEl: HTMLElement, steps: number): number |
 
 function computeTargetIndexFromQa(fromCellQa: string, steps: number): number | null {
   if (!Number.isFinite(steps) || steps <= 0) return null;
+  if (isFinalQa(fromCellQa as any)) return null;
   const sp = parseSpecialFieldQa(fromCellQa);
   if (sp && SPECIAL_MULTI.has(sp.base)) {
     const minSteps = sp.sub + 1;
@@ -159,6 +202,25 @@ function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, plann
   clearForecast();
   clearAllForecastLocksForActiveColor();
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
+
+  const parentQa = getParentFieldQa(shipEl);
+  if (parentQa && isFinalQa(parentQa)) {
+    const finalQa = computeFinalTargetQaFromStart(parentQa, planned as number);
+    if (!finalQa) {
+      applyDisabled(shipEl, 'disabledByForecast');
+      return;
+    }
+    const cell = pickFinalForecastCell(finalQa as any);
+    if (!cell) {
+      applyDisabled(shipEl, 'disabledByForecast');
+      return;
+    }
+    clearDisabled(shipEl, 'disabledByForecast');
+    cell.classList.add('is-forecast');
+    lastHighlighted = cell;
+    return;
+  }
+
   const targetIndex = computeTargetIndexForShip(shipEl, planned as number);
   if (!Number.isFinite(targetIndex!)) {
     applyDisabled(shipEl, 'disabledByForecast');
@@ -218,15 +280,36 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
     enforceTurnInteractivity();
     if (color !== getActiveColorRef()) return;
     clearAllForecastLocksForActiveColor();
+
     let shipEl: HTMLElement | null = null;
     if (shipQa) shipEl = document.querySelector<HTMLElement>(`.cell-btn[data-qa="${shipQa}"]`);
     if (!shipEl) shipEl = lastFocusedShipEl;
+
     if (!Number.isFinite(planned) || planned <= 0) {
       clearForecast();
       return;
     }
+
     if (fromCellQa) {
       clearForecast();
+
+      if (isFinalQa(fromCellQa as any)) {
+        const finalQa = computeFinalTargetQaFromStart(fromCellQa as any, planned);
+        if (!finalQa) {
+          if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+          return;
+        }
+        const cell = pickFinalForecastCell(finalQa as any);
+        if (!cell) {
+          if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+          return;
+        }
+        if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
+        cell.classList.add('is-forecast');
+        lastHighlighted = cell;
+        return;
+      }
+
       const target = computeTargetIndexFromQa(fromCellQa, planned);
       if (!Number.isFinite(target!)) {
         if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
@@ -242,6 +325,7 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
       lastHighlighted = cell;
       return;
     }
+
     if (shipEl) {
       highlightForecastForShip(shipEl, color, planned);
     }
