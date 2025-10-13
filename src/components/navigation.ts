@@ -1,10 +1,10 @@
 import { fireRibbons, hideRibbons } from "./ribbons.ts";
-import { addNewPlayerToRoom, createRoom, getRandomRoom} from "../server/rooms.ts";
-import {createNewPlayer, createRandomPlayer} from "../server/player.ts";
+import { addNewPlayerToRoom, createRoom, getRandomRoom } from "../server/rooms.ts";
+import { createNewPlayer, createRandomPlayer } from "../server/player.ts";
 import type { Player } from "../types/player.ts";
 import type { Room } from "../types/room.ts";
 import { updateRoom } from "../server/server.ts";
-import {startGame} from "./game.ts";
+import { startGame } from "./game.ts";
 
 const RIBBONS_ANIMATION_DURATION = 1000;
 
@@ -68,8 +68,9 @@ export function setUpNavigation() {
   });
 
   form.addEventListener("submit", (event: SubmitEvent) => {
-    event.preventDefault();
+    // event.preventDefault();
     createRoom();
+    window.location.reload();
   });
 }
 
