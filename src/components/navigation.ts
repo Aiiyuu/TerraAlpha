@@ -67,7 +67,7 @@ export function setUpNavigation() {
     startGame(randomRoom.players[0], randomRoom.players[1])
   });
 
-  form.addEventListener("submit", (event: SubmitEvent) => {
+  form.addEventListener("submit", () => {
     // event.preventDefault();
     createRoom();
     window.location.reload();
