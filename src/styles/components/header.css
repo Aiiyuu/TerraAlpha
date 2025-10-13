@@ -1,0 +1,94 @@
+.header {
+  font-family: "Montserrat", sans-serif;
+  width: 100vw;
+  height: 100vh;
+  background-size: contain;
+  background: url("../assets/images/decorations/decoration1.png") no-repeat center center;
+  background-size: cover;
+}
+
+.header-wrapper {
+  max-width: var(--max-page-width);
+  margin-inline: auto;
+  padding-inline: var(--page-margin);
+}
+
+.header-wrapper > * {
+  margin-bottom: 50px;
+}
+
+.header-wrapper > *:last-child {
+  margin-bottom: 0px;
+}
+
+.header-title {
+  font-weight: bold;
+  font-size: 64px;
+  color: var(--purple-color);
+  animation: slide-fade-up var(--scroll-animation-duration) forwards ease;
+}
+
+.header-dots {
+  display: flex;
+  align-items: center;
+  gap: 23px;
+}
+
+.header-dots span {
+  display: inline-block;
+
+  --dot-size: 7px;
+
+  width: var(--dot-size);
+  height: var(--dot-size);
+
+  background-color: #E7E7E7;
+  border-radius: 50%;
+}
+
+.header-text {
+  opacity: 0;
+  max-width: 500px;
+  color: var(--base-text-color);
+  line-height: 30px;
+  letter-spacing: 2px;
+  animation: slide-fade-up var(--scroll-animation-duration) 100ms forwards ease;
+}
+
+.header-button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.header-button-group .btn {
+  opacity: 0;
+}
+
+.header-button-group .btn:nth-child(1) {
+  animation: slide-fade-up var(--scroll-animation-duration) 200ms forwards ease;
+}
+
+.header-button-group .btn:nth-child(2) {
+  animation: slide-fade-up var(--scroll-animation-duration) 300ms forwards ease;
+}
+
+.header-button-group .btn:nth-child(3) {
+  animation: slide-fade-up var(--scroll-animation-duration) 400ms forwards ease;
+}
+
+@media (min-width: 900px) {
+  .header-text {
+    width: 40%;
+  }
+}
+
+@media (min-width: 500px) {
+  .header-button-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+

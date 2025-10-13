@@ -1,36 +1,66 @@
+@import url('./components/animations.css');
+@import url('./components/navbar.css');
+@import url('./components/header.css');
+@import url('./components/form-section.css');
+@import url('./components/avatars.css');
+@import url('./components/ribbons.css');
+@import url('./components/buttons.css');
+@import url('./components/rooms-table.css');
 @import url('./components/dice.css');
 @import url('./components/chat.css');
 @import url('./components/dialog.css');
 @import url('./components/timer.css');
-@import url('components/board.css');
+@import url('./components/board.css');
+@import url('./components/ships.css');
+@import url('./components/game.css');
 
 html, body, * {
   user-select: none; /* eslint-disable-line css/use-baseline */
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+button, input, input:focus {
+  border: none;
+  background-color: transparent;
+  outline: none;
 }
 
 body {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  font-family: "Outfit", sans-serif;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   padding-top: 0;
-  background: url('../assets/images/bg_main.jpg') no-repeat center center fixed;
   background-size: cover;
+
+  --max-page-width: 1400px;
+  --page-margin: 40px;
+  --base-text-color: #A4B7C7;
+  --purple-color: #6A0DAD;
+  --green-color: #4CAF50;
+  --light-color: #FBFDFE;
+  --dark-color: #132440;
+  --base-transition-duration: 300ms;
+  --scroll-animation-duration: 800ms;
+
+  --player1-color: var(--purple-color);
+  --player2-color: var(--purple-color);
+
 }
 
-main {
-  display: flex;
-  justify-content: space-between;
+.is-hidden {
+  display: none;
 }
-
-main > section {
-  padding: 69px 20px 20px 20px;
-}
-
-main > section.middle-section {
-  padding-top: 0;
-}
-
 
 .hand-grid {
   display: grid;
@@ -53,7 +83,6 @@ main > section.middle-section {
   font-weight: 600;
   pointer-events: none;
 }
-
 
 .cell-btn {
   width: 64px;

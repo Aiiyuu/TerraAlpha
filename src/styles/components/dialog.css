@@ -1,27 +1,22 @@
 .dialog {
   color: #fff;
+  border-radius: var(--dialog-radius);
 
   --transition-time: 300ms;
   --dialog-radius: 10px;
 }
 
-.dialog.dialog-red {
-  --dialog-color: #DD0303;
+.dialog.dialog-red,
+.dialog.dialog-red .dialog-list-item {
+  background-color: var(--player1-color);
 }
 
-.dialog.dialog-blue {
-  --dialog-color: #0046FF;
+.dialog.dialog-blue,
+.dialog.dialog-blue .dialog-list-item {
+  background-color: var(--player2-color);
 }
 
-.dialog.dialog-red .dialog-button:hover {
-  --dialog-color: #FF4C4C;
-}
-
-.dialog.dialog-blue .dialog-button:hover {
-  --dialog-color: #4578FF;
-}
-
-.dialog.dialog--active .dialog-button:after {
+.dialog.dialog--active .dialog-button::after {
   transform: rotate(-90deg);
 }
 
@@ -30,17 +25,14 @@
   justify-content: center;
   align-items: center;
 
-  padding: 20px 10px;
+  padding: 10px 5px;
   margin-bottom: 25px;
-  transition: background-color var(--transition-time) ease;
-  border-radius: var(--dialog-radius);
   cursor: pointer;
 
-  background-color: var(--dialog-color, #132440);
   font-weight: bold;
 }
 
-.dialog-button:after {
+.dialog-button::after {
   display: inline-block;
   content: "";
 
@@ -56,6 +48,9 @@
 }
 
 .dialog-list {
+  position: absolute;
+  z-index: 2;
+
   overflow-y: hidden;
   height: 0;
   margin-bottom: 25px;
@@ -63,23 +58,18 @@
   transition: all var(--transition-time) ease;
 
   border-radius: var(--dialog-radius);
-  background-color: var(--dialog-color, #132440);
 }
 
 .dialog-list-item {
+  cursor: pointer;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   padding: 20px 20px;
-  transition: background-color var(--transition-time) ease;
 }
 
-.dialog.dialog-red .dialog-list-item:hover {
-  background-color: #ff7b7d;
-}
-
-.dialog.dialog-blue .dialog-list-item:hover {
-  background-color: #45a0f4;
+.dialog.dialog-blue .dialog-list {
+  right: var(--base-padding);
 }
 
 .dialog-list-item img {
@@ -126,13 +116,4 @@
 
 .dialog-phrase-wrapper p {
   font-weight: normal;
-}
-
-@keyframes fly {
-  from {
-    top: 100vh;
-  }
-  to {
-    top: -100vh;
-  }
 }

@@ -1,5 +1,4 @@
 import type { Player } from "../types/player.ts";
-import { formatTime } from "../utility/getFormattedDate.ts";
 
 const elements: Element[] = [
   ...document.querySelectorAll('.dice-button'),
@@ -45,12 +44,12 @@ export function createPlayer(id: string, name: string): CreatePlayerResult {
 }
 
 /**
- * This function displays a everything based on the provided current user ID.
+ * This function displays everything based on the provided current user ID.
  * @param id
  */
 export function showPlayerContent(id: string) {
   elements.forEach(element => {
-    if (element.classList.contains(id)) {
+    if (element.classList.contains(String(id))) {
       element.classList.add('active');
       element.classList.remove('hidden');
     } else {
@@ -67,12 +66,10 @@ export function showPlayerContent(id: string) {
  */
 export function addMessage(id: string, message: string) {
   chatElements.forEach((chat: Element) => {
-    if (chat.classList.contains(id)) {
-      const date = formatTime(new Date());
-
+    if (chat.classList.contains(String(id))) {
       const chatItem: HTMLLIElement = document.createElement("li");
       chatItem.classList.add('chat-item');
-      chatItem.innerHTML = `${date}: ${message}`;
+      chatItem.innerHTML = `${message}`;
 
       chat.prepend(chatItem);
     }

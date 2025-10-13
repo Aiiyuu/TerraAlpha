@@ -13,10 +13,12 @@ if (!dialogContainer) {
 /**
  * This function is responsible for creating the phrase element
  * and displaying it inside the dialog container.
- * @param userName
+ * @param dialog
  * @param id
  */
-function showPhrase(userName: string, id: number) {
+function showPhrase(dialog: HTMLElement, id: number) {
+  const userName: string = dialog.getAttribute('data-userName') || 'Невідомий гравець';
+
   const phrase: Phrase = phrases.find(phrase => phrase.id === id)!;
   const dialogPhrase: HTMLDivElement = document.createElement("div");
   dialogPhrase.classList.add("dialog-phrase");
@@ -57,7 +59,6 @@ function showPhrase(userName: string, id: number) {
  */
 export function setupDialog() {
   dialogs.forEach(dialog => {
-    const userName: string = dialog.getAttribute('data-userName') || 'Невідомий гравець';
     const dialogList = dialog.querySelector(".dialog-list") as HTMLElement;
     const dialogButton = dialog.querySelector(".dialog-button") as HTMLElement;
 
@@ -100,7 +101,7 @@ export function setupDialog() {
 
       li.addEventListener("click", () => {
         hideDialog();
-        showPhrase(userName, phrase.id);
+        showPhrase(dialog, phrase.id);
       });
     });
 
