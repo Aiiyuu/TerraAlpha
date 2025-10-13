@@ -7,12 +7,7 @@ let currentPlanned: number | null = null;
 let lastFocusedShipEl: HTMLElement | null = null;
 let getActiveColorRef: () => PlayerColor = () => 'red';
 
-/* ================== DISABLE/ENABLE з причинами ==================
-   Використовуємо дві незалежні причини блокування:
-   - disabledByTurn: корабель вимкнений, бо не його черга
-   - disabledByForecast: тимчасово вимкнений через зайняту ціль прогнозу
-   Розблокування певної причини не чіпає іншу.
-================================================================= */
+/* ================== DISABLE/ENABLE з причинами ================== */
 type DisableReason = 'disabledByTurn' | 'disabledByForecast';
 
 function applyDisabled(el: HTMLElement, reason: DisableReason) {
@@ -36,7 +31,6 @@ function clearDisabled(el: HTMLElement | null, reason: DisableReason) {
 
   delete el.dataset[reason];
 
-  // якщо більше НІЯКОЇ причини не лишилось — повністю вмикаємо
   const stillDisabled =
     el.dataset.disabledByTurn === '1' || el.dataset.disabledByForecast === '1';
 
@@ -60,13 +54,16 @@ function clearForecast() {
     lastHighlighted.classList.remove('is-forecast');
     lastHighlighted = null;
   }
-  // знімаємо лише блокування, пов’язане з ПРОГНОЗОМ
   clearDisabled(lastFocusedShipEl, 'disabledByForecast');
 }
 
 function getFieldCellByIndex(index: number): HTMLElement | null {
   if (!Number.isFinite(index) || index <= 0) return null;
   return document.querySelector<HTMLElement>(`.board [data-qa="field-${index}"]`);
+}
+
+function getCellByQa(qa: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`.board [data-qa="${qa}"]`);
 }
 
 function parseFieldQa(qa: string | null): number | null {
@@ -101,29 +98,62 @@ function computeTargetIndex(shipEl: HTMLElement, planned: number): number | null
 }
 
 function targetHasButton(cell: HTMLElement): boolean {
-  // зайнята, якщо в середині є кнопка/корабель
   return !!cell.querySelector('.cell-btn, button, [data-ship], .ship');
 }
 
+/* ======== НОВЕ: вибір клітинки для особливих індексів 6/12/18 ======== */
+const SPECIAL_MULTI = new Set([6, 12, 18]);
+
+/**
+ * Повертає найкращу цільову клітинку для прогнозу.
+ * - Для 6/12/18: спершу пробуємо field-X-1, потім field-X-2 (тільки якщо вільні).
+ * - Для інших: беремо звичайну field-X (за умови, що вона вільна).
+ * Якщо вільної опції немає — повертає null.
+ */
+function pickForecastCell(targetIndex: number): HTMLElement | null {
+  if (!Number.isFinite(targetIndex)) return null;
+
+  if (SPECIAL_MULTI.has(targetIndex)) {
+    const candidatesQa = [`field-${targetIndex}-1`, `field-${targetIndex}-2`];
+
+    for (const qa of candidatesQa) {
+      const cell = getCellByQa(qa);
+      if (cell && !targetHasButton(cell)) {
+        return cell;
+      }
+    }
+    return null; // обидві зайняті → прогноз неможливий
+  }
+
+  const cell = getFieldCellByIndex(targetIndex);
+  if (cell && !targetHasButton(cell)) {
+    return cell;
+  }
+
+  return null;
+}
+
 /* ============ головна логіка підсвітки під час ФОКУСУ ============ */
-function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, planned: number | null) {
+function highlightForecastForShip(
+  shipEl: HTMLElement,
+  color: PlayerColor,
+  planned: number | null,
+) {
   clearForecast();
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
 
   const targetIndex = computeTargetIndex(shipEl, planned as number);
   if (!Number.isFinite(targetIndex!)) return;
 
-  const cell = getFieldCellByIndex(targetIndex as number);
-  if (!cell) return;
+  const cell = pickForecastCell(targetIndex as number);
 
-  // 1) Спочатку перевіряємо зайнятість
-  if (targetHasButton(cell)) {
-    // зайнято → НЕ підсвічуємо, а корабель тимчасово блокуємо через прогноз
+  if (!cell) {
+    // немає вільної клітинки для прогнозу → блокуємо корабель по причині прогнозу
     applyDisabled(shipEl, 'disabledByForecast');
     return;
   }
 
-  // 2) Вільно → повертаємо інтерактив (якщо блокували прогнозом) і підсвічуємо
+  // є вільна → дозволяємо інтерактив і підсвічуємо
   clearDisabled(shipEl, 'disabledByForecast');
   cell.classList.add('is-forecast');
   lastHighlighted = cell;
@@ -139,10 +169,8 @@ function enforceTurnInteractivity() {
     if (!color) return;
 
     if (color === active) {
-      // знімаємо блокування по причині "черга"
       clearDisabled(el, 'disabledByTurn');
     } else {
-      // блокуємо по причині "черга"
       applyDisabled(el, 'disabledByTurn');
     }
   });
@@ -152,16 +180,13 @@ function enforceTurnInteractivity() {
 export function setupForecast(getActiveColor: () => PlayerColor) {
   getActiveColorRef = getActiveColor;
 
-  // Початкове застосування правил черги
   enforceTurnInteractivity();
 
-  // Зміна запланованих кроків
   document.addEventListener('steps:planned-change', (e: Event) => {
     const { color, planned } = (e as CustomEvent).detail as {
       color: PlayerColor; planned: number | null;
     };
 
-    // На всяк випадок тримаємо інтерфейс у правильному стані за чергою
     enforceTurnInteractivity();
 
     if (color !== getActiveColorRef()) return;
@@ -179,7 +204,6 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
     clearForecast();
   });
 
-  // Запит на показ прогнозу ззовні
   document.addEventListener('steps:request-forecast', (e: Event) => {
     const { color, planned, shipQa, fromCellQa } = (e as CustomEvent).detail as {
       color: PlayerColor;
@@ -201,28 +225,29 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
       return;
     }
 
+    // Якщо прийшов чіткий fromCellQa (прогноз "із поля")
     if (fromCellQa) {
       clearForecast();
+
       const from = parseFieldQa(fromCellQa);
       if (from !== null) {
         const target = from + planned;
-        const cell = getFieldCellByIndex(target);
-        if (cell) {
-          // 1) Перевіряємо зайнятість
-          if (shipEl && targetHasButton(cell)) {
-            applyDisabled(shipEl, 'disabledByForecast');
-            return; // нічого не підсвічуємо
-          }
 
-          // 2) Вільно → дозволяємо інтерактив (по прогнозу) і підсвічуємо
-          if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
-          cell.classList.add('is-forecast');
-          lastHighlighted = cell;
+        const cell = pickForecastCell(target);
+
+        if (!cell) {
+          if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+          return;
         }
+
+        if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
+        cell.classList.add('is-forecast');
+        lastHighlighted = cell;
       }
       return;
     }
 
+    // Інакше — прогноз від "корабля з руки" або останнього фокуса
     if (shipEl) {
       highlightForecastForShip(shipEl, color, planned);
     }
@@ -237,7 +262,6 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
 
     const color = getShipColor(el) ?? getActiveColorRef();
     if (color !== getActiveColorRef()) {
-      // якщо випадково фокус став на чужий корабель — одразу знімаємо підсвітку
       clearForecast();
       return;
     }
@@ -257,5 +281,4 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
 
     enforceTurnInteractivity();
   }, true);
-
 }
