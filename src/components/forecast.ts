@@ -7,14 +7,12 @@ let currentPlanned: number | null = null;
 let lastFocusedShipEl: HTMLElement | null = null;
 let getActiveColorRef: () => PlayerColor = () => 'red';
 
-/* ================== DISABLE/ENABLE з причинами ================== */
 type DisableReason = 'disabledByTurn' | 'disabledByForecast';
 
 function applyDisabled(el: HTMLElement, reason: DisableReason) {
   if (el.dataset[reason] === '1') return;
   el.dataset[reason] = '1';
   el.classList.add('is-disabled');
-
   if (el instanceof HTMLButtonElement) {
     el.disabled = true;
     el.setAttribute('tabindex', '-1');
@@ -28,15 +26,11 @@ function applyDisabled(el: HTMLElement, reason: DisableReason) {
 function clearDisabled(el: HTMLElement | null, reason: DisableReason) {
   if (!el) return;
   if (el.dataset[reason] !== '1') return;
-
   delete el.dataset[reason];
-
   const stillDisabled =
     el.dataset.disabledByTurn === '1' || el.dataset.disabledByForecast === '1';
-
   if (!stillDisabled) {
     el.classList.remove('is-disabled');
-
     if (el instanceof HTMLButtonElement) {
       el.disabled = false;
       el.removeAttribute('tabindex');
@@ -48,7 +42,6 @@ function clearDisabled(el: HTMLElement | null, reason: DisableReason) {
   }
 }
 
-/* ================== forecast utils ================== */
 function clearForecast() {
   if (lastHighlighted) {
     lastHighlighted.classList.remove('is-forecast');
@@ -72,6 +65,12 @@ function parseFieldQa(qa: string | null): number | null {
   return m ? Number(m[1]) : null;
 }
 
+function parseSpecialFieldQa(qa: string | null): { base: number; sub: 1 | 2 } | null {
+  if (!qa) return null;
+  const m = qa.match(/^field-(\d+)-(1|2)$/);
+  return m ? { base: Number(m[1]), sub: Number(m[2]) as 1 | 2 } : null;
+}
+
 function getShipColor(el: HTMLElement): PlayerColor | null {
   const qa = el.getAttribute('data-qa') || '';
   if (qa.startsWith('p1-cell-')) return 'red';
@@ -85,89 +84,102 @@ function isShipEl(el: HTMLElement | null): boolean {
   return !!el?.closest?.('.cell-btn, [data-ship], .ship');
 }
 
-function getFromFieldIndexIfOnBoard(el: HTMLElement): number | null {
+function getParentFieldQa(el: HTMLElement): string | null {
   const parentCell = el.closest<HTMLElement>('.board .cell');
-  if (!parentCell) return null;
-  return parseFieldQa(parentCell.getAttribute('data-qa'));
+  return parentCell?.getAttribute('data-qa') ?? null;
 }
 
-function computeTargetIndex(shipEl: HTMLElement, planned: number): number | null {
-  if (!Number.isFinite(planned) || planned <= 0) return null;
-  const fromOnBoard = getFromFieldIndexIfOnBoard(shipEl);
-  return fromOnBoard !== null ? fromOnBoard + planned : planned;
+function getFromFieldIndexIfOnBoard(el: HTMLElement): number | null {
+  const qa = getParentFieldQa(el);
+  if (!qa) return null;
+  const plain = parseFieldQa(qa);
+  if (plain !== null) return plain;
+  const sp = parseSpecialFieldQa(qa);
+  return sp ? sp.base : null;
 }
 
 function targetHasButton(cell: HTMLElement): boolean {
   return !!cell.querySelector('.cell-btn, button, [data-ship], .ship');
 }
 
-/* ======== НОВЕ: вибір клітинки для особливих індексів 6/12/18 ======== */
 const SPECIAL_MULTI = new Set([6, 12, 18]);
 
-/**
- * Повертає найкращу цільову клітинку для прогнозу.
- * - Для 6/12/18: спершу пробуємо field-X-1, потім field-X-2 (тільки якщо вільні).
- * - Для інших: беремо звичайну field-X (за умови, що вона вільна).
- * Якщо вільної опції немає — повертає null.
- */
 function pickForecastCell(targetIndex: number): HTMLElement | null {
   if (!Number.isFinite(targetIndex)) return null;
-
   if (SPECIAL_MULTI.has(targetIndex)) {
     const candidatesQa = [`field-${targetIndex}-1`, `field-${targetIndex}-2`];
-
     for (const qa of candidatesQa) {
       const cell = getCellByQa(qa);
-      if (cell && !targetHasButton(cell)) {
-        return cell;
-      }
+      if (cell && !targetHasButton(cell)) return cell;
     }
-    return null; // обидві зайняті → прогноз неможливий
+    return null;
   }
-
   const cell = getFieldCellByIndex(targetIndex);
-  if (cell && !targetHasButton(cell)) {
-    return cell;
-  }
-
+  if (cell && !targetHasButton(cell)) return cell;
   return null;
 }
 
-/* ============ головна логіка підсвітки під час ФОКУСУ ============ */
-function highlightForecastForShip(
-  shipEl: HTMLElement,
-  color: PlayerColor,
-  planned: number | null,
-) {
+function computeTargetIndexForShip(shipEl: HTMLElement, steps: number): number | null {
+  if (!Number.isFinite(steps) || steps <= 0) return null;
+  const parentQa = getParentFieldQa(shipEl);
+  if (!parentQa) return steps;
+  const sp = parseSpecialFieldQa(parentQa);
+  if (sp && SPECIAL_MULTI.has(sp.base)) {
+    const minSteps = sp.sub + 1;
+    if (steps < minSteps) return null;
+    return sp.base + (steps - sp.sub);
+  }
+  const from = parseFieldQa(parentQa);
+  if (from !== null) return from + steps;
+  return null;
+}
+
+function computeTargetIndexFromQa(fromCellQa: string, steps: number): number | null {
+  if (!Number.isFinite(steps) || steps <= 0) return null;
+  const sp = parseSpecialFieldQa(fromCellQa);
+  if (sp && SPECIAL_MULTI.has(sp.base)) {
+    const minSteps = sp.sub + 1;
+    if (steps < minSteps) return null;
+    return sp.base + (steps - sp.sub);
+  }
+  const from = parseFieldQa(fromCellQa);
+  if (from !== null) return from + steps;
+  return null;
+}
+
+function clearAllForecastLocksForActiveColor() {
+  const active = getActiveColorRef();
+  document.querySelectorAll<HTMLElement>('.cell-btn, [data-ship], .ship').forEach(el => {
+    const c = getShipColor(el);
+    if (c === active) clearDisabled(el, 'disabledByForecast');
+  });
+}
+
+function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, planned: number | null) {
   clearForecast();
+  clearAllForecastLocksForActiveColor();
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
-
-  const targetIndex = computeTargetIndex(shipEl, planned as number);
-  if (!Number.isFinite(targetIndex!)) return;
-
-  const cell = pickForecastCell(targetIndex as number);
-
-  if (!cell) {
-    // немає вільної клітинки для прогнозу → блокуємо корабель по причині прогнозу
+  const targetIndex = computeTargetIndexForShip(shipEl, planned as number);
+  if (!Number.isFinite(targetIndex!)) {
     applyDisabled(shipEl, 'disabledByForecast');
     return;
   }
-
-  // є вільна → дозволяємо інтерактив і підсвічуємо
+  const cell = pickForecastCell(targetIndex as number);
+  if (!cell) {
+    applyDisabled(shipEl, 'disabledByForecast');
+    return;
+  }
   clearDisabled(shipEl, 'disabledByForecast');
   cell.classList.add('is-forecast');
   lastHighlighted = cell;
 }
 
-/* ====== Увімкнути лише кораблі активного кольору, інші вимкнути ====== */
 function enforceTurnInteractivity() {
   const active = getActiveColorRef();
   const ships = document.querySelectorAll<HTMLElement>('.cell-btn, [data-ship], .ship');
-
   ships.forEach(el => {
     const color = getShipColor(el);
     if (!color) return;
-
     if (color === active) {
       clearDisabled(el, 'disabledByTurn');
     } else {
@@ -176,23 +188,16 @@ function enforceTurnInteractivity() {
   });
 }
 
-/* ================== setup ================== */
 export function setupForecast(getActiveColor: () => PlayerColor) {
   getActiveColorRef = getActiveColor;
-
   enforceTurnInteractivity();
 
   document.addEventListener('steps:planned-change', (e: Event) => {
-    const { color, planned } = (e as CustomEvent).detail as {
-      color: PlayerColor; planned: number | null;
-    };
-
+    const { color, planned } = (e as CustomEvent).detail as { color: PlayerColor; planned: number | null; };
     enforceTurnInteractivity();
-
     if (color !== getActiveColorRef()) return;
-
+    clearAllForecastLocksForActiveColor();
     currentPlanned = planned;
-
     if (lastFocusedShipEl) {
       const shipColor = getShipColor(lastFocusedShipEl);
       if (shipColor && shipColor === color) {
@@ -200,7 +205,6 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
         return;
       }
     }
-
     clearForecast();
   });
 
@@ -211,61 +215,47 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
       shipQa?: string | null;
       fromCellQa?: string | null;
     };
-
     enforceTurnInteractivity();
-
     if (color !== getActiveColorRef()) return;
-
+    clearAllForecastLocksForActiveColor();
     let shipEl: HTMLElement | null = null;
     if (shipQa) shipEl = document.querySelector<HTMLElement>(`.cell-btn[data-qa="${shipQa}"]`);
     if (!shipEl) shipEl = lastFocusedShipEl;
-
     if (!Number.isFinite(planned) || planned <= 0) {
       clearForecast();
       return;
     }
-
-    // Якщо прийшов чіткий fromCellQa (прогноз "із поля")
     if (fromCellQa) {
       clearForecast();
-
-      const from = parseFieldQa(fromCellQa);
-      if (from !== null) {
-        const target = from + planned;
-
-        const cell = pickForecastCell(target);
-
-        if (!cell) {
-          if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
-          return;
-        }
-
-        if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
-        cell.classList.add('is-forecast');
-        lastHighlighted = cell;
+      const target = computeTargetIndexFromQa(fromCellQa, planned);
+      if (!Number.isFinite(target!)) {
+        if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+        return;
       }
+      const cell = pickForecastCell(target as number);
+      if (!cell) {
+        if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+        return;
+      }
+      if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
+      cell.classList.add('is-forecast');
+      lastHighlighted = cell;
       return;
     }
-
-    // Інакше — прогноз від "корабля з руки" або останнього фокуса
     if (shipEl) {
       highlightForecastForShip(shipEl, color, planned);
     }
   });
 
-  /* ================== ФОКУС (замість ховеру) ================== */
   document.addEventListener('focusin', (ev) => {
     enforceTurnInteractivity();
-
     const el = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship');
     if (!el) return;
-
     const color = getShipColor(el) ?? getActiveColorRef();
     if (color !== getActiveColorRef()) {
       clearForecast();
       return;
     }
-
     lastFocusedShipEl = el;
     const planned = getPlannedMove(getActiveColorRef());
     currentPlanned = planned;
@@ -275,10 +265,8 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
   document.addEventListener('focusout', (ev) => {
     const next = ev.relatedTarget as HTMLElement | null;
     if (next && (next.closest('.hand-grid') || next.closest('.board') || isShipEl(next))) return;
-
     lastFocusedShipEl = null;
     clearForecast();
-
     enforceTurnInteractivity();
   }, true);
 }
