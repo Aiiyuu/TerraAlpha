@@ -59,12 +59,11 @@ export function setUpNavigation() {
       return;
     }
 
+    addNewPlayerToRoom(randomRoom.id, player);
     updateRoom(randomRoom);
 
-    addNewPlayerToRoom(randomRoom.id, player);
-    animatePageSwitching(showGame);
-
     startGame(randomRoom.players[0], randomRoom.players[1])
+    animatePageSwitching(showGame);
   });
 
   form.addEventListener("submit", () => {

@@ -10,7 +10,7 @@ const navbarLineWrapper = document.querySelector('.nav-lines') as HTMLElement;
 export function setupAdaptiveMenuBtn() {
   for (let i = 0; i < 3; i++) {
     const line: HTMLSpanElement = document.createElement("span");
-    line.classList.add("navbar-line");
+    line.classList.add("nav-line");
 
     navbarLineWrapper.appendChild(line);
   }
