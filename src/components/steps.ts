@@ -294,21 +294,18 @@ function attachInteraction(block: HTMLDivElement, color: PlayerColor) {
       emitPlannedChange(color, val);
     };
 
-    // ── Гілка без об’єднань (перше натискання / звичайні стани) ─────────────────
     if (!merged) {
       const active = block.querySelector<HTMLButtonElement>('.step-btn.is-active');
 
-      // Перше натискання — робимо кнопку активною
       if (!active) {
         setActive(target, tone);
         const idx = Number(target.dataset.index);
         const val = getNum(target);
         setPlannedWithIndex(val, [idx]);
-        removeIndices([idx]); // видалити індекс обраної кнопки зі списку решти
+        removeIndices([idx]); 
         return;
       }
 
-      // Повторний клік на тій самій — скидання
       if (active === target) {
         setWhite(active);
         setPlannedWithIndex(null, []);
@@ -316,7 +313,6 @@ function attachInteraction(block: HTMLDivElement, color: PlayerColor) {
         return;
       }
 
-      // Об’єднання двох кнопок → комбінована
       const sum = getNum(active) + getNum(target);
       const activeIdx = Number(active.dataset.index);
       const targetIdx = Number(target.dataset.index);
@@ -330,20 +326,17 @@ function attachInteraction(block: HTMLDivElement, color: PlayerColor) {
       block.dataset.merged = 'true';
 
       setPlannedWithIndex(sum, [activeIdx, targetIdx]);
-      removeIndices([activeIdx, targetIdx]); // обидва індекси використані
+      removeIndices([activeIdx, targetIdx]); 
       return;
     }
 
-    // ── Гілка, коли вже є комбінована кнопка ────────────────────────────────────
     const combined = block.querySelector<HTMLButtonElement>('.step-btn.is-combined');
 
-    // Якщо чомусь втрачено комбіновану — відкотитися
     if (!combined) {
       resetToOriginal(block, color);
       return;
     }
 
-    // Клік по самій комбінованій — відкотитися до оригіналу
     if (target === combined) {
       resetToOriginal(block, color);
       setPlanned(block, null);
@@ -352,7 +345,6 @@ function attachInteraction(block: HTMLDivElement, color: PlayerColor) {
       return;
     }
 
-    // Додаємо третю/четверту кнопку до комбінованої
     const newSum = getNum(combined) + getNum(target);
     combined.textContent = String(newSum);
     combined.dataset.step = String(newSum);
@@ -371,7 +363,6 @@ function attachInteraction(block: HTMLDivElement, color: PlayerColor) {
 
     setDisabled(target);
 
-    // ВАЖЛИВО: прибрати індекс новододаної кнопки з залишків
     removeIndices([newTargetIdx]);
 
     setPlanned(block, newSum);
@@ -409,7 +400,6 @@ export function createSteps() {
   attachInteraction(blueBlock!, 'blue');
   hideAllSteps();
 
-  // Наведення/вихід/клік по кораблях — прогноз і виконання
   document.addEventListener(
     'pointerenter',
     e => handleShipPointer(e as PointerEvent, 'enter'),
@@ -426,7 +416,6 @@ export function createSteps() {
     true,
   );
 
-  // Блокуємо "Закінчити хід" коли він у стані lock
   document.addEventListener(
     'click',
     e => {
@@ -448,7 +437,6 @@ export function createSteps() {
     true,
   );
 
-  // Доступність: блокуємо Enter/Space по забороненій кнопці ходу
   document.addEventListener(
     'keydown',
     e => {

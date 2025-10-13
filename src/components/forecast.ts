@@ -124,35 +124,29 @@ function pickForecastCell(targetIndex: number): HTMLElement | null {
     return null;
   }
 
-  if (targetIndex >= 28) {
-    const cell = getCellByQa('final-0');
-    return cell || null;
+  if (targetIndex >= 27) {
+    return getCellByQa('final-0');
   }
-
-  if (targetIndex === 27) {
+  if (targetIndex === 26) {
     const cell = getCellByQa('final-1');
-    if (cell && !targetHasButton(cell)) return cell;
-    return null;
+    return cell && !targetHasButton(cell) ? cell : null;
   }
-
-  if (targetIndex === 26 || targetIndex === 25) {
+  if (targetIndex === 25) {
     const cell = getCellByQa('final-2');
-    if (cell && !targetHasButton(cell)) return cell;
-    return null;
+    return cell && !targetHasButton(cell) ? cell : null;
   }
-
   if (targetIndex === 24) {
-    const cell2 = getCellByQa('final-2');
-    if (cell2 && !targetHasButton(cell2)) return cell2;
-    const cell1 = getCellByQa('final-1');
-    if (cell1 && !targetHasButton(cell1)) return cell1;
+    const c2 = getCellByQa('final-2');
+    if (c2 && !targetHasButton(c2)) return c2;
+    const c1 = getCellByQa('final-1');
+    if (c1 && !targetHasButton(c1)) return c1;
     return null;
   }
 
   const cell = getFieldCellByIndex(targetIndex);
-  if (cell && !targetHasButton(cell)) return cell;
-  return null;
+  return cell && !targetHasButton(cell) ? cell : null;
 }
+
 
 function pickFinalForecastCell(finalQa: 'final-0' | 'final-1' | 'final-2'): HTMLElement | null {
   const cell = getCellByQa(finalQa);
