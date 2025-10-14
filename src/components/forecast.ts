@@ -4,14 +4,50 @@ export type PlayerColor = 'red' | 'blue';
 
 let lastHighlighted: HTMLElement | null = null;
 let currentPlanned: number | null = null;
-let lastHoveredShipEl: HTMLElement | null = null;
+let lastFocusedShipEl: HTMLElement | null = null;
 let getActiveColorRef: () => PlayerColor = () => 'red';
+
+type DisableReason = 'disabledByTurn' | 'disabledByForecast';
+
+function applyDisabled(el: HTMLElement, reason: DisableReason) {
+  if (el.dataset[reason] === '1') return;
+  el.dataset[reason] = '1';
+  el.classList.add('is-disabled');
+  if (el instanceof HTMLButtonElement) {
+    el.disabled = true;
+    el.setAttribute('tabindex', '-1');
+    el.setAttribute('aria-disabled', 'true');
+  } else {
+    (el.style as any).pointerEvents = 'none';
+    el.setAttribute('aria-disabled', 'true');
+  }
+}
+
+function clearDisabled(el: HTMLElement | null, reason: DisableReason) {
+  if (!el) return;
+  if (el.dataset[reason] !== '1') return;
+  delete el.dataset[reason];
+  const stillDisabled =
+    el.dataset.disabledByTurn === '1' || el.dataset.disabledByForecast === '1';
+  if (!stillDisabled) {
+    el.classList.remove('is-disabled');
+    if (el instanceof HTMLButtonElement) {
+      el.disabled = false;
+      el.removeAttribute('tabindex');
+      el.removeAttribute('aria-disabled');
+    } else {
+      (el.style as any).pointerEvents = '';
+      el.removeAttribute('aria-disabled');
+    }
+  }
+}
 
 function clearForecast() {
   if (lastHighlighted) {
     lastHighlighted.classList.remove('is-forecast');
     lastHighlighted = null;
   }
+  clearDisabled(lastFocusedShipEl, 'disabledByForecast');
 }
 
 function getFieldCellByIndex(index: number): HTMLElement | null {
@@ -19,10 +55,20 @@ function getFieldCellByIndex(index: number): HTMLElement | null {
   return document.querySelector<HTMLElement>(`.board [data-qa="field-${index}"]`);
 }
 
+function getCellByQa(qa: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`.board [data-qa="${qa}"]`);
+}
+
 function parseFieldQa(qa: string | null): number | null {
   if (!qa) return null;
   const m = qa.match(/^field-(\d+)$/);
   return m ? Number(m[1]) : null;
+}
+
+function parseSpecialFieldQa(qa: string | null): { base: number; sub: 1 | 2 } | null {
+  if (!qa) return null;
+  const m = qa.match(/^field-(\d+)-(1|2)$/);
+  return m ? { base: Number(m[1]), sub: Number(m[2]) as 1 | 2 } : null;
 }
 
 function getShipColor(el: HTMLElement): PlayerColor | null {
@@ -38,40 +84,180 @@ function isShipEl(el: HTMLElement | null): boolean {
   return !!el?.closest?.('.cell-btn, [data-ship], .ship');
 }
 
-function getFromFieldIndexIfOnBoard(el: HTMLElement): number | null {
+function getParentFieldQa(el: HTMLElement): string | null {
   const parentCell = el.closest<HTMLElement>('.board .cell');
-  if (!parentCell) return null;
-  return parseFieldQa(parentCell.getAttribute('data-qa'));
+  return parentCell?.getAttribute('data-qa') ?? null;
 }
 
-function computeTargetIndex(shipEl: HTMLElement, planned: number): number | null {
-  if (!Number.isFinite(planned) || planned <= 0) return null;
-  const fromOnBoard = getFromFieldIndexIfOnBoard(shipEl);
-  return fromOnBoard !== null ? fromOnBoard + planned : planned;
+function targetHasButton(cell: HTMLElement): boolean {
+  return !!cell.querySelector('.cell-btn, button, [data-ship], .ship');
+}
+
+const SPECIAL_MULTI = new Set([6, 12, 18]);
+
+function isFinalQa(qa: string | null): qa is 'final-0' | 'final-1' | 'final-2' {
+  return qa === 'final-0' || qa === 'final-1' || qa === 'final-2';
+}
+
+function computeFinalTargetQaFromStart(parentQa: string, steps: number): string | null {
+  if (parentQa === 'final-2') {
+    if (steps >= 2) return 'final-0';
+    if (steps === 1) return 'final-1';
+    return null;
+  }
+  if (parentQa === 'final-1') {
+    if (steps >= 1) return 'final-0';
+    return null;
+  }
+  return null;
+}
+
+function pickForecastCell(targetIndex: number): HTMLElement | null {
+  if (!Number.isFinite(targetIndex)) return null;
+
+  if (SPECIAL_MULTI.has(targetIndex)) {
+    const candidatesQa = [`field-${targetIndex}-1`, `field-${targetIndex}-2`];
+    for (const qa of candidatesQa) {
+      const cell = getCellByQa(qa);
+      if (cell && !targetHasButton(cell)) return cell;
+    }
+    return null;
+  }
+
+  if (targetIndex >= 27) {
+    return getCellByQa('final-0');
+  }
+  if (targetIndex === 26) {
+    const cell = getCellByQa('final-1');
+    return cell && !targetHasButton(cell) ? cell : null;
+  }
+  if (targetIndex === 25) {
+    const cell = getCellByQa('final-2');
+    return cell && !targetHasButton(cell) ? cell : null;
+  }
+  if (targetIndex === 24) {
+    const c2 = getCellByQa('final-2');
+    if (c2 && !targetHasButton(c2)) return c2;
+    const c1 = getCellByQa('final-1');
+    if (c1 && !targetHasButton(c1)) return c1;
+    return null;
+  }
+
+  const cell = getFieldCellByIndex(targetIndex);
+  return cell && !targetHasButton(cell) ? cell : null;
+}
+
+
+function pickFinalForecastCell(finalQa: 'final-0' | 'final-1' | 'final-2'): HTMLElement | null {
+  const cell = getCellByQa(finalQa);
+  if (cell && !targetHasButton(cell)) return cell;
+  return null;
+}
+
+function computeTargetIndexForShip(shipEl: HTMLElement, steps: number): number | null {
+  if (!Number.isFinite(steps) || steps <= 0) return null;
+  const parentQa = getParentFieldQa(shipEl);
+  if (!parentQa) return steps;
+  if (isFinalQa(parentQa)) return null;
+  const sp = parseSpecialFieldQa(parentQa);
+  if (sp && SPECIAL_MULTI.has(sp.base)) {
+    const minSteps = sp.sub + 1;
+    if (steps < minSteps) return null;
+    return sp.base + (steps - sp.sub);
+  }
+  const from = parseFieldQa(parentQa);
+  if (from !== null) return from + steps;
+  return null;
+}
+
+function computeTargetIndexFromQa(fromCellQa: string, steps: number): number | null {
+  if (!Number.isFinite(steps) || steps <= 0) return null;
+  if (isFinalQa(fromCellQa as any)) return null;
+  const sp = parseSpecialFieldQa(fromCellQa);
+  if (sp && SPECIAL_MULTI.has(sp.base)) {
+    const minSteps = sp.sub + 1;
+    if (steps < minSteps) return null;
+    return sp.base + (steps - sp.sub);
+  }
+  const from = parseFieldQa(fromCellQa);
+  if (from !== null) return from + steps;
+  return null;
+}
+
+function clearAllForecastLocksForActiveColor() {
+  const active = getActiveColorRef();
+  document.querySelectorAll<HTMLElement>('.cell-btn, [data-ship], .ship').forEach(el => {
+    const c = getShipColor(el);
+    if (c === active) clearDisabled(el, 'disabledByForecast');
+  });
 }
 
 function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, planned: number | null) {
   clearForecast();
+  clearAllForecastLocksForActiveColor();
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
-  const targetIndex = computeTargetIndex(shipEl, planned as number);
-  if (!Number.isFinite(targetIndex!)) return;
-  const cell = getFieldCellByIndex(targetIndex as number);
-  if (!cell) return;
+
+  const parentQa = getParentFieldQa(shipEl);
+  if (parentQa && isFinalQa(parentQa)) {
+    const finalQa = computeFinalTargetQaFromStart(parentQa, planned as number);
+    if (!finalQa) {
+      applyDisabled(shipEl, 'disabledByForecast');
+      return;
+    }
+    const cell = pickFinalForecastCell(finalQa as any);
+    if (!cell) {
+      applyDisabled(shipEl, 'disabledByForecast');
+      return;
+    }
+    clearDisabled(shipEl, 'disabledByForecast');
+    cell.classList.add('is-forecast');
+    lastHighlighted = cell;
+    return;
+  }
+
+  const targetIndex = computeTargetIndexForShip(shipEl, planned as number);
+  if (!Number.isFinite(targetIndex!)) {
+    applyDisabled(shipEl, 'disabledByForecast');
+    return;
+  }
+  const cell = pickForecastCell(targetIndex as number);
+  if (!cell) {
+    applyDisabled(shipEl, 'disabledByForecast');
+    return;
+  }
+  clearDisabled(shipEl, 'disabledByForecast');
   cell.classList.add('is-forecast');
   lastHighlighted = cell;
 }
 
+function enforceTurnInteractivity() {
+  const active = getActiveColorRef();
+  const ships = document.querySelectorAll<HTMLElement>('.cell-btn, [data-ship], .ship');
+  ships.forEach(el => {
+    const color = getShipColor(el);
+    if (!color) return;
+    if (color === active) {
+      clearDisabled(el, 'disabledByTurn');
+    } else {
+      applyDisabled(el, 'disabledByTurn');
+    }
+  });
+}
+
 export function setupForecast(getActiveColor: () => PlayerColor) {
   getActiveColorRef = getActiveColor;
+  enforceTurnInteractivity();
 
   document.addEventListener('steps:planned-change', (e: Event) => {
     const { color, planned } = (e as CustomEvent).detail as { color: PlayerColor; planned: number | null; };
+    enforceTurnInteractivity();
     if (color !== getActiveColorRef()) return;
+    clearAllForecastLocksForActiveColor();
     currentPlanned = planned;
-    if (lastHoveredShipEl) {
-      const shipColor = getShipColor(lastHoveredShipEl);
+    if (lastFocusedShipEl) {
+      const shipColor = getShipColor(lastFocusedShipEl);
       if (shipColor && shipColor === color) {
-        highlightForecastForShip(lastHoveredShipEl, color, currentPlanned);
+        highlightForecastForShip(lastFocusedShipEl, color, currentPlanned);
         return;
       }
     }
@@ -79,55 +265,86 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
   });
 
   document.addEventListener('steps:request-forecast', (e: Event) => {
-    const { color, planned, shipQa, fromCellQa } = (e as CustomEvent).detail as { color: PlayerColor; planned: number; shipQa?: string | null; fromCellQa?: string | null; };
+    const { color, planned, shipQa, fromCellQa } = (e as CustomEvent).detail as {
+      color: PlayerColor;
+      planned: number;
+      shipQa?: string | null;
+      fromCellQa?: string | null;
+    };
+    enforceTurnInteractivity();
     if (color !== getActiveColorRef()) return;
+    clearAllForecastLocksForActiveColor();
+
     let shipEl: HTMLElement | null = null;
     if (shipQa) shipEl = document.querySelector<HTMLElement>(`.cell-btn[data-qa="${shipQa}"]`);
-    if (!shipEl) shipEl = lastHoveredShipEl;
-    if (!Number.isFinite(planned) || planned <= 0) { clearForecast(); return; }
-    if (fromCellQa) {
+    if (!shipEl) shipEl = lastFocusedShipEl;
+
+    if (!Number.isFinite(planned) || planned <= 0) {
       clearForecast();
-      const from = parseFieldQa(fromCellQa);
-      if (from !== null) {
-        const target = from + planned;
-        const cell = getFieldCellByIndex(target);
-        if (cell) {
-          cell.classList.add('is-forecast');
-          lastHighlighted = cell;
-        }
-      }
       return;
     }
+
+    if (fromCellQa) {
+      clearForecast();
+
+      if (isFinalQa(fromCellQa as any)) {
+        const finalQa = computeFinalTargetQaFromStart(fromCellQa as any, planned);
+        if (!finalQa) {
+          if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+          return;
+        }
+        const cell = pickFinalForecastCell(finalQa as any);
+        if (!cell) {
+          if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+          return;
+        }
+        if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
+        cell.classList.add('is-forecast');
+        lastHighlighted = cell;
+        return;
+      }
+
+      const target = computeTargetIndexFromQa(fromCellQa, planned);
+      if (!Number.isFinite(target!)) {
+        if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+        return;
+      }
+      const cell = pickForecastCell(target as number);
+      if (!cell) {
+        if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
+        return;
+      }
+      if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
+      cell.classList.add('is-forecast');
+      lastHighlighted = cell;
+      return;
+    }
+
     if (shipEl) {
       highlightForecastForShip(shipEl, color, planned);
     }
   });
 
-  document.addEventListener('pointerenter', (ev) => {
+  document.addEventListener('focusin', (ev) => {
+    enforceTurnInteractivity();
     const el = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship');
     if (!el) return;
     const color = getShipColor(el) ?? getActiveColorRef();
-    if (color !== getActiveColorRef()) return;
-    lastHoveredShipEl = el;
+    if (color !== getActiveColorRef()) {
+      clearForecast();
+      return;
+    }
+    lastFocusedShipEl = el;
     const planned = getPlannedMove(getActiveColorRef());
     currentPlanned = planned;
     highlightForecastForShip(el, color, planned);
   }, true);
 
-  document.addEventListener('pointerleave', (ev) => {
-    const leftEl = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship');
-    if (!leftEl) return;
-    const toEl = ev.relatedTarget as HTMLElement | null;
-    if (isShipEl(toEl)) return;
-    if (lastHoveredShipEl === leftEl) {
-      lastHoveredShipEl = null;
-      clearForecast();
-    }
-  }, true);
-
   document.addEventListener('focusout', (ev) => {
     const next = ev.relatedTarget as HTMLElement | null;
     if (next && (next.closest('.hand-grid') || next.closest('.board') || isShipEl(next))) return;
+    lastFocusedShipEl = null;
     clearForecast();
-  });
+    enforceTurnInteractivity();
+  }, true);
 }
