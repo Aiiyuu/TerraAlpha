@@ -20,7 +20,6 @@ export function createSound({
 
   let bufferSourceNode: AudioBufferSourceNode | null = null;
   let gainNode: GainNode | null = null;
-  let isPlaying = false;
 
   // Function to load the audio buffer
   const loadAudioBuffer = async (src: string): Promise<AudioBuffer> => {
@@ -31,8 +30,6 @@ export function createSound({
 
   // Function to start the sound
   const startSound = async () => {
-    if (isPlaying) return; // If sound is already playing, do nothing.
-
     // Create new source node and gain node
     const buffer = await loadAudioBuffer(src);
     bufferSourceNode = audioContext.createBufferSource();
@@ -53,15 +50,13 @@ export function createSound({
 
     // Start the sound
     bufferSourceNode.start();
-    isPlaying = true;
   };
 
   // Function to stop the sound
   const stopSound = () => {
-    if (!isPlaying || !bufferSourceNode) return;
+    if (!bufferSourceNode) return;
 
     bufferSourceNode.stop();
-    isPlaying = false;
   };
 
   return { startSound, stopSound };

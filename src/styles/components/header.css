@@ -3,8 +3,9 @@
   width: 100vw;
   height: 100vh;
   background-size: contain;
-  background: url("../assets/images/decorations/decoration1.png") no-repeat center center;
   background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 .header .astronaut,
@@ -22,6 +23,8 @@
   right: 22%;
   width: 261px;
   height: 277px;
+
+  animation: vacillation 10s ease infinite alternate, slide-up 10s ease forwards;
 }
 
 .header .planet-1 {
@@ -29,6 +32,8 @@
   left: 40%;
   width: 150px;
   height: 150px;
+
+  animation: slide-up 10s ease forwards;;
 }
 
 .header .comet {
@@ -36,6 +41,7 @@
   right: 10%;
   width: 114px;
   height: 113px;
+  animation: rotation 50s linear infinite;
 }
 
 
@@ -123,5 +129,35 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+  }
+}
+
+@keyframes vacillation {
+  from {
+    rotate: -30deg;
+  }
+
+  to {
+    rotate: 30deg;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100vh);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotation {
+  from {
+    rotate: 0;
+  }
+
+  to {
+    rotate: -360deg;
   }
 }

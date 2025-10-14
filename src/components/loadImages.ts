@@ -1,0 +1,33 @@
+import astronautImg from "../assets/images/decorations/astronaut.png";
+import planetImg from "../assets/images/decorations/planet1.png";
+import cometImg from "../assets/images/decorations/comet.png";
+import decoration1 from "../assets/images/decorations/decoration1.png";
+import decoration2 from "../assets/images/decorations/decoration2.png";
+
+const astronaut: HTMLElement | null = document.querySelector(".astronaut");
+const planet1: HTMLElement | null = document.querySelector(".planet-1");
+const comet: HTMLElement | null = document.querySelector(".comet");
+const header: HTMLElement | null = document.querySelector(".header");
+const form: HTMLElement | null = document.querySelector(".form-section");
+
+export function loadImages() {
+  if (astronaut) {
+    astronaut.style.backgroundImage = `url(${astronautImg})`;
+  }
+
+  if (planet1) {
+    planet1.style.backgroundImage = `url(${planetImg})`;
+  }
+
+  if (comet) {
+    comet.style.backgroundImage = `url(${cometImg})`;
+  }
+
+  if (header) {
+    header.style.backgroundImage = `url(${decoration1})`;
+  }
+
+  if (form) {
+    form.style.backgroundImage = `url(${decoration2})`;
+  }
+}

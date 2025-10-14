@@ -43,13 +43,12 @@
 }
 
 .nav-list {
-  transform: translateX(-100vw);
+  transform: translate(0, 100vh);
   opacity: 0;
   position: absolute;
   top: 0;
   left: 0;
-  padding: 140px 40px;
-  font-size: 26px;
+  font-size: 46px;
 
   transition: opacity var(--base-transition-duration) ease,
   transform var(--base-transition-duration) ease;
@@ -66,9 +65,13 @@
   transition: opacity var(--base-transition-duration) ease var(--base-transition-duration),
   transform var(--base-transition-duration) ease var(--base-transition-duration);
 }
-
+ 
 .nav.is-active .nav-list {
-  transform: translateX(0);
+  position: absolute;
+  top: 50vh;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
   opacity: 1;
 }
 
@@ -81,7 +84,7 @@
   position: absolute;
   bottom: 0;
   transform: translateY(10px);
-  height: 2px;
+  height: 5px;
   width: 0;
   background-color: var(--purple-color);
   transition: width var(--base-transition-duration) ease,
@@ -90,7 +93,7 @@
 }
 
 .nav.is-active .nav-link::before {
-  background-color: var(--light-color);
+  background-color: var(--dark-color);
 }
 
 .nav-link:hover::before {
