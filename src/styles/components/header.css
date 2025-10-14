@@ -7,17 +7,51 @@
   background-size: cover;
 }
 
+.header .astronaut,
+.header .planet-1,
+.header .comet {
+  z-index: 2;
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.header .astronaut {
+  top: 35%;
+  right: 22%;
+  width: 261px;
+  height: 277px;
+}
+
+.header .planet-1 {
+  top: 80%;
+  left: 40%;
+  width: 150px;
+  height: 150px;
+}
+
+.header .comet {
+  top: 20%;
+  right: 10%;
+  width: 114px;
+  height: 113px;
+}
+
+
 .header-wrapper {
+  position: relative;
+  z-index: 3;
   max-width: var(--max-page-width);
   margin-inline: auto;
   padding-inline: var(--page-margin);
 }
 
-.header-wrapper > * {
+.header-wrapper>* {
   margin-bottom: 50px;
 }
 
-.header-wrapper > *:last-child {
+.header-wrapper>*:last-child {
   margin-bottom: 0px;
 }
 
@@ -91,4 +125,3 @@
     justify-content: flex-start;
   }
 }
-

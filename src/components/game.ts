@@ -6,9 +6,24 @@ import { setActivePlayer } from "./moveShips.ts";
 import { HIDE_DICE_DELAY, throwDice } from "./dice.ts";
 import { setupPlayerInfo } from "./playersInfo.ts";
 import { createTimer } from "./timer.ts";
+import { createSound } from "./sound.ts";
+import bgMusic from '../assets/sounds/background-music.mp3';
+import diceSound from '../assets/sounds/dice.mp3';
 
 export function startGame(playerObj1: Player, playerObj2: Player) {
   setupPlayerInfo(playerObj1, playerObj2);
+
+  const { startSound: startBgMusic } = createSound({
+    src: bgMusic,
+    infinite: true,
+  });
+
+  const { startSound: startDiceSound, stopSound: stopDiceSound } = createSound({
+    src: diceSound,
+    infinite: true,
+  });
+
+  startBgMusic();
 
   const redDiceBtn = document.querySelector('.player1.button.dice-button') as HTMLButtonElement;
   const blueDiceBtn = document.querySelector('.player2.button.dice-button') as HTMLButtonElement;
@@ -65,6 +80,7 @@ export function startGame(playerObj1: Player, playerObj2: Player) {
   let stopTimer = createTimer(60, () => console.log('Час вийшов'));
 
   function onDiceClick(e: Event) {
+    startDiceSound();
     stopTimer();
 
     if (diceIsRolling) return;
@@ -125,6 +141,7 @@ export function startGame(playerObj1: Player, playerObj2: Player) {
       }
 
       diceIsRolling = false;
+      stopDiceSound();
       stopTimer = createTimer(60, () => console.log('час вийшов'));
     }, HIDE_DICE_DELAY);
   }

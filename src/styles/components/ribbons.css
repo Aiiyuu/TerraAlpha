@@ -1,5 +1,6 @@
 .ribbons {
   position: fixed;
+  z-index: 4;
   top: 0;
   left: 0;
 
@@ -14,6 +15,11 @@
   height: 25%;
   background-color: var(--purple-color);
   transition: width 0.5s ease-out;
+
+  background-image: url('../../assets/images/ribbons_bg.png');
+  background-repeat: repeat;
+  background-attachment: fixed;
+  background-size: 400px;
 }
 
 .ribbon:nth-child(even) {

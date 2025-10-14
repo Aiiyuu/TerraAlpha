@@ -9,8 +9,9 @@ import { setupTimer } from "./components/timer.ts";
 import { loadCellIcons } from "./components/cells.ts";
 
 import { setupShipFinish } from "./components/shipFinish.ts";
+import { setupParallax } from "./components/parallax.ts";
 
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
   setUpNavigation();
   setupDialog();
   setUpdAvatars();
@@ -21,4 +22,5 @@ window.addEventListener('load', () => {
   loadCellIcons();
   setupAdaptiveMenuBtn();
   setupShipFinish();
+  setupParallax();
 });

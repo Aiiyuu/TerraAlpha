@@ -47,3 +47,13 @@ export function updateRoom(updatedRoom: Room): Room[] {
 
   return updatedRooms as Room[];
 }
+
+/**
+ * Remove room associated with the roomId from the server
+ * @param roomId
+ */
+export function removeRoom(roomId: number) {
+  saveRoomsToServer(
+    getRoomsFromServer().filter((room) => room.id !== roomId)
+  );
+}
