@@ -1,11 +1,20 @@
 import type { SoundOptions } from "../types/soundOptions";
 
+type CreateSoundResult = {
+  startSound: () => void;
+  stopSound: () => void;
+};
+
 /**
- * Creates a sound buffer with the provided settings and returns an object 
+ * Creates a sound buffer with the provided settings and returns an object
  * containing two functions: one to start and one to stop the sound.
  * @returns {Object} An object with functions to start and stop the sound.
  */
-export function createSound({ src, loudness = 1, infinite = false }: SoundOptions) {
+export function createSound({
+  src,
+  loudness = 1,
+  infinite = false,
+}: SoundOptions): CreateSoundResult {
   // Audio context for managing sound
   const audioContext = new (window.AudioContext || window.AudioContext)();
 
@@ -57,4 +66,3 @@ export function createSound({ src, loudness = 1, infinite = false }: SoundOption
 
   return { startSound, stopSound };
 }
-

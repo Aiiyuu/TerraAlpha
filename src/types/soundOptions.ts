@@ -1,5 +1,5 @@
 export type SoundOptions = {
   src: string;
-  loudness: number;
-  infinite: boolean;
+  loudness?: number;
+  infinite?: boolean;
 };
