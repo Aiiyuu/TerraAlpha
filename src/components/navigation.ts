@@ -5,6 +5,8 @@ import type { Player } from "../types/player.ts";
 import type { Room } from "../types/room.ts";
 import { updateRoom } from "../server/server.ts";
 import { startGame } from "./game.ts";
+import { createSound } from "./sound.ts";
+import swipeSound from '../assets/sounds/swipe.mp3';
 
 const RIBBONS_ANIMATION_DURATION = 1000;
 
@@ -107,7 +109,14 @@ function showGame() {
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function animatePageSwitching(callback: Function) {
+  const { startSound } = createSound({
+    src: swipeSound,
+    infinite: false,
+    loudness: 0.9,
+  });
+
   fireRibbons();
+  startSound();
 
   setTimeout(() => {
     callback();
