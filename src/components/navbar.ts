@@ -17,13 +17,13 @@ export function setupAdaptiveMenuBtn() {
     navbarLineWrapper.appendChild(line);
   }
 
+  const { startSound } = createSound({
+    src: swipeSound,
+    infinite: false,
+    loudness: 0.9,
+  });
+
   navbarMenuBtn.addEventListener("click", () => {
-    const { startSound } = createSound({
-      src: swipeSound,
-      infinite: false,
-      loudness: 0.9,
-    });
-    
     startSound();
 
     navbar.classList.toggle("is-active");

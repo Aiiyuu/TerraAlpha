@@ -42,11 +42,12 @@ body {
   overflow: hidden;
   padding-top: 0;
   background-size: cover;
+  background-color: #270057;
 
   --max-page-width: 1400px;
   --page-margin: 40px;
   --base-text-color: #A4B7C7;
-  --purple-color: #6A0DAD;
+  --purple-color: #9E1C60;
   --green-color: #4CAF50;
   --light-color: #FBFDFE;
   --dark-color: #132440;

@@ -4,7 +4,8 @@
   height: 100vh;
 
   background-size: contain;
-  background: url("../assets/images/decorations/decoration2.png") no-repeat 100%;
+  background-repeat: no-repeat;
+  background-position: 100%;
 }
 
 .form-wrapper {

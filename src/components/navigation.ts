@@ -14,11 +14,12 @@ import swipeSound from "../assets/sounds/swipe.mp3";
 
 const RIBBONS_ANIMATION_DURATION = 1000;
 
+const homeBtn = document.querySelector("#back-to-home") as HTMLElement;
 const roomField = document.querySelector("#room-field") as HTMLElement;
 const createRoomBtn = document.querySelector("#create-room-btn") as HTMLElement;
 const home = document.querySelector("#home") as HTMLElement;
 const selectGamePage = document.querySelector("#form-section") as HTMLElement;
-const roomsTable = document.querySelector("#available-rooms") as HTMLElement;
+const roomsTable = document.querySelector("#table") as HTMLElement;
 const game = document.querySelector("#game") as HTMLElement;
 const form = document.querySelector("#form") as HTMLElement;
 
@@ -88,6 +89,10 @@ export function setUpNavigation() {
     createRoom();
     window.location.reload();
   });
+
+  homeBtn.addEventListener("click", () => {
+    animatePageSwitching(showHomePage);
+  });
 }
 
 /**
@@ -107,6 +112,7 @@ function showCreateGamePage() {
   roomsTable.classList.add("is-hidden");
   home.classList.add("is-hidden");
   selectGamePage.classList.remove("is-hidden");
+  roomField.classList.remove("is-hidden");
 }
 
 /**
@@ -119,17 +125,25 @@ function showGame() {
 }
 
 /**
+ * Show the home page
+ */
+function showHomePage() {
+  home.classList.remove("is-hidden");
+  selectGamePage.classList.add("is-hidden");
+}
+
+const { startSound } = createSound({
+  src: swipeSound,
+  infinite: false,
+  loudness: 0.9,
+});
+
+/**
  * This page animates the page switching
  * @param callback
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function animatePageSwitching(callback: Function) {
-  const { startSound } = createSound({
-    src: swipeSound,
-    infinite: false,
-    loudness: 0.9,
-  });
-
   fireRibbons();
   startSound();
 
