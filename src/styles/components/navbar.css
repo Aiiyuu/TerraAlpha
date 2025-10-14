@@ -2,7 +2,7 @@
   max-width: var(--max-page-width);
 
   position: relative;
-  z-index: 5;
+  z-index: 3;
 
   max-width: var(--max-page-width);
   margin-inline: auto;
@@ -39,7 +39,7 @@
 .nav.is-active .nav-brand,
 .nav.is-active .nav-brand span,
 .nav.is-active .nav-link {
-  color: var(--light-color);
+  color: var(--dark-color);
 }
 
 .nav-list {

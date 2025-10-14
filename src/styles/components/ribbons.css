@@ -16,9 +16,10 @@
   background-color: var(--purple-color);
   transition: width 0.5s ease-out;
 
-  background-image: url('../../assets/images/ribbons_bg.jpg');
+  background-image: url('../../assets/images/ribbons_bg.png');
   background-repeat: repeat;
-  background-size: contain;
+  background-attachment: fixed;
+  background-size: 400px;
 }
 
 .ribbon:nth-child(even) {
