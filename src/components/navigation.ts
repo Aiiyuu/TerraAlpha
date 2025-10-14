@@ -113,6 +113,7 @@ function showCreateGamePage() {
   home.classList.add("is-hidden");
   selectGamePage.classList.remove("is-hidden");
   roomField.classList.remove("is-hidden");
+  createRoomBtn.classList.remove('is-hidden');
 }
 
 /**
