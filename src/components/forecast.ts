@@ -1,4 +1,5 @@
 import { getPlannedMove } from './steps.ts';
+import { gameState } from './state.ts';
 
 export type PlayerColor = 'red' | 'blue';
 
@@ -154,86 +155,90 @@ function computeTargetIndexFromQa(fromCellQa: string, steps: number): number | n
   return null;
 }
 
-/* ---------- Merge-friendly forecast rules ---------- */
-
 type ForecastResolution =
   | { kind: 'emptyCell'; cell: HTMLElement }
   | { kind: 'mergeWithOwn'; cell: HTMLElement; mergeTargetShip: HTMLElement };
+
+function getOccupantForQa(qa: string): { color: PlayerColor; shipEl: HTMLElement | null } | null {
+  const occ = gameState.getOccupant(qa as any);
+  if (!occ) return null;
+  const cell = getCellByQa(qa);
+  const el = cell ? findShipInCell(cell) : null;
+  return { color: occ.color as PlayerColor, shipEl: el };
+}
 
 function resolveCellForIndexWithMerge(
   targetIndex: number,
   focusedShipEl: HTMLElement,
   color: PlayerColor
 ): ForecastResolution | null {
-  // 1) SPECIAL MULTI: field-X-1 / field-X-2
   if (SPECIAL_MULTI.has(targetIndex)) {
     const candidatesQa = [`field-${targetIndex}-1`, `field-${targetIndex}-2`];
     for (const qa of candidatesQa) {
       const cell = getCellByQa(qa);
       if (!cell) continue;
-      const occ = findShipInCell(cell);
+      const occ = getOccupantForQa(qa);
       if (!occ) return { kind: 'emptyCell', cell };
-      if (getShipColor(occ) === color) {
-        const ok = isMergeAllowed(focusedShipEl, occ);
-        if (ok) return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ };
+      if (occ.color === color && occ.shipEl && isMergeAllowed(focusedShipEl, occ.shipEl)) {
+        return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ.shipEl };
       }
-      // чужий або заборонений мердж → ця підкомірка не підходить, пробуємо наступну
     }
     return null;
   }
 
-  // 2) FINAL SECTION shortcuts: 27+ → final-0, 26 → final-1, 25 → final-2, 24 → final-2|final-1
   if (targetIndex >= 27) {
-    const cell = getCellByQa('final-0');
+    const qa = 'final-0';
+    const cell = getCellByQa(qa);
     if (!cell) return null;
-    const occ = findShipInCell(cell);
-    if (!occ) return { kind: 'emptyCell', cell };
-    if (getShipColor(occ) === color && isMergeAllowed(focusedShipEl, occ)) {
-      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ };
+    const occEl = findShipInCell(cell);
+    if (!occEl) return { kind: 'emptyCell', cell };
+    if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
+      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
     }
     return null;
   }
   if (targetIndex === 26) {
-    const cell = getCellByQa('final-1');
+    const qa = 'final-1';
+    const cell = getCellByQa(qa);
     if (!cell) return null;
-    const occ = findShipInCell(cell);
-    if (!occ) return { kind: 'emptyCell', cell };
-    if (getShipColor(occ) === color && isMergeAllowed(focusedShipEl, occ)) {
-      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ };
+    const occEl = findShipInCell(cell);
+    if (!occEl) return { kind: 'emptyCell', cell };
+    if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
+      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
     }
     return null;
   }
   if (targetIndex === 25) {
-    const cell = getCellByQa('final-2');
+    const qa = 'final-2';
+    const cell = getCellByQa(qa);
     if (!cell) return null;
-    const occ = findShipInCell(cell);
-    if (!occ) return { kind: 'emptyCell', cell };
-    if (getShipColor(occ) === color && isMergeAllowed(focusedShipEl, occ)) {
-      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ };
+    const occEl = findShipInCell(cell);
+    if (!occEl) return { kind: 'emptyCell', cell };
+    if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
+      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
     }
     return null;
   }
   if (targetIndex === 24) {
-    // Пріоритет: final-2, якщо зайнята — перевіряємо мердж; інакше final-1
     for (const qa of ['final-2', 'final-1'] as const) {
       const cell = getCellByQa(qa);
       if (!cell) continue;
-      const occ = findShipInCell(cell);
-      if (!occ) return { kind: 'emptyCell', cell };
-      if (getShipColor(occ) === color && isMergeAllowed(focusedShipEl, occ)) {
-        return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ };
+      const occEl = findShipInCell(cell);
+      if (!occEl) return { kind: 'emptyCell', cell };
+      if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
+        return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
       }
     }
     return null;
   }
 
-  // 3) REGULAR field-N
-  const cell = getFieldCellByIndex(targetIndex);
+  const qa = `field-${targetIndex}`;
+  const cell = getCellByQa(qa) || getFieldCellByIndex(targetIndex);
   if (!cell) return null;
-  const occ = findShipInCell(cell);
+  const occ = getOccupantForQa(qa);
   if (!occ) return { kind: 'emptyCell', cell };
-  if (getShipColor(occ) === color && isMergeAllowed(focusedShipEl, occ)) {
-    return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ };
+  if (occ.color === color && occ.shipEl && isMergeAllowed(focusedShipEl, occ.shipEl)) {
+    return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ.shipEl };
   }
   return null;
 }
@@ -249,14 +254,10 @@ function isMergeAllowed(focused: HTMLElement, occupant: HTMLElement): boolean {
   if (!sameColor(focused, occupant)) return false;
   const fRole = getShipRole(focused);
   const oRole = getShipRole(occupant);
-  // Дозволяємо лише взаємно доповнюючі випадки:
-  // mother → normal  або normal → mother
   if (fRole === 'mother' && oRole === 'normal') return true;
   if (fRole === 'normal' && oRole === 'mother') return true;
   return false;
 }
-
-/* ---------- Visual cues (merge pulse) ---------- */
 
 function clearMergeCue() {
   if (lastMergeCueShipEl) {
@@ -274,8 +275,6 @@ function applyMergeCue(targetShipEl: HTMLElement) {
   targetShipEl.setAttribute('aria-label', 'Merge target');
   lastMergeCueShipEl = targetShipEl;
 }
-
-/* ---------- Forecast highlight orchestration ---------- */
 
 function clearForecast() {
   if (lastHighlighted) {
@@ -300,7 +299,6 @@ function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, plann
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
 
   const parentQa = getParentFieldQa(shipEl);
-  // Якщо стоїмо у фіналі — працюємо старими правилами переходу між final-* (мердж у фіналі не описаний в ТЗ старту, тож не допускаємо)
   if (parentQa && isFinalQa(parentQa)) {
     const finalQa = computeFinalTargetQaFromStart(parentQa, planned as number);
     if (!finalQa) {
@@ -333,14 +331,12 @@ function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, plann
   clearDisabled(shipEl, 'disabledByForecast');
 
   if (resolved.kind === 'emptyCell') {
-    // Класична підсвітка кружком
     resolved.cell.classList.add('is-forecast');
     lastHighlighted = resolved.cell;
     clearMergeCue();
     return;
   }
 
-  // MERGE CASE: не показуємо кружок, але вмикаємо анімацію у корабля в цільовій клітинці
   clearMergeCue();
   applyMergeCue(resolved.mergeTargetShip);
 }
@@ -358,8 +354,6 @@ function enforceTurnInteractivity() {
     }
   });
 }
-
-/* ---------- Public setup ---------- */
 
 export function setupForecast(getActiveColor: () => PlayerColor) {
   getActiveColorRef = getActiveColor;

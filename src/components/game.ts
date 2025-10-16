@@ -7,6 +7,7 @@ import { HIDE_DICE_DELAY, throwDice } from "./dice.ts";
 import { setupPlayerInfo } from "./playersInfo.ts";
 import { createTimer } from "./timer.ts";
 import { createSound } from "./sound.ts";
+import { gameState } from "./state.ts";
 import bgMusic from '../assets/sounds/background-music.mp3';
 import diceSound from '../assets/sounds/dice.mp3';
 
@@ -69,9 +70,13 @@ export function startGame(playerObj1: Player, playerObj2: Player) {
     setVisible(getMoveBtnById(otherId), false);
   };
 
-  setupForecast(() => (player1.itsTurn ? 'red' : 'blue'));
+  // ===== прогноз читає активний колір зі стору =====
+  setupForecast(() => gameState.getActiveColor());
 
+  // Старт гри: черга гравця 1 (red)
   player1 = updatePlayer1({ itsTurn: true });
+  gameState.setTurn('red');
+
   showPlayerContent(player1.id);
   showStartOfTurnUI('player1');
   addMessage(player1.id, 'Your turn, throw the dice!');
@@ -163,12 +168,14 @@ export function startGame(playerObj1: Player, playerObj2: Player) {
     }
     hideAllSteps();
 
-    if (player1.itsTurn) {
+     if (player1.itsTurn) {
       player1 = updatePlayer1({ itsTurn: false });
       player2 = updatePlayer2({ itsTurn: true });
+      gameState.setTurn('blue');
     } else {
       player1 = updatePlayer1({ itsTurn: true });
       player2 = updatePlayer2({ itsTurn: false });
+      gameState.setTurn('red');
     }
 
     const next = getActivePlayer();

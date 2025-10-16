@@ -178,3 +178,7 @@ body {
 .hidden {
   visibility: hidden;
 }
+
+::-webkit-scrollbar {
+  display: none;
+}

@@ -1,5 +1,6 @@
 import { hideAllSteps, clearPlanned, getPlannedMove } from '../components/steps.ts';
 import type { PlayerColor } from '../components/forecast.ts';
+import { gameState } from '../components/state.ts';
 
 let getActiveColorRef: () => PlayerColor = () => 'red';
 
@@ -13,6 +14,10 @@ function getParentCell(el: HTMLElement): HTMLElement | null {
 
 function getQa(el: HTMLElement | null | undefined): string | null {
   return el?.getAttribute('data-qa') ?? null;
+}
+
+function getShipId(el: HTMLElement | null | undefined): string | null {
+  return el?.getAttribute('data-ship-id') ?? null;
 }
 
 function getShipColor(el: HTMLElement): PlayerColor | null {
@@ -33,11 +38,10 @@ function isMotherShip(el: HTMLElement): boolean {
   );
 }
 
-function moveShipToTarget(shipEl: HTMLElement, targetQa: string) {
+function domMoveShipToTarget(shipEl: HTMLElement, targetQa: string) {
   const targetCell = getCellByQa(targetQa);
   if (!targetCell) return;
-
-  shipEl.remove(); // прибираємо з поточного батька
+  shipEl.remove();
   targetCell.appendChild(shipEl);
 }
 
@@ -46,20 +50,29 @@ function removeShipContainer(el: HTMLElement | null) {
   container?.remove();
 }
 
+function updateStateMove(shipEl: HTMLElement, targetQa: string) {
+  const shipId = getShipId(shipEl);
+  if (!shipId) return;
+  const to =
+    targetQa === 'final-0' ? { type: 'final', lane: 0 as const }
+    : targetQa === 'final-1' ? { type: 'final', lane: 1 as const }
+    : targetQa === 'final-2' ? { type: 'final', lane: 2 as const }
+    : { type: 'board', cell: targetQa as string };
+  gameState.moveShip(shipId, to as any);
+}
+
 function finishMoveAndPassTurn(color: PlayerColor) {
   clearPlanned(color);
   hideAllSteps();
-
   document.dispatchEvent(new CustomEvent('board:changed'));
-
   const nextColor: PlayerColor = color === 'red' ? 'blue' : 'red';
+  gameState.setTurn(nextColor);
   document.dispatchEvent(new CustomEvent('turn:change', { detail: { color: nextColor } }));
 }
 
 export function setupMoveShips(getActiveColor: () => PlayerColor) {
   getActiveColorRef = getActiveColor;
 
-  // 1) Існуючий імперативний сценарій через подію move:execute
   document.addEventListener('move:execute', (e: Event) => {
     const { color, shipQa, targetQa } = (e as CustomEvent).detail as {
       color: PlayerColor;
@@ -78,34 +91,29 @@ export function setupMoveShips(getActiveColor: () => PlayerColor) {
     const occupant =
       targetCell?.querySelector<HTMLElement>('.cell-btn, [data-ship], .ship') ?? null;
 
-    // якщо в цілі свій корабель — це мердж: видаляємо КОНТЕЙНЕР
     if (occupant && getShipColor(occupant) === getShipColor(shipEl)) {
       removeShipContainer(occupant);
     }
 
-    moveShipToTarget(shipEl, targetQa);
+    updateStateMove(shipEl, targetQa);
+    domMoveShipToTarget(shipEl, targetQa);
     finishMoveAndPassTurn(color);
   });
 
-  // 2) Новий сценарій: клік по МАТЕРИНСЬКОМУ кораблю → рух у прогнозовану клітинку
   document.addEventListener(
     'click',
     ev => {
       const target = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship');
       if (!target) return;
 
-      // лише активний гравець
       const color = getShipColor(target) ?? getActiveColorRef();
       if (color !== getActiveColorRef()) return;
 
-      // працюємо лише з материнським кораблем
       if (!isMotherShip(target)) return;
 
-      // має бути запланований крок
       const planned = getPlannedMove(getActiveColorRef());
       if (!Number.isFinite(planned) || (planned as number) <= 0) return;
 
-      // A) Мердж-сценарій: forecast позначив дружній корабель у цілі класом .ship-merge-vibrate
       const mergeTargetShip =
         document.querySelector<HTMLElement>('.board .ship-merge-vibrate') || null;
 
@@ -115,31 +123,27 @@ export function setupMoveShips(getActiveColor: () => PlayerColor) {
         const cellQa = getQa(cell);
 
         if (sameSide && cell && cellQa) {
-          // Видаляємо КОНТЕЙНЕР дружнього корабля і переносимо материнський
           removeShipContainer(mergeTargetShip);
-          moveShipToTarget(target, cellQa);
+          updateStateMove(target, cellQa);
+          domMoveShipToTarget(target, cellQa);
           finishMoveAndPassTurn(color);
           return;
         }
       }
 
-      // B) Звичайний сценарій: є підсвітка .is-forecast на клітинці
       const forecastCell = document.querySelector<HTMLElement>('.board .cell.is-forecast') || null;
       const forecastQa = getQa(forecastCell);
 
       if (forecastCell && forecastQa) {
-        // На всяк випадок: якщо раптово в клітинці вже стоїть свій — теж мерджимо (видаляємо КОНТЕЙНЕР)
         const occ = forecastCell.querySelector<HTMLElement>('.cell-btn, [data-ship], .ship') ?? null;
         if (occ && getShipColor(occ) === color) {
           removeShipContainer(occ);
         }
-
-        moveShipToTarget(target, forecastQa);
+        updateStateMove(target, forecastQa);
+        domMoveShipToTarget(target, forecastQa);
         finishMoveAndPassTurn(color);
         return;
       }
-
-      // якщо прогнозу немає — ігноруємо клік
     },
     true
   );
@@ -147,4 +151,5 @@ export function setupMoveShips(getActiveColor: () => PlayerColor) {
 
 export function setActivePlayer(color: PlayerColor) {
   getActiveColorRef = () => color;
+  gameState.setTurn(color);
 }
