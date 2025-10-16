@@ -89,11 +89,6 @@
 .cell.cell--final-1,
 .cell.cell--final-2 { border-radius: 50%; }
 
-.cell.cell--final-2::after {
-  min-width: 55px !important;
-  min-height: 55px !important;
-}
-
 /* Images (arrows) */
 .cell img { margin: 0; padding: 0; }
 
