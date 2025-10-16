@@ -1,5 +1,5 @@
 import { clearPlanned, createSteps, hideAllSteps, setStepsEnabled, showStepsSequence } from "./steps.ts";
-import { addMessage, createPlayer, showPlayerContent } from "./player.ts";
+import { addMessage, removeAllMessages, createPlayer, showPlayerContent } from "./player.ts";
 import type { Player } from "../types/player.ts";
 import { setupForecast } from "./forecast.ts";
 import { setActivePlayer } from "./moveShips.ts";
@@ -133,6 +133,9 @@ export function startGame(playerObj1: Player, playerObj2: Player) {
       setVisible(getMoveBtnById(getInactivePlayer().id), false);
 
       const sum = activeNow.diceStreak.slice().reverse().join(' + ');
+
+      removeAllMessages(activeNow.id);
+
       if (needAnotherThrow) {
         addMessage(activeNow.id, `You rolled a ${randomNumber}! Current steps: ${sum}. Bonus throw!`);
       } else {
@@ -179,6 +182,7 @@ export function startGame(playerObj1: Player, playerObj2: Player) {
       setActivePlayer('blue');
     }
 
+    removeAllMessages(next.id);
     addMessage(next.id, 'Your turn, throw the dice!');
   }
 
