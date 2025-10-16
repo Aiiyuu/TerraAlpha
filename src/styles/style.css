@@ -13,9 +13,13 @@
 @import url('./components/board.css');
 @import url('./components/ships.css');
 @import url('./components/game.css');
+@import url('./components/color-palette.css');
 
-html, body, * {
-  user-select: none; /* eslint-disable-line css/use-baseline */
+html,
+body,
+* {
+  user-select: none;
+  /* eslint-disable-line css/use-baseline */
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -25,7 +29,9 @@ a {
   text-decoration: none;
 }
 
-button, input, input:focus {
+button,
+input,
+input:focus {
   border: none;
   background-color: transparent;
   outline: none;
@@ -33,21 +39,25 @@ button, input, input:focus {
 
 body {
   position: fixed;
-  top: 0;
-  left: 0;
+  max-height: 100vh;
+  overflow: hidden;
 
   font-family: "Outfit", sans-serif;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
   padding-top: 0;
   background-size: cover;
   background-color: #270057;
 
+  background-size: contain;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+
   --max-page-width: 1400px;
+  --max-section-width: 600px;
   --page-margin: 40px;
   --base-text-color: #A4B7C7;
-  --purple-color: #9E1C60;
+  --purple-color: #DD7BDF;
   --green-color: #4CAF50;
   --light-color: #FBFDFE;
   --dark-color: #132440;
@@ -156,9 +166,9 @@ body {
 
 .has-text-outline {
   text-shadow: -1px -1px 0 #000,
-  1px -1px 0 #000,
-  -1px 1px 0 #000,
-  1px 1px 0 #000;
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
 .active {

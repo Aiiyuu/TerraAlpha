@@ -1,7 +1,5 @@
 import type { Player } from "../types/player.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
-import { colors } from "../config.ts";
-
 
 /**
  * Crates a player object using values from dom
@@ -26,29 +24,10 @@ export function createNewPlayer() {
 }
 
 /**
- * Creates and Returns a randomly generated user object
- */
-export function createRandomPlayer(): Player {
-  const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  
-  const newPlayer: Player = {
-    id: `${getRandomId()}`,
-    avatar: 5,
-    name: `User-${getRandomId()}`,
-    itsTurn: true,
-    diceHistory: [],
-    diceStreak: [],
-    color: randomColor,
-  }
-
-  return newPlayer;
-}
-
-/**
  * finds and returns selected avatar id;
  */
 function getAvatarId() {
-  const avatars = [...document.querySelectorAll('.avatar-dropdown-item')] as HTMLImageElement[];
+  const avatars = [...document.querySelectorAll('.avatar-item')] as HTMLImageElement[];
   let id = 0;
 
   avatars.forEach(avatar => {

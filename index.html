@@ -1,299 +1,351 @@
 <!DOCTYPE html>
 <html lang="uk">
-<head>
-  <meta charset="utf-8"/>
-  <title>Terra Alpha</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link rel="stylesheet" href="./src/styles/style.css"/>
+  <head>
+    <meta charset="utf-8" />
+    <title>Terra Alpha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./src/styles/style.css" />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"/>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+    />
 
-  <!-- Link custom fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
-        rel="stylesheet">
-</head>
+    <!-- Link custom fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
-<header id="home" class="header">
-  <nav class="nav">
-    <a href="#" class="nav-brand">Якийсь <span>Логотип</span></a>
+  <body>
+    <header id="home" class="header">
+      <nav class="nav">
+        <a href="#" class="nav-brand">Якийсь <span>Логотип</span></a>
 
-    <ul class="nav-list">
-      <li class="nav-item">
-        <a class="nav-link" href="#">lorem</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">lorem</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">lorem</a>
-      </li>
-    </ul>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a class="nav-link" href="#">lorem</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">lorem</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">lorem</a>
+          </li>
+        </ul>
 
-    <button class="nav-menu-btn">
-      <div class="nav-lines"></div>
-    </button>
-  </nav>
-
-  <div class="header-wrapper">
-    <h1 class="header-title">Terra <br> Alpha</h1>
-
-    <div class="header-dots">
-      <span></span><span></span><span></span>
-    </div>
-
-    <p class="header-text">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-      magna aliqua. Ut enim ad minim veniam.
-    </p>
-
-    <div class="header-button-group">
-      <button id="navigation-fast-game-btn" class="btn btn--purple">Швидка гра</button>
-      <button id="navigation-select-room-btn" class="btn btn--purple">Вибрати кімнату</button>
-      <button id="navigation-create-room-btn" class="btn btn--purple">Створити кімнату</button>
-    </div>
-  </div>
-
-  <div class="astronaut"></div>
-  <div class="planet-1"></div>
-  <div class="comet"></div>
-</header>
-
-<main>
-  <section id="form-section" class="form-section is-hidden">
-    <div class="decorations">
-      <div class="rocket"></div>
-      <div class="star"></div>
-    </div>
-    
-    <form id="form" class="form-wrapper">
-      <div class="form">
-        <a href="#" class="form-brand">Якийсь <span>Логотип</span></a>
-
-        <div class="form-field-group">
-          <div id="room-field" class="form-field form-field--floating">
-            <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
-            <input type="text" id="room-name" class="form-field-input" placeholder=" " required/>
-            <label for="room-name" class="form-field-label">Імʼя кімнати</label>
-          </div>
-
-          <div class="form-field form-field--floating">
-            <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
-            <input type="text" id="player-name" class="form-field-input" placeholder=" " required/>
-            <label for="player-name" class="form-field-label">Імʼя гравця</label>
-          </div>
-
-          <div class="form-field form-field-color">
-            <h4 for="color" class="form-field-label">Колір гравця</h4>
-            <div id="color-palette"></div>
-          </div>
-
-          <div id="avatar-dropdown" class="avatar-dropdown">
-            <button type="button" class="avatar-dropdown-btn">Аватарки</button>
-            <div class="avatar-dropdown-list"></div>
-          </div>
-
-          <div id="table"></div>
-      </div>
-
-      <button type="submit" id="create-room-btn" class="btn btn--purple">Створити кімнату</button>
-
-      <button type="button" id="back-to-home" class="btn btn--purple">Назад на головну сторінку</button>
-    </form>
-  </section>
-
-  <div id="game" class="is-hidden">
-    <!-- PLAYER 1 -->
-    <section id="player1">
-      <div class="player-info">
-        <h2 class="player-name">PLAYER 1</h2>
-      </div>
-
-      <div class="dialog dialog-red" data-userName="Player 1">
-        <div class="dialog-button">Вибрати фразу</div>
-
-        <ul class="dialog-list"></ul>
-      </div>
-
-      <div class="chat chat-red">
-        <ul class="chat-wrapper player1" data-qa="p1-chat"></ul>
-      </div>
-
-      <div class="hand-grid mx-auto" data-qa="p1-hand">
-        <button class="cell-btn" data-qa="p1-cell-1"></button>
-        <button class="cell-btn" data-qa="p1-cell-2"></button>
-        <button class="cell-btn" data-qa="p1-cell-3"></button>
-        <button class="cell-btn" data-qa="p1-cell-4"></button>
-        <button class="cell-btn" data-qa="p1-cell-5"></button>
-        <button class="cell-btn" data-qa="p1-cell-6"></button>
-        <button class="cell-btn" data-qa="p1-cell-7"></button>
-        <button class="cell-btn cell-btn-main" data-qa="p1-cell-8" data-ship="mother"></button>
-      </div>
-    </section>
-
-    <!-- BOARD -->
-    <section class="is-narrow has-text-centered middle-section">
-      <div class="timer" id="timer">
-        <svg width="206" height="70" viewBox="0 0 206 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"/>
-        </svg>
-      </div>
-
-      <div class="board" data-qa="board">
-        <div class="cell" data-qa="field-15">
-          <span>15</span>
-        </div>
-        <div class="cell" data-qa="field-14">
-          <span>14</span>
-        </div>
-        <div class="cell" data-qa="field-13">
-          <span>13</span>
-        </div>
-        <div class="cell cell--red cell--arrow" data-qa="field-12-0"></div>
-        <div class="cell" data-qa="field-11">
-          <span>11</span>
-        </div>
-        <div class="cell" data-qa="field-10">
-          <span>10</span>
-        </div>
-        <div class="cell" data-qa="field-9">
-          <span>9</span>
-        </div>
-        <div class="cell" data-qa="field-16">
-          <span>16</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r2c2"></div>
-        <div class="cell cell--empty" data-qa="r2c3"></div>
-        <div class="cell cell--arrow" data-qa="field-12-1"></div>
-        <div class="cell cell--empty" data-qa="r2c5"></div>
-        <div class="cell cell--empty" data-qa="r2c6"></div>
-
-        <div class="cell" data-qa="field-8">
-          <span>8</span>
-        </div>
-        <div class="cell" data-qa="field-17">
-          <span>17</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r3c2"></div>
-        <div class="cell cell--empty" data-qa="r3c3"></div>
-        <div class="cell cell--double-arrow" data-qa="field-12-2"></div>
-        <div class="cell cell--empty" data-qa="r3c5"></div>
-        <div class="cell cell--empty" data-qa="r3c6"></div>
-
-        <div class="cell" data-qa="field-7">
-          <span>7</span>
-        </div>
-
-        <div class="cell cell--red cell--arrow" data-qa="field-18-0"></div>
-        <div class="cell cell--arrow" data-qa="field-18-1"></div>
-        <div class="cell cell--double-arrow" data-qa="field-18-2"></div>
-        <div class="cell cell--final" data-qa="final-0"></div>
-        <div class="cell cell--double-arrow" data-qa="field-6-2"></div>
-        <div class="cell cell--arrow" data-qa="field-6-1"></div>
-        <div class="cell cell--red cell--arrow" data-qa="field-6-0"></div>
-
-        <div class="cell" data-qa="field-19">
-          <span>19</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r5c2"></div>
-        <div class="cell cell--empty" data-qa="r5c3"></div>
-        <div class="cell cell--final cell--final-1" data-qa="final-1"></div>
-        <div class="cell cell--empty" data-qa="r5c5"></div>
-        <div class="cell cell--empty" data-qa="r5c6"></div>
-
-        <div class="cell" data-qa="field-5">
-          <span>5</span>
-        </div>
-        <div class="cell" data-qa="field-20">
-          <span>20</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r6c2"></div>
-        <div class="cell cell--empty" data-qa="r6c3"></div>
-        <div class="cell cell--final cell--final-2" data-qa="final-2"></div>
-        <div class="cell cell--empty" data-qa="r6c5"></div>
-        <div class="cell cell--empty" data-qa="r6c6"></div>
-
-        <div class="cell" data-qa="field-4">
-          <span>4</span>
-        </div>
-        <div class="cell" data-qa="field-21">
-          <span>21</span>
-        </div>
-        <div class="cell" data-qa="field-22">
-          <span>22</span>
-        </div>
-        <div class="cell" data-qa="field-23">
-          <span>23</span>
-        </div>
-        <div class="cell cell--arrow cell--white" data-qa="field-24-0"></div>
-        <div class="cell cell--start" data-qa="field-1">
-          <span>1</span>
-        </div>
-        <div class="cell" data-qa="field-2">
-          <span>2</span>
-        </div>
-        <div class="cell" data-qa="field-3">
-          <span>3</span>
-        </div>
-      </div>
-
-      <div class="buttons is-centered mt-4">
-        <button class="player1 move-button button is-danger" data-qa="end-turn">
-          Закінчити Хід
+        <button class="nav-menu-btn">
+          <div class="nav-lines"></div>
         </button>
-        <button class="player2 move-button button is-info" data-qa="start-turn">
-          Закінчити Хід
-        </button>
+      </nav>
+
+      <div class="header-wrapper">
+        <h1 class="header-title">
+          Terra <br />
+          Alpha
+        </h1>
+
+        <div class="header-dots"><span></span><span></span><span></span></div>
+
+        <div class="form-field form-field--floating">
+          <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
+          <input
+            type="text"
+            id="player-name"
+            class="form-field-input"
+            placeholder=" "
+            required
+          />
+          <label for="player-name" class="form-field-label">Імʼя гравця</label>
+        </div>
+
+        <div class="form-field form-field-color">
+          <h4 class="form-field-label">Колір гравця</h4>
+          <div id="color-palette"></div>
+        </div>
+
+        <div id="avatars" class="avatars">
+          <h4 class="form-field-label">Аватарка гравця</h4>
+          <div id="avatar-menu"></div>
+        </div>
+
+        <div class="header-button-group">
+          <button id="navigation-fast-game-btn" class="btn btn--purple">
+            Швидка гра
+          </button>
+          <button id="navigation-select-room-btn" class="btn btn--purple">
+            Вибрати кімнату
+          </button>
+          <button id="navigation-create-room-btn" class="btn btn--purple">
+            Створити кімнату
+          </button>
+        </div>
       </div>
 
-      <div class="buttons is-centered mt-4">
-        <button class="player1 button dice-button is-danger" data-qa="end-turn">КИНУТИ</button>
-        <button class="player2 button dice-button is-info" data-qa="start-turn">КИНУТИ</button>
+      <div class="astronaut"></div>
+      <div class="planet-1"></div>
+      <div class="comet"></div>
+    </header>
+
+    <main>
+      <section id="form-section" class="form-section is-hidden">
+        <div class="decorations">
+          <div class="rocket"></div>
+          <div class="star"></div>
+        </div>
+
+        <form id="form" class="form-wrapper">
+          <div class="form">
+            <a href="#" class="form-brand">Якийсь <span>Логотип</span></a>
+
+            <div class="form-field-group">
+              <div id="room-field" class="form-field form-field--floating">
+                <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
+                <input
+                  type="text"
+                  id="room-name"
+                  class="form-field-input"
+                  placeholder=" "
+                  required
+                />
+                <label for="room-name" class="form-field-label"
+                  >Імʼя кімнати</label
+                >
+              </div>
+            </div>
+            <div id="table"></div>
+          </div>
+
+          <button type="submit" id="create-room-btn" class="btn btn--purple">
+            Створити кімнату
+          </button>
+
+          <button type="button" id="back-to-home" class="btn btn--purple">
+            Назад на головну сторінку
+          </button>
+        </form>
+      </section>
+
+      <div id="game" class="is-hidden">
+        <!-- PLAYER 1 -->
+        <section id="player1">
+          <div class="player-info">
+            <h2 class="player-name">PLAYER 1</h2>
+          </div>
+
+          <div class="dialog dialog-red" data-userName="Player 1">
+            <div class="dialog-button">Вибрати фразу</div>
+
+            <ul class="dialog-list"></ul>
+          </div>
+
+          <div class="chat chat-red">
+            <ul class="chat-wrapper player1" data-qa="p1-chat"></ul>
+          </div>
+
+          <div class="hand-grid mx-auto" data-qa="p1-hand">
+            <button class="cell-btn" data-qa="p1-cell-1"></button>
+            <button class="cell-btn" data-qa="p1-cell-2"></button>
+            <button class="cell-btn" data-qa="p1-cell-3"></button>
+            <button class="cell-btn" data-qa="p1-cell-4"></button>
+            <button class="cell-btn" data-qa="p1-cell-5"></button>
+            <button class="cell-btn" data-qa="p1-cell-6"></button>
+            <button class="cell-btn" data-qa="p1-cell-7"></button>
+            <button class="cell-btn cell-btn-main" data-qa="p1-cell-8"></button>
+          </div>
+        </section>
+
+        <!-- BOARD -->
+        <section class="is-narrow has-text-centered middle-section">
+          <div class="timer" id="timer">
+            <svg
+              width="206"
+              height="70"
+              viewBox="0 0 206 70"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"
+              />
+            </svg>
+          </div>
+
+          <div class="board" data-qa="board">
+            <div class="cell" data-qa="field-15">
+              <span>15</span>
+            </div>
+            <div class="cell" data-qa="field-14">
+              <span>14</span>
+            </div>
+            <div class="cell" data-qa="field-13">
+              <span>13</span>
+            </div>
+            <div class="cell cell--red cell--arrow" data-qa="field-12-0"></div>
+            <div class="cell" data-qa="field-11">
+              <span>11</span>
+            </div>
+            <div class="cell" data-qa="field-10">
+              <span>10</span>
+            </div>
+            <div class="cell" data-qa="field-9">
+              <span>9</span>
+            </div>
+            <div class="cell" data-qa="field-16">
+              <span>16</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r2c2"></div>
+            <div class="cell cell--empty" data-qa="r2c3"></div>
+            <div class="cell cell--arrow" data-qa="field-12-1"></div>
+            <div class="cell cell--empty" data-qa="r2c5"></div>
+            <div class="cell cell--empty" data-qa="r2c6"></div>
+
+            <div class="cell" data-qa="field-8">
+              <span>8</span>
+            </div>
+            <div class="cell" data-qa="field-17">
+              <span>17</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r3c2"></div>
+            <div class="cell cell--empty" data-qa="r3c3"></div>
+            <div class="cell cell--double-arrow" data-qa="field-12-2"></div>
+            <div class="cell cell--empty" data-qa="r3c5"></div>
+            <div class="cell cell--empty" data-qa="r3c6"></div>
+
+            <div class="cell" data-qa="field-7">
+              <span>7</span>
+            </div>
+
+            <div class="cell cell--red cell--arrow" data-qa="field-18-0"></div>
+            <div class="cell cell--arrow" data-qa="field-18-1"></div>
+            <div class="cell cell--double-arrow" data-qa="field-18-2"></div>
+            <div class="cell cell--final" data-qa="final-0"></div>
+            <div class="cell cell--double-arrow" data-qa="field-6-2"></div>
+            <div class="cell cell--arrow" data-qa="field-6-1"></div>
+            <div class="cell cell--red cell--arrow" data-qa="field-6-0"></div>
+
+            <div class="cell" data-qa="field-19">
+              <span>19</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r5c2"></div>
+            <div class="cell cell--empty" data-qa="r5c3"></div>
+            <div class="cell cell--final cell--final-1" data-qa="final-1"></div>
+            <div class="cell cell--empty" data-qa="r5c5"></div>
+            <div class="cell cell--empty" data-qa="r5c6"></div>
+
+            <div class="cell" data-qa="field-5">
+              <span>5</span>
+            </div>
+            <div class="cell" data-qa="field-20">
+              <span>20</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r6c2"></div>
+            <div class="cell cell--empty" data-qa="r6c3"></div>
+            <div class="cell cell--final cell--final-2" data-qa="final-2"></div>
+            <div class="cell cell--empty" data-qa="r6c5"></div>
+            <div class="cell cell--empty" data-qa="r6c6"></div>
+
+            <div class="cell" data-qa="field-4">
+              <span>4</span>
+            </div>
+            <div class="cell" data-qa="field-21">
+              <span>21</span>
+            </div>
+            <div class="cell" data-qa="field-22">
+              <span>22</span>
+            </div>
+            <div class="cell" data-qa="field-23">
+              <span>23</span>
+            </div>
+            <div
+              class="cell cell--arrow cell--white"
+              data-qa="field-24-0"
+            ></div>
+            <div class="cell cell--start" data-qa="field-1">
+              <span>1</span>
+            </div>
+            <div class="cell" data-qa="field-2">
+              <span>2</span>
+            </div>
+            <div class="cell" data-qa="field-3">
+              <span>3</span>
+            </div>
+          </div>
+
+          <div class="buttons is-centered mt-4">
+            <button
+              class="player1 move-button button is-danger"
+              data-qa="end-turn"
+            >
+              Закінчити Хід
+            </button>
+            <button
+              class="player2 move-button button is-info"
+              data-qa="start-turn"
+            >
+              Закінчити Хід
+            </button>
+          </div>
+
+          <div class="buttons is-centered mt-4">
+            <button
+              class="player1 button dice-button is-danger"
+              data-qa="end-turn"
+            >
+              КИНУТИ
+            </button>
+            <button
+              class="player2 button dice-button is-info"
+              data-qa="start-turn"
+            >
+              КИНУТИ
+            </button>
+          </div>
+        </section>
+
+        <!-- PLAYER 2 -->
+        <section id="player2">
+          <div class="player-info">
+            <h2 class="player-name">PLAYER 2</h2>
+          </div>
+
+          <div class="dialog dialog-blue" data-userName="Player 2">
+            <div class="dialog-button">Вибрати фразу</div>
+
+            <ul class="dialog-list"></ul>
+          </div>
+
+          <div class="chat chat-blue">
+            <ul class="chat-wrapper player2" data-qa="p2-chat"></ul>
+          </div>
+
+          <div class="hand-grid mx-auto" data-qa="p2-hand">
+            <button class="cell-btn" data-qa="p2-cell-1"></button>
+            <button class="cell-btn" data-qa="p2-cell-2"></button>
+            <button class="cell-btn" data-qa="p2-cell-3"></button>
+            <button class="cell-btn" data-qa="p2-cell-4"></button>
+            <button class="cell-btn" data-qa="p2-cell-5"></button>
+            <button class="cell-btn" data-qa="p2-cell-6"></button>
+            <button class="cell-btn" data-qa="p2-cell-7"></button>
+            <button class="cell-btn cell-btn-main" data-qa="p2-cell-8"></button>
+          </div>
+        </section>
       </div>
-    </section>
+    </main>
 
-    <!-- PLAYER 2 -->
-    <section id="player2">
-      <div class="player-info">
-        <h2 class="player-name">PLAYER 2</h2>
-      </div>
+    <div class="dice-container"></div>
 
-      <div class="dialog dialog-blue" data-userName="Player 2">
-        <div class="dialog-button">Вибрати фразу</div>
+    <div id="dialog-container" class="dialog-container"></div>
 
-        <ul class="dialog-list"></ul>
-      </div>
-
-      <div class="chat chat-blue">
-        <ul class="chat-wrapper player2" data-qa="p2-chat"></ul>
-      </div>
-
-      <div class="hand-grid mx-auto" data-qa="p2-hand">
-        <button class="cell-btn" data-qa="p2-cell-1"></button>
-        <button class="cell-btn" data-qa="p2-cell-2"></button>
-        <button class="cell-btn" data-qa="p2-cell-3"></button>
-        <button class="cell-btn" data-qa="p2-cell-4"></button>
-        <button class="cell-btn" data-qa="p2-cell-5"></button>
-        <button class="cell-btn" data-qa="p2-cell-6"></button>
-        <button class="cell-btn" data-qa="p2-cell-7"></button>
-        <button class="cell-btn cell-btn-main" data-qa="p2-cell-8" data-ship="mother"></button>
-      </div>
-    </section>
-  </div>
-</main>
-
-<div class="dice-container"></div>
-
-<div id="dialog-container" class="dialog-container"></div>
-
-<div id="ribbons-container" class="ribbons"></div>
-<!-- Script files -->
-<script type="module" src="./src/main.ts"></script>
-</body>
+    <div id="ribbons-container" class="ribbons"></div>
+    <!-- Script files -->
+    <script type="module" src="./src/main.ts"></script>
+  </body>
 </html>
