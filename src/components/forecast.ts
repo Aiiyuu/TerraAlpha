@@ -4,13 +4,17 @@ import { gameState } from './state.ts';
 export type PlayerColor = 'red' | 'blue';
 
 let lastHighlighted: HTMLElement | null = null;
+let lastMergeCueShipEl: HTMLElement | null = null;
 let currentPlanned: number | null = null;
 let lastFocusedShipEl: HTMLElement | null = null;
-let lastMergeCueShipEl: HTMLElement | null = null;
 let getActiveColorRef: () => PlayerColor = () => 'red';
 
 type DisableReason = 'disabledByTurn' | 'disabledByForecast';
 type ShipRole = 'mother' | 'normal';
+
+const SPECIAL_MULTI = new Set([6, 12, 18]);
+
+/* -------------------- low-level utils -------------------- */
 
 function applyDisabled(el: HTMLElement, reason: DisableReason) {
   if (el.dataset[reason] === '1') return;
@@ -45,13 +49,18 @@ function clearDisabled(el: HTMLElement | null, reason: DisableReason) {
   }
 }
 
-function getFieldCellByIndex(index: number): HTMLElement | null {
-  if (!Number.isFinite(index) || index <= 0) return null;
-  return document.querySelector<HTMLElement>(`.board [data-qa="field-${index}"]`);
-}
-
 function getCellByQa(qa: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`.board [data-qa="${qa}"]`);
+}
+
+function getFieldCellByIndex(index: number): HTMLElement | null {
+  if (!Number.isFinite(index) || index <= 0) return null;
+  return getCellByQa(`field-${index}`);
+}
+
+function findShipInCell(cell: HTMLElement | null): HTMLElement | null {
+  if (!cell) return null;
+  return cell.querySelector<HTMLElement>('.cell-btn, [data-ship], .ship');
 }
 
 function parseFieldQa(qa: string | null): number | null {
@@ -79,14 +88,10 @@ function isShipEl(el: HTMLElement | null): boolean {
   return !!el?.closest?.('.cell-btn, [data-ship], .ship');
 }
 
-function findShipInCell(cell: HTMLElement): HTMLElement | null {
-  return cell.querySelector<HTMLElement>('.cell-btn, [data-ship], .ship');
-}
-
 function getShipColor(el: HTMLElement): PlayerColor | null {
   const qa = el.getAttribute('data-qa') || '';
-  if (qa.startsWith('p1-cell-')) return 'red';
-  if (qa.startsWith('p2-cell-')) return 'blue';
+  if (qa.startsWith('p1-')) return 'red';
+  if (qa.startsWith('p2-')) return 'blue';
   if (el.closest('#player1, .player1')) return 'red';
   if (el.closest('#player2, .player2')) return 'blue';
   return null;
@@ -103,12 +108,61 @@ function getShipRole(el: HTMLElement): ShipRole {
   return 'normal';
 }
 
-function sameColor(a: HTMLElement | null, b: HTMLElement | null): boolean {
-  if (!a || !b) return false;
-  const ca = getShipColor(a);
-  const cb = getShipColor(b);
-  return !!ca && ca === cb;
+function sameColor(a: PlayerColor | null, b: PlayerColor | null) {
+  return !!a && !!b && a === b;
 }
+
+/* -------------------- state-first occupancy helpers -------------------- */
+
+type StateOccupant = {
+  color: PlayerColor;
+  role?: ShipRole;
+  // опційно може існувати посилання на DOM-вузол, якщо ти так зберігаєш
+  el?: HTMLElement | null;
+};
+
+function getStateOccupant(qa: string): StateOccupant | null {
+  const occ = (gameState as any).getOccupant?.(qa);
+  if (!occ) return null;
+  // допускаємо різні форми у стейті; нормалізуємо:
+  const color: PlayerColor | null = occ.color ?? occ?.player ?? null;
+  const role: ShipRole | undefined =
+    occ.role ?? (occ?.isMother ? 'mother' : undefined);
+  return color ? { color, role, el: occ.el ?? null } : null;
+}
+
+function getDomOccupant(qa: string): { el: HTMLElement; color: PlayerColor | null; role: ShipRole } | null {
+  const cell = getCellByQa(qa);
+  const el = findShipInCell(cell);
+  if (!el) return null;
+  const color = getShipColor(el);
+  const role = getShipRole(el);
+  return { el, color, role };
+}
+
+function getOccupant(qa: string): { color: PlayerColor; role: ShipRole; el: HTMLElement | null } | null {
+  const st = getStateOccupant(qa);
+  if (st) {
+    // якщо у стейті немає ролі/елемента — доберемо з DOM (але не зламаємо колір)
+    const dom = getDomOccupant(qa);
+    const role = st.role ?? dom?.role ?? 'normal';
+    const el = st.el ?? dom?.el ?? null;
+    return { color: st.color, role, el };
+  }
+  const dom = getDomOccupant(qa);
+  if (!dom || !dom.color) return null;
+  return { color: dom.color, role: dom.role, el: dom.el };
+}
+
+function isCellFree(qa: string): boolean {
+  // state → truth; DOM only as fallback
+  const occ = getStateOccupant(qa);
+  if (occ) return false;
+  const dom = getDomOccupant(qa);
+  return !dom;
+}
+
+/* -------------------- movement math -------------------- */
 
 function computeFinalTargetQaFromStart(parentQa: string, steps: number): string | null {
   if (parentQa === 'final-2') {
@@ -123,13 +177,12 @@ function computeFinalTargetQaFromStart(parentQa: string, steps: number): string 
   return null;
 }
 
-const SPECIAL_MULTI = new Set([6, 12, 18]);
-
 function computeTargetIndexForShip(shipEl: HTMLElement, steps: number): number | null {
   if (!Number.isFinite(steps) || steps <= 0) return null;
   const parentQa = getParentFieldQa(shipEl);
-  if (!parentQa) return steps;
+  if (!parentQa) return steps; // з руки: старт як з 0
   if (isFinalQa(parentQa)) return null;
+
   const sp = parseSpecialFieldQa(parentQa);
   if (sp && SPECIAL_MULTI.has(sp.base)) {
     const minSteps = sp.sub + 1;
@@ -144,6 +197,7 @@ function computeTargetIndexForShip(shipEl: HTMLElement, steps: number): number |
 function computeTargetIndexFromQa(fromCellQa: string, steps: number): number | null {
   if (!Number.isFinite(steps) || steps <= 0) return null;
   if (isFinalQa(fromCellQa as any)) return null;
+
   const sp = parseSpecialFieldQa(fromCellQa);
   if (sp && SPECIAL_MULTI.has(sp.base)) {
     const minSteps = sp.sub + 1;
@@ -155,113 +209,88 @@ function computeTargetIndexFromQa(fromCellQa: string, steps: number): number | n
   return null;
 }
 
-type ForecastResolution =
-  | { kind: 'emptyCell'; cell: HTMLElement }
-  | { kind: 'mergeWithOwn'; cell: HTMLElement; mergeTargetShip: HTMLElement };
+/* -------------------- forecast resolution (with merge) -------------------- */
 
-function getOccupantForQa(qa: string): { color: PlayerColor; shipEl: HTMLElement | null } | null {
-  const occ = gameState.getOccupant(qa as any);
-  if (!occ) return null;
-  const cell = getCellByQa(qa);
-  const el = cell ? findShipInCell(cell) : null;
-  return { color: occ.color as PlayerColor, shipEl: el };
+type ForecastResolution =
+  | { kind: 'emptyCell'; qa: string; cell: HTMLElement }
+  | { kind: 'mergeWithOwn'; qa: string; cell: HTMLElement; mergeTargetEl: HTMLElement };
+
+function isMergeAllowed(focused: { color: PlayerColor; role: ShipRole },
+                        occupant: { color: PlayerColor; role: ShipRole }): boolean {
+  if (focused.color !== occupant.color) return false;
+  // дозволяємо mother↔normal
+  return (
+    (focused.role === 'mother' && occupant.role === 'normal') ||
+    (focused.role === 'normal' && occupant.role === 'mother')
+  );
 }
 
-function resolveCellForIndexWithMerge(
-  targetIndex: number,
+function resolveQaCandidatesWithMerge(
+  candidatesQa: string[],
   focusedShipEl: HTMLElement,
   color: PlayerColor
 ): ForecastResolution | null {
-  if (SPECIAL_MULTI.has(targetIndex)) {
-    const candidatesQa = [`field-${targetIndex}-1`, `field-${targetIndex}-2`];
-    for (const qa of candidatesQa) {
+  const focusedRole: ShipRole = getShipRole(focusedShipEl);
+
+  for (const qa of candidatesQa) {
+    // final-* мердж не дозволяємо
+    const inFinal = isFinalQa(qa as any);
+
+    const stOcc = getOccupant(qa);
+    if (!stOcc) {
+      // вільно за стейтом/DOM
+      if (inFinal) {
+        // final: ок, просто вільна клітинка
+        const cell = getCellByQa(qa);
+        if (!cell) continue;
+        return { kind: 'emptyCell', qa, cell };
+      }
       const cell = getCellByQa(qa);
       if (!cell) continue;
-      const occ = getOccupantForQa(qa);
-      if (!occ) return { kind: 'emptyCell', cell };
-      if (occ.color === color && occ.shipEl && isMergeAllowed(focusedShipEl, occ.shipEl)) {
-        return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ.shipEl };
+      return { kind: 'emptyCell', qa, cell };
+    }
+
+    // зайнято — пробуємо мердж
+    if (!inFinal) {
+      const occEl = stOcc.el ?? getDomOccupant(qa)?.el ?? null;
+      const occRole = stOcc.role;
+      const ok = isMergeAllowed({ color, role: focusedRole }, { color: stOcc.color, role: occRole });
+      if (ok && occEl) {
+        const cell = getCellByQa(qa);
+        if (!cell) continue;
+        return { kind: 'mergeWithOwn', qa, cell, mergeTargetEl: occEl };
       }
     }
-    return null;
-  }
-
-  if (targetIndex >= 27) {
-    const qa = 'final-0';
-    const cell = getCellByQa(qa);
-    if (!cell) return null;
-    const occEl = findShipInCell(cell);
-    if (!occEl) return { kind: 'emptyCell', cell };
-    if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
-      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
-    }
-    return null;
-  }
-  if (targetIndex === 26) {
-    const qa = 'final-1';
-    const cell = getCellByQa(qa);
-    if (!cell) return null;
-    const occEl = findShipInCell(cell);
-    if (!occEl) return { kind: 'emptyCell', cell };
-    if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
-      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
-    }
-    return null;
-  }
-  if (targetIndex === 25) {
-    const qa = 'final-2';
-    const cell = getCellByQa(qa);
-    if (!cell) return null;
-    const occEl = findShipInCell(cell);
-    if (!occEl) return { kind: 'emptyCell', cell };
-    if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
-      return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
-    }
-    return null;
-  }
-  if (targetIndex === 24) {
-    for (const qa of ['final-2', 'final-1'] as const) {
-      const cell = getCellByQa(qa);
-      if (!cell) continue;
-      const occEl = findShipInCell(cell);
-      if (!occEl) return { kind: 'emptyCell', cell };
-      if (getShipColor(occEl) === color && isMergeAllowed(focusedShipEl, occEl)) {
-        return { kind: 'mergeWithOwn', cell, mergeTargetShip: occEl };
-      }
-    }
-    return null;
-  }
-
-  const qa = `field-${targetIndex}`;
-  const cell = getCellByQa(qa) || getFieldCellByIndex(targetIndex);
-  if (!cell) return null;
-  const occ = getOccupantForQa(qa);
-  if (!occ) return { kind: 'emptyCell', cell };
-  if (occ.color === color && occ.shipEl && isMergeAllowed(focusedShipEl, occ.shipEl)) {
-    return { kind: 'mergeWithOwn', cell, mergeTargetShip: occ.shipEl };
+    // інакше кандидат непридатний — продовжуємо
   }
   return null;
 }
 
-function pickFinalForecastCell(finalQa: 'final-0' | 'final-1' | 'final-2'): HTMLElement | null {
-  const cell = getCellByQa(finalQa);
-  if (!cell) return null;
-  const occ = findShipInCell(cell);
-  return occ ? null : cell;
+function makeCandidatesForIndex(targetIndex: number): string[] {
+  if (SPECIAL_MULTI.has(targetIndex)) {
+    return [`field-${targetIndex}-1`, `field-${targetIndex}-2`];
+  }
+  if (targetIndex === 24) return ['final-2', 'final-1'];
+  if (targetIndex === 25) return ['final-2'];
+  if (targetIndex === 26) return ['final-1'];
+  if (targetIndex >= 27) return ['final-0'];
+  return [`field-${targetIndex}`];
 }
 
-function isMergeAllowed(focused: HTMLElement, occupant: HTMLElement): boolean {
-  if (!sameColor(focused, occupant)) return false;
-  const fRole = getShipRole(focused);
-  const oRole = getShipRole(occupant);
-  if (fRole === 'mother' && oRole === 'normal') return true;
-  if (fRole === 'normal' && oRole === 'mother') return true;
-  return false;
+function resolveIndexWithMerge(
+  targetIndex: number,
+  focusedShipEl: HTMLElement,
+  color: PlayerColor
+): ForecastResolution | null {
+  const candidates = makeCandidatesForIndex(targetIndex);
+  return resolveQaCandidatesWithMerge(candidates, focusedShipEl, color);
 }
+
+/* -------------------- visual cues -------------------- */
 
 function clearMergeCue() {
   if (lastMergeCueShipEl) {
-    lastMergeCueShipEl.classList.remove('ship-merge-cue', 'ship-merge-scale', 'ship-merge-vibrate');
+    lastMergeCueShipEl.classList.remove('ship-merge-vibrate');
     lastMergeCueShipEl.removeAttribute('aria-live');
     lastMergeCueShipEl.removeAttribute('aria-label');
     lastMergeCueShipEl = null;
@@ -270,11 +299,13 @@ function clearMergeCue() {
 
 function applyMergeCue(targetShipEl: HTMLElement) {
   clearMergeCue();
-  targetShipEl.classList.add('ship-merge-cue', 'ship-merge-scale', 'ship-merge-vibrate');
+  targetShipEl.classList.add('ship-merge-vibrate');
   targetShipEl.setAttribute('aria-live', 'polite');
   targetShipEl.setAttribute('aria-label', 'Merge target');
   lastMergeCueShipEl = targetShipEl;
 }
+
+/* -------------------- forecast orchestration -------------------- */
 
 function clearForecast() {
   if (lastHighlighted) {
@@ -299,18 +330,17 @@ function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, plann
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
 
   const parentQa = getParentFieldQa(shipEl);
+
+  // Якщо стоїмо у фіналі — мердж у фіналі не підтримуємо
   if (parentQa && isFinalQa(parentQa)) {
     const finalQa = computeFinalTargetQaFromStart(parentQa, planned as number);
-    if (!finalQa) {
-      applyDisabled(shipEl, 'disabledByForecast');
-      return;
-    }
-    const cell = pickFinalForecastCell(finalQa as any);
-    if (!cell) {
+    if (!finalQa || !isCellFree(finalQa)) {
       applyDisabled(shipEl, 'disabledByForecast');
       return;
     }
     clearDisabled(shipEl, 'disabledByForecast');
+    const cell = getCellByQa(finalQa);
+    if (!cell) return;
     cell.classList.add('is-forecast');
     lastHighlighted = cell;
     return;
@@ -322,7 +352,7 @@ function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, plann
     return;
   }
 
-  const resolved = resolveCellForIndexWithMerge(targetIndex as number, shipEl, color);
+  const resolved = resolveIndexWithMerge(targetIndex as number, shipEl, color);
   if (!resolved) {
     applyDisabled(shipEl, 'disabledByForecast');
     return;
@@ -334,11 +364,11 @@ function highlightForecastForShip(shipEl: HTMLElement, color: PlayerColor, plann
     resolved.cell.classList.add('is-forecast');
     lastHighlighted = resolved.cell;
     clearMergeCue();
-    return;
+  } else {
+    // merge case — без кружка, показуємо вібрацію на кораблі в клітинці
+    clearMergeCue();
+    applyMergeCue(resolved.mergeTargetEl);
   }
-
-  clearMergeCue();
-  applyMergeCue(resolved.mergeTargetShip);
 }
 
 function enforceTurnInteractivity() {
@@ -355,16 +385,21 @@ function enforceTurnInteractivity() {
   });
 }
 
+/* -------------------- public setup -------------------- */
+
 export function setupForecast(getActiveColor: () => PlayerColor) {
   getActiveColorRef = getActiveColor;
   enforceTurnInteractivity();
 
   document.addEventListener('steps:planned-change', (e: Event) => {
-    const { color, planned } = (e as CustomEvent).detail as { color: PlayerColor; planned: number | null; };
+    const { color, planned } = (e as CustomEvent).detail as {
+      color: PlayerColor; planned: number | null;
+    };
     enforceTurnInteractivity();
     if (color !== getActiveColorRef()) return;
     clearAllForecastLocksForActiveColor();
     currentPlanned = planned;
+
     if (lastFocusedShipEl) {
       const shipColor = getShipColor(lastFocusedShipEl);
       if (shipColor && shipColor === color) {
@@ -400,16 +435,13 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
 
       if (isFinalQa(fromCellQa as any)) {
         const finalQa = computeFinalTargetQaFromStart(fromCellQa as any, planned);
-        if (!finalQa) {
-          if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
-          return;
-        }
-        const cell = pickFinalForecastCell(finalQa as any);
-        if (!cell) {
+        if (!finalQa || !isCellFree(finalQa)) {
           if (shipEl) applyDisabled(shipEl, 'disabledByForecast');
           return;
         }
         if (shipEl) clearDisabled(shipEl, 'disabledByForecast');
+        const cell = getCellByQa(finalQa);
+        if (!cell) return;
         cell.classList.add('is-forecast');
         lastHighlighted = cell;
         return;
@@ -422,7 +454,7 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
       }
       if (!shipEl) return;
 
-      const resolved = resolveCellForIndexWithMerge(target as number, shipEl, color);
+      const resolved = resolveIndexWithMerge(target as number, shipEl, color);
       if (!resolved) {
         applyDisabled(shipEl, 'disabledByForecast');
         return;
@@ -435,7 +467,7 @@ export function setupForecast(getActiveColor: () => PlayerColor) {
         clearMergeCue();
       } else {
         clearMergeCue();
-        applyMergeCue(resolved.mergeTargetShip);
+        applyMergeCue(resolved.mergeTargetEl);
       }
       return;
     }
