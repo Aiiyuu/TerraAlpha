@@ -75,3 +75,16 @@ export function addMessage(id: string, message: string) {
     }
   });
 }
+
+/**
+ * This function removes all chat messages from the player chat block.
+ * @param id - The identifier (as a class) used to find the correct chat element.
+ */
+export function removeAllMessages(id: string) {
+  chatElements.forEach((chat: Element) => {
+    if (chat.classList.contains(String(id))) {
+      const chatItems = chat.querySelectorAll('.chat-item');
+      chatItems.forEach((item) => item.remove());
+    }
+  });
+}

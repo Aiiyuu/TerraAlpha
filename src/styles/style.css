@@ -65,8 +65,7 @@ body {
 
 .hand-grid {
   display: grid;
-  grid-template-columns: repeat(4, 64px);
-  grid-auto-rows: 64px;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   border: 2px solid #444;
   border-radius: 8px;

@@ -11,6 +11,7 @@ import { loadCellIcons } from "./components/cells.ts";
 import { setupShipFinish } from "./components/shipFinish.ts";
 import { loadImages } from "./components/loadImages.ts";
 import { setupColorPalette } from "./components/colorPalette.ts";
+import { setupShipImages } from "./components/shipImages.ts";
 
 window.addEventListener("load", () => {
   setUpNavigation();
@@ -24,5 +25,6 @@ window.addEventListener("load", () => {
   loadCellIcons();
   setupAdaptiveMenuBtn();
   setupShipFinish();
+  setupShipImages();
   loadImages();
 });
