@@ -1,11 +1,8 @@
 .header {
   font-family: "Montserrat", sans-serif;
+  overflow-y: scroll;
   width: 100vw;
   height: 100vh;
-  background-size: contain;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center center;
 }
 
 .header .astronaut,
@@ -46,6 +43,8 @@
 
 
 .header-wrapper {
+  overflow-y: scroll;
+
   position: relative;
   z-index: 3;
   max-width: var(--max-page-width);
@@ -53,12 +52,12 @@
   padding-inline: var(--page-margin);
 }
 
-.header-wrapper>* {
-  margin-bottom: 50px;
+.header-wrapper .form-field {
+  max-width: var(--max-section-width);
 }
 
-.header-wrapper>*:last-child {
-  margin-bottom: 0px;
+.header-wrapper > * {
+  margin-bottom: 50px;
 }
 
 .header-title {
@@ -84,15 +83,6 @@
 
   background-color: #E7E7E7;
   border-radius: 50%;
-}
-
-.header-text {
-  opacity: 0;
-  max-width: 500px;
-  color: var(--base-text-color);
-  line-height: 30px;
-  letter-spacing: 2px;
-  animation: slide-fade-up var(--scroll-animation-duration) 100ms forwards ease;
 }
 
 .header-button-group {

@@ -9,7 +9,9 @@ import { createNewPlayer } from "./player.ts";
  * Creates a new room with player and pushes it to the server
  */
 export function createRoom() {
-  const roomNameInput = document.getElementById('room-name') as HTMLInputElement;
+  const roomNameInput = document.getElementById(
+    "room-name"
+  ) as HTMLInputElement;
   const player: Player = createNewPlayer();
 
   const newRoom: Room = {
@@ -18,7 +20,7 @@ export function createRoom() {
     name: roomNameInput.value,
     players: [player],
     date: new Date(),
-  }
+  };
 
   addRoomToServer(newRoom);
 }
@@ -26,16 +28,19 @@ export function createRoom() {
 /**
  * Adds player to the room
  */
-export function addNewPlayerToRoom(roomId: number, newPlayer: Player): Room | undefined {
-  const room: Room | undefined = rooms.find(item => item.id === roomId);
+export function addNewPlayerToRoom(
+  roomId: number,
+  newPlayer: Player
+): Room | undefined {
+  const room: Room | undefined = getRoomById(roomId)
 
   if (!room) {
-    alert('Кімната не знайдена');
+    alert("Кімната не знайдена");
     return;
   }
 
   if (room.players.length >= 2) {
-    alert('Ця кімната вже переповнена');
+    alert("Ця кімната вже переповнена");
     return;
   }
 
@@ -46,8 +51,17 @@ export function addNewPlayerToRoom(roomId: number, newPlayer: Player): Room | un
 /**
  * Returns a random room from rooms
  */
-export function getRandomRoom(): Room {
-  const availableRooms = rooms.filter(room => room.players.length < 2);
+export function getRandomRoom(currentPlayer: Player): Room {
+  const availableRooms = rooms.filter((room) => {
+    return (
+      room.players.length < 2 && room.players[0].color !== currentPlayer.color
+    );
+  });
+
   const randomIndex = Math.floor(Math.random() * availableRooms.length);
   return availableRooms[randomIndex];
+}
+
+export function getRoomById(id: Room['id']): Room | undefined {
+  return rooms.find((item) => item.id === id);
 }

@@ -1,5 +1,4 @@
 .form-section {
-  overflow-y: auto;
   width: 100vw;
   height: 100vh;
 
@@ -21,7 +20,7 @@
   width: 172px;
   height: 335px;
 
-  animation: rocket 10s ease;
+  animation: rocket 15s ease forwards;
 }
 
 .decorations .star {
@@ -84,10 +83,6 @@
   width: 100%;
 }
 
-.form-field-color {
-  margin-bottom: 0;
-}
-
 .form-field-input {
   caret-color: var(--base-text-color);
   color: var(--base-text-color);
@@ -121,47 +116,13 @@
   color: var(--base-text-color);
 }
 
-.form-field-color .form-field-label {
-  font-size: 16px;
-  color: var(--base-text-color);
-  margin-bottom: 20px;
-}
-
-#color-palette {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-#color-palette .color-item {
-  --block-size: 50px;
-
-  position: relative;
-  width: var(--block-size);
-  height: var(--block-size);
-}
-
-#color-palette .color-item.is-selected::before {
-  content: "";
-
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  width: calc(var(--block-size) + 15px);
-  height: calc(var(--block-size) + 15px);
-
-  border: 1px solid var(--base-text-color);
-}
-
 @keyframes rocket {
   from {
-    transform: translateY(100vh) rotate(-35deg);
+    transform: translateY(50vh) rotate(-55deg);
   }
 
   to {
-    transform: translateY(0) rotate(0);
+    transform: translateY(-20vh) rotate(25deg);
   }
 }
 

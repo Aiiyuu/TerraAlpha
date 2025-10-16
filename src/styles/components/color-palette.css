@@ -1,30 +1,24 @@
-.avatars .form-field-label {
+.form-field-color .form-field-label {
   font-size: 16px;
   color: var(--base-text-color);
   margin-bottom: 20px;
 }
 
-#avatar-menu {
+#color-palette {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  max-width: var(--max-section-width);
 }
 
-#avatar-menu .avatar-item {
-  --block-size: 70px;
+#color-palette .color-item {
+  --block-size: 50px;
 
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#avatar-menu .avatar-item img {
   width: var(--block-size);
+  height: var(--block-size);
 }
 
-#avatar-menu .avatar-item.is-selected::before {
+#color-palette .color-item.is-selected::before {
   content: "";
 
   position: absolute;
