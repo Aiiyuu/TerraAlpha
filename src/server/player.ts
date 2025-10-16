@@ -1,5 +1,6 @@
 import type { Player } from "../types/player.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
+import { colors } from "../config.ts";
 
 
 /**
@@ -7,7 +8,9 @@ import { getRandomId } from "../utility/getRandomId.ts";
  */
 export function createNewPlayer() {
   const playerNameInput = document.getElementById('player-name') as HTMLInputElement;
-  const playerColorInput = document.getElementById('color') as HTMLInputElement;
+  const colorItems = [...document.querySelectorAll('.color-item')] as HTMLInputElement[];
+  const selectedColorItem = colorItems.find(item => item.classList.contains('is-selected'));
+  const selectedColor = selectedColorItem?.getAttribute('data-color') || '#6A0DAD';
 
   const newPlayer: Player = {
     id: `${getRandomId()}`,
@@ -16,7 +19,7 @@ export function createNewPlayer() {
     itsTurn: true,
     diceHistory: [],
     diceStreak: [],
-    color: playerColorInput.value || '#6A0DAD',
+    color: selectedColor,
   }
 
   return newPlayer;
@@ -26,6 +29,8 @@ export function createNewPlayer() {
  * Creates and Returns a randomly generated user object
  */
 export function createRandomPlayer(): Player {
+  const randomColor = colors[Math.floor(Math.random() * colors.length)];
+  
   const newPlayer: Player = {
     id: `${getRandomId()}`,
     avatar: 5,
@@ -33,7 +38,7 @@ export function createRandomPlayer(): Player {
     itsTurn: true,
     diceHistory: [],
     diceStreak: [],
-    color: '#6A0DAD',
+    color: randomColor,
   }
 
   return newPlayer;

@@ -1,5 +1,6 @@
 .dice-container {
 	position: absolute;
+	z-index: 5;
 	top: 150%;
 	left: 50%;
 	transform: translate(-50%, -50%);

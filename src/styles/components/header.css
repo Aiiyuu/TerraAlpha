@@ -33,7 +33,7 @@
   width: 150px;
   height: 150px;
 
-  animation: slide-up 10s ease forwards;;
+  animation: rotation 40s linear infinite;
 }
 
 .header .comet {
