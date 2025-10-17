@@ -1,59 +1,139 @@
-import type { Room } from "../types/room.ts";
-import { deepUpdate } from "../utility/getDeepCopy.ts";
+import type { Room, RoomEntry } from "../types/room.ts";
+import type { PlayerEntry } from "../types/player.ts";
 
-/**
- * Rewrites rooms inside storage
- * @param rooms
- */
-function saveRoomsToServer(rooms: Room[]) {
-  localStorage.setItem("rooms", JSON.stringify(rooms));
-}
+// Firebase
+import { database } from "../firebase.ts";
+import { ref, set, get, update, onValue, } from "firebase/database";
 
-/**
- * Fetches rooms from server and adds a new one
- * @param room
- */
-export function addRoomToServer(room: Room) {
-  const rooms: Room[] = getRoomsFromServer();
-  rooms.unshift(room);
-
-  localStorage.setItem('rooms', JSON.stringify(rooms));
-}
-
-/**
- * Returns an array of rooms from server
- */
-export function getRoomsFromServer(): Room[] {
-  return JSON.parse(localStorage.getItem('rooms') || '[]');
-}
-
-/**
- * Updates a room object in the list of rooms using a deep update strategy, based on the room ID.
- *
- * @param {Room} updatedRoom - The room object containing the updated values.
- * @returns {Room[]} The updated list of rooms.
- */
-export function updateRoom(updatedRoom: Room): Room[] {
-  const rooms: Room[] = getRoomsFromServer();
-
-  const updatedRooms = rooms.map(room => {
-    if (room.id === updatedRoom.id) {
-      return deepUpdate(room, updatedRoom);
-    }
-    return room;
+export function writeUserData({ id, avatar, name, color }: PlayerEntry) {
+  set(ref(database, `users/${id}`), {
+    id: id,
+    avatar: avatar,
+    name: name,
+    itsTurn: false,
+    diceHistory: [],
+    diceStreak: [],
+    color: color,
   });
+}
 
-  saveRoomsToServer(updatedRooms as Room[]);
-
-  return updatedRooms as Room[];
+export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
+  set(ref(database, `rooms/${id}`), {
+    id: id,
+    authorId: author.id,
+    name: name,
+    players: [author],
+    date: new Date().toISOString(),
+  });
 }
 
 /**
- * Remove room associated with the roomId from the server
- * @param roomId
+ * Listens to the 'rooms' node in real-time and invokes the
+ * @param callback Function to call whenever the rooms data changes
  */
-export function removeRoom(roomId: number) {
-  saveRoomsToServer(
-    getRoomsFromServer().filter((room) => room.id !== roomId)
-  );
+export function listenToRooms(callback: (rooms: Room[]) => void) {
+  const roomsRef = ref(database, "rooms");
+
+  onValue(roomsRef, (snapshot) => {
+    const data = snapshot.val();
+
+    if (!data) {
+      callback([]);
+      return;
+    }
+
+    // Convert the object of rooms into an array
+    const roomsArray: Room[] = Object.values(data);
+    callback(roomsArray);
+  });
+}
+
+/**
+ * Listens to the 'room' in real-time and invokes the
+ * @param callback Function to call whenever the rooms data changes
+ */
+export function listeToRoomById(
+  roomId: Room["id"],
+  callback: (room: Room | undefined) => void
+) {
+  const roomRef = ref(database, "rooms/" + roomId);
+
+  onValue(roomRef, (snapshot) => {
+    const data = snapshot.val();
+
+    if (!data) {
+      callback(data);
+      return;
+    }
+
+    callback(data);
+  });
+}
+
+/**
+ * Updates the specified fields in a room. If a field doesn't exist, it will be added.
+ * 
+ * @param roomId - The ID of the room to update
+ * @param updates - An object containing the fields to update or add
+ */
+export async function updateRoom(
+  roomId: Room["id"],
+  updates: Partial<Room>
+): Promise<void> {
+  const roomRef = ref(database, "rooms/" + roomId);
+
+  try {
+    await update(roomRef, updates);
+  } catch (error) {
+    alert("Error updating room: ${error}");
+    throw error;
+  }
+}
+
+export async function addNewPlayerToRoom(
+  newUserObject: PlayerEntry,
+  roomId: Room["id"]
+): Promise<void> {
+  const roomRef = ref(database, `rooms/${roomId}`);
+
+  try {
+    // Read current room data
+    const snapshot = await get(roomRef);
+    if (!snapshot.exists()) {
+      alert(`Room with ID ${roomId} does not exist.`);
+      throw new Error(`Room with ID ${roomId} does not exist.`);
+    }
+
+    const roomData = snapshot.val();
+
+    // Get current players array, or empty if none
+    const players = roomData.players || [];
+
+    // Append new user object
+    players.push(newUserObject);
+
+    // Update players array in the database
+    await update(roomRef, { players });
+  } catch (error) {
+    alert(`Failed to add player to room: ${error}`);
+    return;
+  }
+}
+
+export async function getRoomById(
+  roomId: Room["id"]
+): Promise<Room | undefined> {
+  const roomRef = ref(database, `rooms/${roomId}`);
+
+  try {
+    const snapshot = await get(roomRef);
+    if (!snapshot.exists()) {
+      alert(`Room with ID ${roomId} does not exist.`);
+      throw new Error(`Room with ID ${roomId} does not exist.`);
+    }
+
+    return snapshot.val();
+  } catch (error) {
+    alert(`Failed to load the room: ${error}`);
+  }
 }

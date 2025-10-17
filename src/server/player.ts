@@ -1,5 +1,6 @@
-import type { Player } from "../types/player.ts";
+import type { PlayerEntry } from "../types/player.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
+import { writeUserData } from "./server.ts";
 
 /**
  * Crates a player object using values from dom
@@ -8,17 +9,21 @@ export function createNewPlayer() {
   const playerNameInput = document.getElementById('player-name') as HTMLInputElement;
   const colorItems = [...document.querySelectorAll('.color-item')] as HTMLInputElement[];
   const selectedColorItem = colorItems.find(item => item.classList.contains('is-selected'));
-  const selectedColor = selectedColorItem?.getAttribute('data-color') || '#6A0DAD';
 
-  const newPlayer: Player = {
-    id: `${getRandomId()}`,
-    avatar: getAvatarId(),
-    name: playerNameInput.value || `User-${getRandomId()}`,
-    itsTurn: true,
-    diceHistory: [],
-    diceStreak: [],
-    color: selectedColor,
+  const id = getRandomId();
+  const avatar = getAvatarId();
+  const name = playerNameInput.value || `User-${getRandomId()}`;
+  const color = selectedColorItem?.getAttribute('data-color') || '#6A0DAD'
+
+  const newPlayer: PlayerEntry = {
+    id,
+    avatar,
+    name,
+    color,
   }
+
+  // Write user data to the database
+  writeUserData(newPlayer);
 
   return newPlayer;
 }
