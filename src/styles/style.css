@@ -19,7 +19,6 @@ html,
 body,
 * {
   user-select: none;
-  /* eslint-disable-line css/use-baseline */
   box-sizing: border-box;
   margin: 0;
   padding: 0;

@@ -1,9 +1,16 @@
 export interface Player {
-  id: string;
-  avatar?: number;
+  id: number;
+  avatar: number;
   name: string;
   itsTurn: boolean,
   diceHistory: number[],
   diceStreak: number[],
-  color?: string,
+  color: string,
+}
+
+export interface PlayerEntry {
+  id: number;
+  avatar: number;
+  name: string;
+  color: string;
 }
