@@ -32,7 +32,6 @@ export function setUpNavigation() {
   form.addEventListener("submit", (event: SubmitEvent) => {
     event.preventDefault();
     createRoom();
-    showHomePage();
   });
 
   homeBtn.addEventListener("click", () => {

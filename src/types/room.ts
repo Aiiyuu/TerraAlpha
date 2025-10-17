@@ -1,3 +1,4 @@
+import type { Phrase } from "./phrase.ts";
 import type { Player } from "./player.ts";
 
 export interface Room {
@@ -6,8 +7,10 @@ export interface Room {
   name: string;
   players: Player[];
   date: Date;
+
   gameStarted?: boolean;
   isDiceRolling?: boolean;
+  phrases?: Phrase[];
 }
 
 export interface RoomEntry {

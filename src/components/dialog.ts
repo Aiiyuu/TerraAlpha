@@ -1,10 +1,13 @@
 import { PHRASE_REMOVAL_DELAY, phrases } from "../config.ts";
 import type { Phrase } from "../types/phrase.ts";
-import arrowIcon from '../assets/icons/arrow.png';
+import arrowIcon from "../assets/icons/arrow.png";
+import { addPhraseToRoom, getCurrentPlayerName, getCurrentRoomId } from "../server/server.ts";
+import { getRandomId } from "../utility/getRandomId.ts";
 
 const dialogs = [...document.querySelectorAll(".dialog")] as HTMLElement[];
 
-const dialogContainer: HTMLElement | null = document.getElementById('dialog-container');
+const dialogContainer: HTMLElement | null =
+  document.getElementById("dialog-container");
 
 if (!dialogContainer) {
   throw new Error("Dialog container is not found!");
@@ -16,18 +19,11 @@ if (!dialogContainer) {
  * @param dialog
  * @param id
  */
-function showPhrase(dialog: HTMLElement, id: number) {
-  const userName: string = dialog.getAttribute('data-userName') || 'Невідомий гравець';
-
-  const phrase: Phrase = phrases.find(phrase => phrase.id === id)!;
+export function showPhrase(phrase: Phrase) {
   const dialogPhrase: HTMLDivElement = document.createElement("div");
   dialogPhrase.classList.add("dialog-phrase");
 
-  const minX = 20;
-  const maxX = 80;
-  const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
-
-  dialogPhrase.style.left = `${randomX}%`;
+  dialogPhrase.style.left = `${phrase.x}%`;
 
   const dialogImage: HTMLImageElement = document.createElement("img");
   dialogImage.src = phrase.img;
@@ -38,7 +34,7 @@ function showPhrase(dialog: HTMLElement, id: number) {
   dialogPhrase.appendChild(dialogPhraseWrapper);
 
   const playerName: HTMLSpanElement = document.createElement("span");
-  playerName.innerText = userName;
+  playerName.innerText = phrase.userName;
   dialogPhraseWrapper.appendChild(playerName);
 
   const dialogText: HTMLParagraphElement = document.createElement("p");
@@ -58,12 +54,12 @@ function showPhrase(dialog: HTMLElement, id: number) {
  * and adds event listeners to all items in the generated list.
  */
 export function setupDialog() {
-  dialogs.forEach(dialog => {
+  dialogs.forEach((dialog) => {
     const dialogList = dialog.querySelector(".dialog-list") as HTMLElement;
     const dialogButton = dialog.querySelector(".dialog-button") as HTMLElement;
 
     // Dynamically load arrow icon for the button
-    const style: HTMLStyleElement = document.createElement('style');
+    const style: HTMLStyleElement = document.createElement("style");
     style.textContent = `
       .dialog-button::after {
         background-image: url(${arrowIcon});
@@ -80,7 +76,7 @@ export function setupDialog() {
     hideDialog();
 
     /* Generate a list of phrase dynamically based on the phrases array */
-    phrases.forEach(phrase => {
+    phrases.forEach((phrase) => {
       const li: HTMLLIElement = document.createElement("li");
       li.classList.add("dialog-list-item");
 
@@ -100,8 +96,21 @@ export function setupDialog() {
       }
 
       li.addEventListener("click", () => {
+        const currentRoomdId = getCurrentRoomId()!;
+        const MIN_X_POS = 20;
+        const MAX_X_POS = 80;
+        const randomX = Math.floor(Math.random() * (MAX_X_POS - MIN_X_POS + 1)) + MIN_X_POS;
+
+        const newPhrase: Phrase = {
+          id: getRandomId(),
+          userName: getCurrentPlayerName(),
+          text: phrase.text,
+          img: phrase.img,
+          x: randomX,
+        };
+
         hideDialog();
-        showPhrase(dialog, phrase.id);
+        addPhraseToRoom(currentRoomdId, newPhrase);
       });
     });
 
@@ -115,7 +124,7 @@ export function setupDialog() {
     function hideDialog() {
       dialog.classList.remove("dialog--active");
 
-      dialogList.style.height = '0px';
+      dialogList.style.height = "0px";
     }
 
     function toggleDialog() {
@@ -128,5 +137,5 @@ export function setupDialog() {
     }
 
     dialogButton?.addEventListener("click", toggleDialog);
-  })
+  });
 }

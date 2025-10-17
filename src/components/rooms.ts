@@ -6,6 +6,7 @@ import {
   addNewPlayerToRoom,
   getRoomById,
   listenToRooms,
+  setCurrentRoomId,
 } from "../server/server.ts";
 import type { Room } from "../types/room.ts";
 import { createNewPlayer } from "../server/player.ts";
@@ -33,24 +34,28 @@ function generateTable(rooms: Room[]) {
   }
 
   rooms.forEach((room) => {
-    const author: Player | undefined = room.players.find(
+    const players = Array.isArray(room.players) ? room.players : [];
+
+    const author: Player | undefined = players.find(
       (player) => player.id === room.authorId
     );
 
     const avatar: Avatar =
-      avatars.find((avatar) => avatar.id === author!.avatar) || avatars[0];
+      avatars.find((avatar) => avatar.id === author?.avatar) || avatars[0];
 
     roomTags += `
-      <tr class="select-room-button" style="--author-color: ${
-        author?.color
-      }" data-room-id="${room.id}">
-        <td><img src="${avatar.img}" alt="${author?.name}'s avatar"></td>
-        <td>${room.name}</td>
-        <td>${author?.name}</td>
-        <td>${timeAgo(String(room.date))}</td>
-        <td>${room.players.length}/2</td>
-      </tr>
-    `;
+    <tr class="select-room-button" style="--author-color: ${
+      author?.color || "#ccc"
+    }" data-room-id="${room.id}">
+      <td><img src="${avatar.img}" alt="${
+      author?.name || "Unknown"
+    }'s avatar"></td>
+      <td>${room.name || "Без назви"}</td>
+      <td>${author?.name || "Невідомо"}</td>
+      <td>${timeAgo(String(room.date))}</td>
+      <td>${players.length}/2</td>
+    </tr>
+  `;
   });
 
   table.innerHTML = `
@@ -75,6 +80,7 @@ function generateTable(rooms: Room[]) {
   roomButtons.forEach((button) => {
     button.addEventListener("click", async () => {
       const roomId = Number(button.getAttribute("data-room-id"));
+      setCurrentRoomId(roomId);
 
       if (roomId) {
         const newUser = createNewPlayer();

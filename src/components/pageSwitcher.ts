@@ -5,7 +5,7 @@ import swipeSound from "../assets/sounds/swipe.mp3";
 import decoration1 from "../assets/images/decorations/decoration1.png";
 import decoration2 from "../assets/images/decorations/decoration2.png";
 import { startGame } from "./game.ts";
-import type { Room } from "../types/room.ts";
+import type { RoomEntry } from "../types/room.ts";
 
 const RIBBONS_ANIMATION_DURATION = 1000;
 
@@ -45,7 +45,7 @@ export function showCreateGamePage() {
 /**
  * Shows content needed for the game itself
  */
-export function showGame(room: Room) {
+export function showGame(room: RoomEntry) {
   home.classList.add("is-hidden");
   selectGamePage.classList.add("is-hidden");
   game.classList.remove("is-hidden");
