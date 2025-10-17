@@ -13,37 +13,6 @@ export type CreatePlayerResult = [
 ]
 
 /**
- * This function creates a player object and returns two
- * functions to update and retrieve the player's state, similar to React.
- * @param id
- * @param name
- */
-export function createPlayer(id: string, name: string): CreatePlayerResult {
-  let player: Player = {
-    id: id,
-    name: name,
-    itsTurn: false,
-    diceHistory: [],
-    diceStreak: [],
-  }
-
-  function updatePlayer(newState: Partial<Player>): Player {
-    player = { ...player, ...newState };
-
-    return player;
-  };
-
-  function getPlayer(): Player {
-    return player;
-  }
-
-  return [
-    updatePlayer,
-    getPlayer
-  ]
-}
-
-/**
  * This function displays everything based on the provided current user ID.
  * @param id
  */

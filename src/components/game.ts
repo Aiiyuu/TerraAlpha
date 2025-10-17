@@ -1,7 +1,15 @@
 import { listeToRoomById, updateRoom } from "../server/server";
-import type { Room } from "../types/room";
+import type { Phrase } from "../types/phrase";
+import type { Room, RoomEntry } from "../types/room";
+import { showPhrase } from "./dialog";
+import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
 
-export function startGame(room: Room) {
+let previousRoomState: Room | undefined;
+let leftPlayerIsConnected = false;
+let rightPlayerisConnected = false;
+const shownPhrases: Phrase["id"][] = [];
+
+export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
 
   /**
@@ -31,9 +39,33 @@ export function startGame(room: Room) {
     */
 
     console.log(roomState);
+
+    /* Show left player colors and avatars */
+    if (roomState!.players.length >= 1 && !leftPlayerIsConnected) {
+      setupLeftPlayer(roomState.players[0]);
+      leftPlayerIsConnected = true;
+    }
+
+    /* Show right player colors and avatars */
+    if (roomState!.players.length >= 2 && !rightPlayerisConnected) {
+      setupRightPlayer(roomState.players[1]);
+      rightPlayerisConnected = true;
+    }
+
+    /* Show new phrase if it was added */
+    if (roomState?.phrases?.length !== previousRoomState?.phrases?.length) {
+      if (roomState && roomState.phrases) {
+        roomState.phrases.forEach((phrase) => {
+          if (!shownPhrases.includes(phrase.id)) {
+            showPhrase(phrase);
+            shownPhrases.push(phrase.id);
+          }
+        });
+      }
+    }
+
+    previousRoomState = roomState;
   });
-
-
 
   // НИЩЕ КОД ЯК ОБНОВЛЮВАТИ КІМНАТУ
 

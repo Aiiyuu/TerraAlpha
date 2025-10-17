@@ -1,9 +1,10 @@
 import type { Room, RoomEntry } from "../types/room.ts";
-import type { PlayerEntry } from "../types/player.ts";
+import type { Player, PlayerEntry } from "../types/player.ts";
 
 // Firebase
 import { database } from "../firebase.ts";
-import { ref, set, get, update, onValue, } from "firebase/database";
+import { ref, set, get, update, onValue } from "firebase/database";
+import type { Phrase } from "../types/phrase.ts";
 
 export function writeUserData({ id, avatar, name, color }: PlayerEntry) {
   set(ref(database, `users/${id}`), {
@@ -18,7 +19,7 @@ export function writeUserData({ id, avatar, name, color }: PlayerEntry) {
 }
 
 export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
-  set(ref(database, `rooms/${id}`), {
+  return set(ref(database, `rooms/${id}`), {
     id: id,
     authorId: author.id,
     name: name,
@@ -72,7 +73,7 @@ export function listeToRoomById(
 
 /**
  * Updates the specified fields in a room. If a field doesn't exist, it will be added.
- * 
+ *
  * @param roomId - The ID of the room to update
  * @param updates - An object containing the fields to update or add
  */
@@ -86,6 +87,40 @@ export async function updateRoom(
     await update(roomRef, updates);
   } catch (error) {
     alert("Error updating room: ${error}");
+    throw error;
+  }
+}
+
+/**
+ * Updates the phrase array in a room. If a field doesn't exist, it will be added.
+ *
+ * @param roomId - The ID of the room to update
+ * @param newPhrase - An object containing the fields of new phrase
+ */
+export async function addPhraseToRoom(
+  roomId: Room["id"],
+  newPhrase: Phrase
+): Promise<void> {
+  const roomRef = ref(database, "rooms/" + roomId);
+
+  try {
+    const snapshot = await get(roomRef);
+
+    if (!snapshot.exists()) {
+      throw new Error("Room does not exist");
+    }
+
+    const roomData = snapshot.val();
+    const phrases: Phrase[] = roomData.phrases || [];
+
+    const phraseExists = phrases.includes(newPhrase);
+
+    if (!phraseExists) {
+      const updatedPhrases = [...phrases, newPhrase];
+      await update(roomRef, { phrases: updatedPhrases });
+    }
+  } catch (error) {
+    alert(`Error adding phrase to room: ${error}`);
     throw error;
   }
 }
@@ -136,4 +171,36 @@ export async function getRoomById(
   } catch (error) {
     alert(`Failed to load the room: ${error}`);
   }
+}
+
+/**
+ * Saves room id in the localstorage, used for dialogs and phrases
+ * @param id
+ */
+export function setCurrentRoomId(id: Room["id"]) {
+  localStorage.setItem("currentRoomId", String(id));
+}
+
+/**
+ * Returns room id in the localstorage, used for dialogs and phrases
+ * @param id
+ */
+export function getCurrentRoomId(): Room["id"] {
+  return Number(localStorage.getItem("currentRoomId"));
+}
+
+/**
+ * Saves the player's in the localstorage, used for dialogs and phrases
+ * @param userName
+ */
+export function setCurrentPlayerName(userName: Player["name"]) {
+  localStorage.setItem("currentPlayerName", userName);
+}
+
+/**
+ * Returns current user's name in the localstorage, used for dialogs and phrases
+ */
+export function getCurrentPlayerName(): Player["name"] {
+  const userName: string | null = localStorage.getItem("currentPlayerName");
+  return userName ? userName : 'Невідомий гравець';
 }
