@@ -70,3 +70,13 @@
   font-size: 30px;
   font-weight: bold;
 }
+
+#main-btn {
+  background-color: white;
+  color: black;
+}
+
+#main-btn.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}

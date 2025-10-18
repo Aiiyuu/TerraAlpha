@@ -11,6 +11,8 @@ export interface Room {
   gameStarted?: boolean;
   isDiceRolling?: boolean;
   phrases?: Phrase[];
+  lastDiceResult?: number;
+  isTurn?: "left" | "right";
 }
 
 export interface RoomEntry {

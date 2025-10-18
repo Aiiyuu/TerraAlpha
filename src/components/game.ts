@@ -1,44 +1,33 @@
-import { listeToRoomById, updateRoom } from "../server/server";
+import {
+  getCurrentPlayerId,
+  listeToRoomById,
+  updateRoom,
+} from "../server/server";
 import type { Phrase } from "../types/phrase";
 import type { Room, RoomEntry } from "../types/room";
 import { showPhrase } from "./dialog";
+import { HIDE_DICE_DELAY, throwDice } from "./dice";
 import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
+
+const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
 let previousRoomState: Room | undefined;
 let leftPlayerIsConnected = false;
 let rightPlayerisConnected = false;
 const shownPhrases: Phrase["id"][] = [];
+let currentPlayerId;
+let currentPlayerSide: "left" | "right" | undefined;
 
 export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
-
-  /**
-   * ПІДЧАС РОЗРОБКИ ІГРИ Я РЕКОМЕНДУЮ МАТИ
-   * ВІДКРИТИМ ДВА ВІКНА В БРАУЗЕРІ З ІГРОЮ АБИ
-   * ПЕРЕВІРЯТИ ЧИ ПРАЦЮЄ СИНХРОНІЗАЦІЯ
-   */
-
   listeToRoomById(roomId, (roomState) => {
-    /*
-      Параметер roomState = оновлений обєкт з ігрою
+    /* Define current player's side */
+    if (!currentPlayerSide) {
+      currentPlayerId = getCurrentPlayerId();
 
-      Це синхронізація
-
-      Ця функція буде виконуватися щоразу,
-      коли змінюється якась властивість у базі даних
-
-      Наприклад, я можу додати до room властивість isdicerolling,
-      і якщо хтось кидає кубик, тоді isdicerolling = true,
-      і тут можна зробити перевірку
-
-      if (roomState.isdicerolling) {
-        Показуємо анімацію кубика
-      }
-
-      Також тут треба буде синхронізувати таймер, повідомлення, і ходи корабликів
-    */
-
-    console.log(roomState);
+      currentPlayerSide =
+        roomState?.players[0].id === currentPlayerId ? "left" : "right";
+    }
 
     /* Show left player colors and avatars */
     if (roomState!.players.length >= 1 && !leftPlayerIsConnected) {
@@ -64,31 +53,58 @@ export function startGame(room: RoomEntry) {
       }
     }
 
+    /* Show dice rolling animation when it's rolling */
+    if (roomState?.lastDiceResult && roomState?.isDiceRolling) {
+      throwDice(roomState.lastDiceResult);
+    }
+
+    /* Hide dice main button when not needed */
+    if (currentPlayerSide === roomState?.isTurn) {
+      mainBtn.classList.remove("disabled");
+    } else {
+      mainBtn.classList.add("disabled");
+    }
+
     previousRoomState = roomState;
   });
 
-  // НИЩЕ КОД ЯК ОБНОВЛЮВАТИ КІМНАТУ
-
-  /**
-   * Якщо додаєш нові проперті то переконайся що вони є в Room типі
-   *
-   * Пізніше додамо інші властивості:
-   * isTurn = player.id - щоб знайти чий хід
-   * gameIsFinished = false - щоб знати чи видаляти кімнату з сервера
-   * winnerId = player.id - тут логічно
-   *
-   */
   const roomChanges: Partial<Room> = {
     gameStarted: true,
     isDiceRolling: false,
+    lastDiceResult: -1,
+    isTurn: "left",
   };
 
-  /**
-   * Ця функція оновлює статус кімнати.
-   * Якщо якоїсь властивості немає в об'єкті кімнати, вона створюється.
-   *
-   * Функція приймає два параметри: roomId
-   * та об'єкт зі змінами, які потрібно внести на сервер для кімнати.
-   */
   updateRoom(roomId, roomChanges);
+
+  mainBtn.addEventListener("click", () => {
+    const btnType = mainBtn.getAttribute("data-type");
+
+    if (btnType === "dice") {
+      console.log("Кинув кубик");
+      const randomNum = Math.floor(Math.random() * 6) + 1;
+
+      updateRoom(roomId, {
+        isDiceRolling: true,
+        lastDiceResult: randomNum,
+      });
+
+      setTimeout(() => {
+        updateRoom(roomId, {
+          isDiceRolling: false,
+        });
+
+        mainBtn.innerText = "Закінчити хід";
+        mainBtn.setAttribute("data-type", "end-turn");
+      }, HIDE_DICE_DELAY);
+    } else if (btnType === "end-turn") {
+      console.log("Закінчив хід");
+      updateRoom(roomId, {
+        isTurn: previousRoomState?.isTurn === "left" ? "right" : "left",
+      });
+
+      mainBtn.innerText = "Кинути кубик";
+      mainBtn.setAttribute("data-type", "dice");
+    }
+  });
 }

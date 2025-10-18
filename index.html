@@ -6,11 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="./src/styles/style.css" />
 
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
-    />
-
     <!-- Link custom fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -154,7 +149,11 @@
             <button class="cell-btn" data-qa="p1-cell-5"></button>
             <button class="cell-btn" data-qa="p1-cell-6"></button>
             <button class="cell-btn" data-qa="p1-cell-7"></button>
-            <button class="cell-btn cell-btn-main" data-qa="p1-cell-8" data-ship="mother"></button>
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p1-cell-8"
+              data-ship="mother"
+            ></button>
           </div>
         </section>
 
@@ -279,34 +278,8 @@
             </div>
           </div>
 
-          <div class="buttons is-centered mt-4">
-            <button
-              class="player1 move-button button is-danger"
-              data-qa="end-turn"
-            >
-              Закінчити Хід
-            </button>
-            <button
-              class="player2 move-button button is-info"
-              data-qa="start-turn"
-            >
-              Закінчити Хід
-            </button>
-          </div>
-
-          <div class="buttons is-centered mt-4">
-            <button
-              class="player1 button dice-button is-danger"
-              data-qa="end-turn"
-            >
-              КИНУТИ
-            </button>
-            <button
-              class="player2 button dice-button is-info"
-              data-qa="start-turn"
-            >
-              КИНУТИ
-            </button>
+          <div class="buttons">
+            <button id="main-btn" class="btn" data-type="dice">Кинути кубик</button>
           </div>
         </section>
 
@@ -334,8 +307,13 @@
             <button class="cell-btn" data-qa="p2-cell-5"></button>
             <button class="cell-btn" data-qa="p2-cell-6"></button>
             <button class="cell-btn" data-qa="p2-cell-7"></button>
-            <button class="cell-btn cell-btn-main" data-qa="p2-cell-8" data-ship="mother"></button>
-          </div>g
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p2-cell-8"
+              data-ship="mother"
+            ></button>
+          </div>
+          g
         </section>
       </div>
     </main>
