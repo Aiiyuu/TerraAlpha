@@ -204,3 +204,11 @@ export function getCurrentPlayerName(): Player["name"] {
   const userName: string | null = localStorage.getItem("currentPlayerName");
   return userName ? userName : 'Невідомий гравець';
 }
+
+export function setCurrentPlayerId(id: Player['id']) {
+  localStorage.setItem("currentPlayerId", String(id));
+}
+
+export function getCurrentPlayerId() {
+  return Number(localStorage.getItem("currentPlayerId"));
+}
