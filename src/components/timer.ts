@@ -1,37 +1,37 @@
-const timer: HTMLElement | null = document.getElementById('timer');
+const timer: HTMLElement | null = document.getElementById("timer");
 let timerSpanList: HTMLElement[] = [];
 
-const SPAN_HEIGHT = 45;
+const SPAN_HEIGHT = 38;
 
 if (!timer) {
-  throw new Error('Timer is not found');
+  throw new Error("Timer is not found");
 }
 
 /**
  * This function sets up the timer by creating its HTML markup.
  */
 export function setupTimer() {
-  const timerTextWrapper: HTMLDivElement = document.createElement('div');
-  timerTextWrapper.classList.add('timer-text');
+  const timerTextWrapper: HTMLDivElement = document.createElement("div");
+  timerTextWrapper.classList.add("timer-text");
 
-  const timerSubWrapper1: HTMLDivElement = document.createElement('div');
-  timerSubWrapper1.classList.add('timer-text-list');
+  const timerSubWrapper1: HTMLDivElement = document.createElement("div");
+  timerSubWrapper1.classList.add("timer-text-list");
 
-  const timerSubWrapper2: HTMLDivElement = document.createElement('div');
-  timerSubWrapper2.classList.add('timer-text-list');
+  const timerSubWrapper2: HTMLDivElement = document.createElement("div");
+  timerSubWrapper2.classList.add("timer-text-list");
 
   for (let i = 9; i >= 0; i--) {
-    const span: HTMLSpanElement = document.createElement('span');
+    const span: HTMLSpanElement = document.createElement("span");
     span.innerText = String(i);
 
     timerSubWrapper1.appendChild(span.cloneNode(true));
     timerSubWrapper2.appendChild(span);
   }
 
-  const anotherWrapper1: HTMLDivElement = document.createElement('div');
+  const anotherWrapper1: HTMLDivElement = document.createElement("div");
   anotherWrapper1.appendChild(timerSubWrapper1);
 
-  const anotherWrapper2: HTMLDivElement = document.createElement('div');
+  const anotherWrapper2: HTMLDivElement = document.createElement("div");
   anotherWrapper2.appendChild(timerSubWrapper2);
 
   timerTextWrapper.appendChild(anotherWrapper1);
@@ -48,7 +48,9 @@ export function setupTimer() {
  */
 export function updateTimerLook(time: number) {
   if (!timerSpanList.length) {
-    timerSpanList = [...document.querySelectorAll('.timer-text-list')] as HTMLElement[];
+    timerSpanList = [
+      ...document.querySelectorAll(".timer-text-list"),
+    ] as HTMLElement[];
   }
 
   timerSpanList.forEach((list, index) => {
@@ -67,46 +69,53 @@ export function updateTimerLook(time: number) {
 
 /**
  * Creates a timer that triggers a callback after a specified amount of time.
- *
- * @param {number} time - The duration of the timer in seconds before the callback is triggered.
- * @param {Function} callback - The function to execute once the timer expires. This will receive the arguments provided in `...args`.
- * @param {...*} args - Optional additional arguments to pass to the callback when the timer expires.
- *
- * @returns {Function} A function that can be called to stop and reset the timer before it expires.
- *
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-export function createTimer(time: number, callback: Function, ...args: unknown[]) {
-  if (timer?.classList.contains('timer--isActive')) return () => false;
+export function createTimer(
+  startTimePoint: string,
+  timeDuration: number,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  callback: Function
+): () => void {
+  if (timer?.classList.contains("timer--isActive")) return () => false;
 
-  updateTimerLook(time);
+  const startDate = new Date(startTimePoint);
+  const endDate = new Date(startDate.getTime() + timeDuration * 1000);
 
-  let timerId: ReturnType<typeof setTimeout>;
-  let intervalId: ReturnType<typeof setInterval>;
-  let currentTime = time;
+  const interval = setInterval(() => {
+    const delay = Math.ceil((endDate.getTime() - Date.now()) / 1000);
+    console.log(delay);
 
-  timer?.classList.add('timer--isActive');
+    updateTimerLook(delay);
 
-  // Start the timer
-  (function () {
-    timerId = setTimeout(() => {
-      clearInterval(intervalId);
-      timer?.classList.remove('timer--isActive');
-      callback(...args);
-    }, time * 1000 + 1000);
-
-    intervalId = setInterval(() => {
-      currentTime--;
-      updateTimerLook(currentTime);
-    }, 1000);
-  })();
-
-  // Return a function to clear the timer
-  return () => {
-    if (timerId) {
-      clearTimeout(timerId);
-      clearInterval(intervalId);
-      timer?.classList.remove('timer--isActive');
+    if (delay <= 0) {
+      clearInterval(interval);
+      callback();
     }
+  }, 1000);
+
+  return () => {
+    clearInterval(interval);
   };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+let prevTimerInterval: Function | null = null;
+
+const CURRENT_ROUND_DURATION = 60;
+
+/* Manage timer detection */
+export function detectTimerChanges(
+  prevTimer: undefined | string,
+  currTimer: string
+) {
+  if (prevTimer === currTimer) return;
+
+  if (prevTimerInterval) {
+    prevTimerInterval();
+    prevTimerInterval = null;
+  }
+
+  prevTimerInterval = createTimer(currTimer, CURRENT_ROUND_DURATION, () => {
+    alert("Time is up after rolling dice");
+  });
 }

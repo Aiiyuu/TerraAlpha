@@ -8,6 +8,7 @@ import type { Room, RoomEntry } from "../types/room";
 import { showPhrase } from "./dialog";
 import { HIDE_DICE_DELAY, throwDice } from "./dice";
 import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
+import { detectTimerChanges } from "./timer";
 
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
@@ -15,12 +16,18 @@ let previousRoomState: Room | undefined;
 let leftPlayerIsConnected = false;
 let rightPlayerisConnected = false;
 const shownPhrases: Phrase["id"][] = [];
+let diceIsRolling = false;
 let currentPlayerId;
 let currentPlayerSide: "left" | "right" | undefined;
 
 export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
+
   listeToRoomById(roomId, (roomState) => {
+    if (!roomState) return;
+
+    detectTimerChanges(previousRoomState?.timerState, roomState.timerState!);
+
     /* Define current player's side */
     if (!currentPlayerSide) {
       currentPlayerId = getCurrentPlayerId();
@@ -31,14 +38,18 @@ export function startGame(room: RoomEntry) {
 
     /* Show left player colors and avatars */
     if (roomState!.players.length >= 1 && !leftPlayerIsConnected) {
-      setupLeftPlayer(roomState.players[0]);
+      setupLeftPlayer(roomState!.players[0]);
       leftPlayerIsConnected = true;
     }
 
     /* Show right player colors and avatars */
     if (roomState!.players.length >= 2 && !rightPlayerisConnected) {
-      setupRightPlayer(roomState.players[1]);
+      setupRightPlayer(roomState!.players[1]);
       rightPlayerisConnected = true;
+
+      updateRoom(roomId, {
+        timerState: new Date().toISOString(),
+      });
     }
 
     /* Show new phrase if it was added */
@@ -54,8 +65,15 @@ export function startGame(room: RoomEntry) {
     }
 
     /* Show dice rolling animation when it's rolling */
-    if (roomState?.lastDiceResult && roomState?.isDiceRolling) {
+    if (
+      !diceIsRolling &&
+      roomState?.lastDiceResult &&
+      roomState?.isDiceRolling
+    ) {
+      diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
+    } else if (diceIsRolling && !roomState?.isDiceRolling) {
+      diceIsRolling = false;
     }
 
     /* Hide dice main button when not needed */
@@ -77,11 +95,13 @@ export function startGame(room: RoomEntry) {
 
   updateRoom(roomId, roomChanges);
 
+  /* Manage dice rolling logic */
   mainBtn.addEventListener("click", () => {
+    if (diceIsRolling || mainBtn.classList.contains("disabled")) return;
+
     const btnType = mainBtn.getAttribute("data-type");
 
     if (btnType === "dice") {
-      console.log("Кинув кубик");
       const randomNum = Math.floor(Math.random() * 6) + 1;
 
       updateRoom(roomId, {
@@ -98,9 +118,9 @@ export function startGame(room: RoomEntry) {
         mainBtn.setAttribute("data-type", "end-turn");
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {
-      console.log("Закінчив хід");
       updateRoom(roomId, {
         isTurn: previousRoomState?.isTurn === "left" ? "right" : "left",
+        timerState: new Date().toISOString(),
       });
 
       mainBtn.innerText = "Кинути кубик";

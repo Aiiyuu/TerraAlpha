@@ -13,6 +13,7 @@ export interface Room {
   phrases?: Phrase[];
   lastDiceResult?: number;
   isTurn?: "left" | "right";
+  timerState?: string;
 }
 
 export interface RoomEntry {
