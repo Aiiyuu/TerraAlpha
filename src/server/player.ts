@@ -1,6 +1,6 @@
 import type { PlayerEntry } from "../types/player.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
-import { setCurrentPlayerId, setCurrentPlayerName, writeUserData } from "./server.ts";
+import { setCurrentPlayerId, setCurrentPlayerName } from "./server.ts";
 
 /**
  * Crates a player object using values from dom
@@ -23,7 +23,6 @@ export function createNewPlayer() {
   }
 
   // Write user data to the database
-  writeUserData(newPlayer);
   setCurrentPlayerName(newPlayer.name);
   setCurrentPlayerId(newPlayer.id);
 

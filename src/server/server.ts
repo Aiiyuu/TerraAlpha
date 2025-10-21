@@ -1,22 +1,8 @@
 import type { Room, RoomEntry } from "../types/room.ts";
 import type { Player, PlayerEntry } from "../types/player.ts";
-
-// Firebase
 import { database } from "../firebase.ts";
 import { ref, set, get, update, onValue } from "firebase/database";
 import type { Phrase } from "../types/phrase.ts";
-
-export function writeUserData({ id, avatar, name, color }: PlayerEntry) {
-  set(ref(database, `users/${id}`), {
-    id: id,
-    avatar: avatar,
-    name: name,
-    itsTurn: false,
-    diceHistory: [],
-    diceStreak: [],
-    color: color,
-  });
-}
 
 export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
   return set(ref(database, `rooms/${id}`), {
