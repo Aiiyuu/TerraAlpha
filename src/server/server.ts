@@ -1,22 +1,8 @@
 import type { Room, RoomEntry } from "../types/room.ts";
 import type { Player, PlayerEntry } from "../types/player.ts";
-
-// Firebase
 import { database } from "../firebase.ts";
 import { ref, set, get, update, onValue } from "firebase/database";
 import type { Phrase } from "../types/phrase.ts";
-
-export function writeUserData({ id, avatar, name, color }: PlayerEntry) {
-  set(ref(database, `users/${id}`), {
-    id: id,
-    avatar: avatar,
-    name: name,
-    itsTurn: false,
-    diceHistory: [],
-    diceStreak: [],
-    color: color,
-  });
-}
 
 export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
   return set(ref(database, `rooms/${id}`), {
@@ -87,6 +73,44 @@ export async function updateRoom(
     await update(roomRef, updates);
   } catch (error) {
     alert("Error updating room: ${error}");
+    throw error;
+  }
+}
+
+/**
+ * Updates the player state
+ */
+export async function updatePlayer(
+  roomId: Room["id"],
+  playerSide: "left" | "right",
+  updates: Partial<Player>
+): Promise<void> {
+  const roomRef = ref(database, "rooms/" + roomId);
+
+  try {
+    const snapshot = await get(roomRef);
+    if (!snapshot.exists()) {
+      alert(`Room with ID ${roomId} does not exist.`);
+    }
+
+    const roomData = snapshot.val();
+    const players: Player[] = roomData.players || [];
+    const playerIndex = playerSide === "left" ? 0 : 1;
+
+    if (!players[playerIndex]) {
+      alert(`Player at side '${playerSide}' does not exist in room ${roomId}.`);
+    }
+
+    const updatedPlayer = {
+      ...players[playerIndex],
+      ...updates,
+    };
+
+    players[playerIndex] = updatedPlayer;
+
+    await update(roomRef, { players });
+  } catch (error) {
+    alert(`Failed to update player: ${error}`);
     throw error;
   }
 }
@@ -202,10 +226,10 @@ export function setCurrentPlayerName(userName: Player["name"]) {
  */
 export function getCurrentPlayerName(): Player["name"] {
   const userName: string | null = localStorage.getItem("currentPlayerName");
-  return userName ? userName : 'Невідомий гравець';
+  return userName ? userName : "Невідомий гравець";
 }
 
-export function setCurrentPlayerId(id: Player['id']) {
+export function setCurrentPlayerId(id: Player["id"]) {
   localStorage.setItem("currentPlayerId", String(id));
 }
 

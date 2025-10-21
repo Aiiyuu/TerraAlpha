@@ -1,10 +1,12 @@
 import {
   getCurrentPlayerId,
   listeToRoomById,
+  updatePlayer,
   updateRoom,
 } from "../server/server";
 import type { Phrase } from "../types/phrase";
 import type { Room, RoomEntry } from "../types/room";
+import { flipCoin, getRandomSide } from "./coin";
 import { showPhrase } from "./dialog";
 import { HIDE_DICE_DELAY, throwDice } from "./dice";
 import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
@@ -47,8 +49,12 @@ export function startGame(room: RoomEntry) {
       setupRightPlayer(roomState!.players[1]);
       rightPlayerisConnected = true;
 
+      const side: "left" | "right" = getRandomSide();
+      flipCoin(side);
+
       updateRoom(roomId, {
         timerState: new Date().toISOString(),
+        isTurn: side,
       });
     }
 
@@ -77,7 +83,10 @@ export function startGame(room: RoomEntry) {
     }
 
     /* Hide dice main button when not needed */
-    if (currentPlayerSide === roomState?.isTurn) {
+    if (
+      currentPlayerSide === roomState?.isTurn &&
+      roomState.players.length === 2
+    ) {
       mainBtn.classList.remove("disabled");
     } else {
       mainBtn.classList.add("disabled");
@@ -90,23 +99,41 @@ export function startGame(room: RoomEntry) {
     gameStarted: true,
     isDiceRolling: false,
     lastDiceResult: -1,
-    isTurn: "left",
   };
 
   updateRoom(roomId, roomChanges);
 
   /* Manage dice rolling logic */
   mainBtn.addEventListener("click", () => {
-    if (diceIsRolling || mainBtn.classList.contains("disabled")) return;
+    if (
+      diceIsRolling ||
+      mainBtn.classList.contains("disabled") ||
+      previousRoomState?.players.length !== 2
+    ) {
+      return;
+    }
 
     const btnType = mainBtn.getAttribute("data-type");
 
     if (btnType === "dice") {
       const randomNum = Math.floor(Math.random() * 6) + 1;
+      const playerIndex = previousRoomState.isTurn === "left" ? 0 : 1;
 
       updateRoom(roomId, {
         isDiceRolling: true,
         lastDiceResult: randomNum,
+      });
+
+      // Update player's dice history and streak
+      updatePlayer(roomId, previousRoomState.isTurn!, {
+        diceHistory: [
+          ...(previousRoomState.players[playerIndex].diceHistory ?? []),
+          randomNum,
+        ],
+        diceStreak: [
+          ...(previousRoomState.players[playerIndex].diceStreak ?? []),
+          randomNum === 6 ? 5 : randomNum,
+        ],
       });
 
       setTimeout(() => {
@@ -114,8 +141,10 @@ export function startGame(room: RoomEntry) {
           isDiceRolling: false,
         });
 
-        mainBtn.innerText = "Закінчити хід";
-        mainBtn.setAttribute("data-type", "end-turn");
+        if (randomNum !== 6) {
+          mainBtn.innerText = "Закінчити хід";
+          mainBtn.setAttribute("data-type", "end-turn");
+        }
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {
       updateRoom(roomId, {
