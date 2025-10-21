@@ -6,6 +6,7 @@ import {
 } from "../server/server";
 import type { Phrase } from "../types/phrase";
 import type { Room, RoomEntry } from "../types/room";
+import { flipCoin, getRandomSide } from "./coin";
 import { showPhrase } from "./dialog";
 import { HIDE_DICE_DELAY, throwDice } from "./dice";
 import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
@@ -48,8 +49,12 @@ export function startGame(room: RoomEntry) {
       setupRightPlayer(roomState!.players[1]);
       rightPlayerisConnected = true;
 
+      const side: "left" | "right" = getRandomSide();
+      flipCoin(side);
+
       updateRoom(roomId, {
         timerState: new Date().toISOString(),
+        isTurn: side,
       });
     }
 
@@ -94,7 +99,6 @@ export function startGame(room: RoomEntry) {
     gameStarted: true,
     isDiceRolling: false,
     lastDiceResult: -1,
-    isTurn: "left",
   };
 
   updateRoom(roomId, roomChanges);
