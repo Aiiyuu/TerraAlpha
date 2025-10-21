@@ -92,6 +92,44 @@ export async function updateRoom(
 }
 
 /**
+ * Updates the player state
+ */
+export async function updatePlayer(
+  roomId: Room["id"],
+  playerSide: "left" | "right",
+  updates: Partial<Player>
+): Promise<void> {
+  const roomRef = ref(database, "rooms/" + roomId);
+
+  try {
+    const snapshot = await get(roomRef);
+    if (!snapshot.exists()) {
+      alert(`Room with ID ${roomId} does not exist.`);
+    }
+
+    const roomData = snapshot.val();
+    const players: Player[] = roomData.players || [];
+    const playerIndex = playerSide === "left" ? 0 : 1;
+
+    if (!players[playerIndex]) {
+      alert(`Player at side '${playerSide}' does not exist in room ${roomId}.`);
+    }
+
+    const updatedPlayer = {
+      ...players[playerIndex],
+      ...updates,
+    };
+
+    players[playerIndex] = updatedPlayer;
+
+    await update(roomRef, { players });
+  } catch (error) {
+    alert(`Failed to update player: ${error}`);
+    throw error;
+  }
+}
+
+/**
  * Updates the phrase array in a room. If a field doesn't exist, it will be added.
  *
  * @param roomId - The ID of the room to update
@@ -202,10 +240,10 @@ export function setCurrentPlayerName(userName: Player["name"]) {
  */
 export function getCurrentPlayerName(): Player["name"] {
   const userName: string | null = localStorage.getItem("currentPlayerName");
-  return userName ? userName : 'Невідомий гравець';
+  return userName ? userName : "Невідомий гравець";
 }
 
-export function setCurrentPlayerId(id: Player['id']) {
+export function setCurrentPlayerId(id: Player["id"]) {
   localStorage.setItem("currentPlayerId", String(id));
 }
 

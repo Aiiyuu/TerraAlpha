@@ -1,6 +1,7 @@
 import {
   getCurrentPlayerId,
   listeToRoomById,
+  updatePlayer,
   updateRoom,
 } from "../server/server";
 import type { Phrase } from "../types/phrase";
@@ -112,10 +113,23 @@ export function startGame(room: RoomEntry) {
 
     if (btnType === "dice") {
       const randomNum = Math.floor(Math.random() * 6) + 1;
+      const playerIndex = previousRoomState.isTurn === "left" ? 0 : 1;
 
       updateRoom(roomId, {
         isDiceRolling: true,
         lastDiceResult: randomNum,
+      });
+
+      // Update player's dice history and streak
+      updatePlayer(roomId, previousRoomState.isTurn!, {
+        diceHistory: [
+          ...(previousRoomState.players[playerIndex].diceHistory ?? []),
+          randomNum,
+        ],
+        diceStreak: [
+          ...(previousRoomState.players[playerIndex].diceStreak ?? []),
+          randomNum === 6 ? 5 : randomNum,
+        ],
       });
 
       setTimeout(() => {
@@ -123,8 +137,10 @@ export function startGame(room: RoomEntry) {
           isDiceRolling: false,
         });
 
-        mainBtn.innerText = "Закінчити хід";
-        mainBtn.setAttribute("data-type", "end-turn");
+        if (randomNum !== 6) {
+          mainBtn.innerText = "Закінчити хід";
+          mainBtn.setAttribute("data-type", "end-turn");
+        }
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {
       updateRoom(roomId, {
