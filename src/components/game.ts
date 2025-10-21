@@ -77,7 +77,10 @@ export function startGame(room: RoomEntry) {
     }
 
     /* Hide dice main button when not needed */
-    if (currentPlayerSide === roomState?.isTurn) {
+    if (
+      currentPlayerSide === roomState?.isTurn &&
+      roomState.players.length === 2
+    ) {
       mainBtn.classList.remove("disabled");
     } else {
       mainBtn.classList.add("disabled");
@@ -97,7 +100,13 @@ export function startGame(room: RoomEntry) {
 
   /* Manage dice rolling logic */
   mainBtn.addEventListener("click", () => {
-    if (diceIsRolling || mainBtn.classList.contains("disabled")) return;
+    if (
+      diceIsRolling ||
+      mainBtn.classList.contains("disabled") ||
+      previousRoomState?.players.length !== 2
+    ) {
+      return;
+    }
 
     const btnType = mainBtn.getAttribute("data-type");
 
