@@ -48,3 +48,10 @@
   color: #000;
   
 }
+
+body.steps-hidden #steps-container {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}

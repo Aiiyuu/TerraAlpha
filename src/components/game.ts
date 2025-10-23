@@ -72,6 +72,12 @@ export function startGame(room: RoomEntry) {
       }
     }
 
+    if (roomState.isDiceRolling) {
+      document.body.classList.add("steps-hidden");
+    } else {
+      document.body.classList.remove("steps-hidden");
+    }
+
     if (
       !diceIsRolling &&
       roomState?.lastDiceResult &&
@@ -130,6 +136,8 @@ export function startGame(room: RoomEntry) {
     if (btnType === "dice") {
       const randomNum = Math.floor(Math.random() * 6) + 1;
       const playerIndex = previousRoomState!.isTurn === "left" ? 0 : 1;
+
+      document.body.classList.add("steps-hidden");
 
       updateRoom(roomId, {
         isDiceRolling: true,
