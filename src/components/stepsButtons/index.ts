@@ -1,7 +1,6 @@
 import "./steps.css";
 
 type StepsEvent = "step:select" | "step:combine" | "step:clear";
-
 type Listener = (payload: any) => void;
 
 class Emitter {
@@ -20,6 +19,7 @@ class Emitter {
 
 import { StepsState } from "./stepsState";
 import { StepsButton } from "./StepsButton";
+import { getCurrentTurnSide } from "../../components/game";
 
 class StepsContainer {
   private emitter = new Emitter();
@@ -43,7 +43,7 @@ class StepsContainer {
 
     const combo = document.createElement("button");
     combo.type = "button";
-    combo.className = "steps-btn steps-btn--combo";
+    combo.className = "steps-btn";
     combo.style.display = "none";
     combo.addEventListener("click", () => {
       if (!this.enabled) return;
@@ -51,7 +51,7 @@ class StepsContainer {
       this.paint();
       this.emitter.emit("step:clear", {});
     });
-    host.appendChild(combo);
+    wrap.appendChild(combo);
     this.comboBtn = combo;
   }
 
@@ -114,9 +114,7 @@ class StepsContainer {
     this.buttons.forEach((btn, idx) => {
       btn.setEnabled(this.enabled);
       const isChosen = selected.has(idx);
-      const hideChosen = true; 
-      btn.setHidden(hideChosen ? isChosen : false);
-      btn.setSelected(!hideChosen && isChosen);
+      btn.setHidden(isChosen);
       btn.setDimmed(total !== null && !isChosen);
     });
 
@@ -124,6 +122,9 @@ class StepsContainer {
       this.comboBtn.style.display = "";
       this.comboBtn.disabled = !this.enabled;
       this.comboBtn.textContent = String(total);
+      this.comboBtn.classList.remove("steps-btn--left", "steps-btn--right");
+      const side = getCurrentTurnSide();
+      this.comboBtn.classList.add(side === "left" ? "steps-btn--left" : "steps-btn--right");
     } else {
       this.comboBtn.style.display = "none";
     }
@@ -131,6 +132,5 @@ class StepsContainer {
 }
 
 const Steps = new StepsContainer();
-
 export default Steps;
 export type { StepsEvent };

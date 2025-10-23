@@ -23,6 +23,10 @@ let diceIsRolling = false;
 let currentPlayerId: number | undefined;
 let currentPlayerSide: "left" | "right" | undefined;
 
+export function getCurrentTurnSide(): "left" | "right" {
+  return currentPlayerSide ?? "left";
+}
+
 export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
 
@@ -166,5 +170,4 @@ export function startGame(room: RoomEntry) {
       mainBtn.setAttribute("data-type", "dice");
     }
   });
-
 }

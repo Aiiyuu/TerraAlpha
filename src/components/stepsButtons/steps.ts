@@ -1,5 +1,6 @@
-import { updatePlayer, getCurrentPlayerId, getCurrentRoomId } from "../../server/server";
+import { getCurrentPlayerId, getCurrentRoomId, updatePlayer } from "../../server/server";
 import type { Room } from "../../types/room";
+import { getCurrentTurnSide } from "../../components/game";
 
 type OnStepClick = (value: number, index: number) => void;
 
@@ -25,37 +26,31 @@ export function initStepsUI() {
 
 export function clearStepsButtons() {
   if (!container) return;
-  lastButtons.forEach((b) => b.remove());
+  lastButtons.forEach(b => b.remove());
   lastButtons = [];
-  container.innerHTML = "";
 }
 
-export function renderStepsButtons(
-  streak: number[],
-  enabled: boolean,
-  onClick: OnStepClick
-) {
+export function renderStepsButtons(streak: number[], enabled: boolean, onClick: OnStepClick) {
   initStepsUI();
   if (!container) return;
 
   clearStepsButtons();
-
   if (!streak.length) return;
 
   const wrap = document.createElement("div");
   wrap.className = "steps-wrap";
 
+  const side: "left" | "right" = getCurrentTurnSide();
+
   streak.forEach((value, index) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "steps-btn";
-    btn.textContent = String(value); 
+    btn.classList.add(`steps-btn--${side}`);
+    btn.textContent = String(value);
     btn.disabled = !enabled;
 
     btn.addEventListener("click", () => {
-      document.dispatchEvent(
-        new CustomEvent("step:select", { detail: { value, index } })
-      );
       onClick(value, index);
     });
 
@@ -68,13 +63,11 @@ export function renderStepsButtons(
 
 export function consumeStepAt(index: number) {
   if (!container) return;
-
   const btn = lastButtons[index];
   if (btn) {
     btn.remove();
     lastButtons.splice(index, 1);
   }
-
   if (lastButtons.length === 0) {
     clearStepsButtons();
   }
@@ -84,7 +77,6 @@ export async function clearStreakOnServer(room: Room) {
   const myId = Number(getCurrentPlayerId());
   const meIndex = room.players.findIndex(p => p.id === myId);
   if (meIndex < 0) return;
-
   const side: "left" | "right" = meIndex === 0 ? "left" : "right";
   await updatePlayer(getCurrentRoomId(), side, { diceStreak: [] });
 }
