@@ -4,6 +4,33 @@ import { database } from "../firebase.ts";
 import { ref, set, get, update, onValue } from "firebase/database";
 import type { Phrase } from "../types/phrase.ts";
 
+/* [ADDED] Імпортуємо типи для кораблів */
+import type { RoomShips, PlayerShipsLeft, PlayerShipsRight, Side, ShipPos } from "../types/room.ts"; // [ADDED]
+
+/* [ADDED] Дефолтний стан кораблів — усі в hand */
+const DEFAULT_LEFT: PlayerShipsLeft = { // [ADDED]
+  leftShip1: "hand",
+  leftShip2: "hand",
+  leftShip3: "hand",
+  leftShip4: "hand",
+  leftShip5: "hand",
+  leftShip6: "hand",
+  leftShip7: "hand",
+  leftMainShip: "hand",
+};
+
+const DEFAULT_RIGHT: PlayerShipsRight = { // [ADDED]
+  rightShip1: "hand",
+  rightShip2: "hand",
+  rightShip3: "hand",
+  rightShip4: "hand",
+  rightShip5: "hand",
+  rightShip6: "hand",
+  rightShip7: "hand",
+  rightMainShip: "hand",
+};
+
+/* [CHANGED] при створенні кімнати ми одразу записуємо ships */
 export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
   return set(ref(database, `rooms/${id}`), {
     id: id,
@@ -11,6 +38,7 @@ export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
     name: name,
     players: [author],
     date: new Date().toISOString(),
+    ships: { left: DEFAULT_LEFT, right: DEFAULT_RIGHT } as RoomShips, // [ADDED]
   });
 }
 
@@ -29,7 +57,6 @@ export function listenToRooms(callback: (rooms: Room[]) => void) {
       return;
     }
 
-    // Convert the object of rooms into an array
     const roomsArray: Room[] = Object.values(data);
     callback(roomsArray);
   });
@@ -117,9 +144,6 @@ export async function updatePlayer(
 
 /**
  * Updates the phrase array in a room. If a field doesn't exist, it will be added.
- *
- * @param roomId - The ID of the room to update
- * @param newPhrase - An object containing the fields of new phrase
  */
 export async function addPhraseToRoom(
   roomId: Room["id"],
@@ -156,7 +180,6 @@ export async function addNewPlayerToRoom(
   const roomRef = ref(database, `rooms/${roomId}`);
 
   try {
-    // Read current room data
     const snapshot = await get(roomRef);
     if (!snapshot.exists()) {
       alert(`Room with ID ${roomId} does not exist.`);
@@ -164,14 +187,8 @@ export async function addNewPlayerToRoom(
     }
 
     const roomData = snapshot.val();
-
-    // Get current players array, or empty if none
     const players = roomData.players || [];
-
-    // Append new user object
     players.push(newUserObject);
-
-    // Update players array in the database
     await update(roomRef, { players });
   } catch (error) {
     alert(`Failed to add player to room: ${error}`);
@@ -198,32 +215,20 @@ export async function getRoomById(
 }
 
 /**
- * Saves room id in the localstorage, used for dialogs and phrases
- * @param id
+ * LocalStorage helpers
  */
 export function setCurrentRoomId(id: Room["id"]) {
   localStorage.setItem("currentRoomId", String(id));
 }
 
-/**
- * Returns room id in the localstorage, used for dialogs and phrases
- * @param id
- */
 export function getCurrentRoomId(): Room["id"] {
   return Number(localStorage.getItem("currentRoomId"));
 }
 
-/**
- * Saves the player's in the localstorage, used for dialogs and phrases
- * @param userName
- */
 export function setCurrentPlayerName(userName: Player["name"]) {
   localStorage.setItem("currentPlayerName", userName);
 }
 
-/**
- * Returns current user's name in the localstorage, used for dialogs and phrases
- */
 export function getCurrentPlayerName(): Player["name"] {
   const userName: string | null = localStorage.getItem("currentPlayerName");
   return userName ? userName : "Невідомий гравець";
