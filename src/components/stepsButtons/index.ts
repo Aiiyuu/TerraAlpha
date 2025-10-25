@@ -29,6 +29,7 @@ class StepsContainer {
   private comboBtn: HTMLButtonElement | null = null;
   private buttons: StepsButton[] = [];
   private enabled = false;
+  private stepsForMove: number | null = null;
 
   mountBefore(el: HTMLElement) {
     const host = document.createElement("div");
@@ -97,6 +98,10 @@ class StepsContainer {
     return this.state.getSelectedIndices().length;
   }
 
+  getStepsForMove(): number | null {
+    return this.stepsForMove;
+  }
+
   on(ev: StepsEvent, fn: Listener) {
     this.emitter.on(ev, fn);
   }
@@ -110,6 +115,8 @@ class StepsContainer {
 
     const selected = new Set(this.state.getSelectedIndices());
     const total = this.state.getTotal();
+
+    this.stepsForMove = total;
 
     this.buttons.forEach((btn, idx) => {
       btn.setEnabled(this.enabled);

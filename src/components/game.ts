@@ -12,6 +12,7 @@ import { HIDE_DICE_DELAY, throwDice } from "./dice";
 import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
 import { detectTimerChanges } from "./timer";
 import Steps from "../components/stepsButtons";
+import { setupPrediction } from "../components/prediction";
 
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
@@ -31,6 +32,12 @@ export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
 
   Steps.mountBefore(mainBtn);
+
+  if (!(window as any).__predInit) {
+    (window as any).__predInit = true;
+    console.log("[PRED] setupPrediction() called from game.ts");
+    setupPrediction();
+  }
 
   listeToRoomById(roomId, (roomState) => {
     if (!roomState) return;
