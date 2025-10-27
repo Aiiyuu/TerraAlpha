@@ -4,6 +4,7 @@ import type { PlayerEntry } from "../types/player.ts";
 import { setCurrentRoomId, writeRoomData } from "./server.ts";
 import { createNewPlayer } from "./player.ts";
 import { animatePageSwitching, showGame } from "../components/pageSwitcher.ts";
+import { getRandomSide } from "../components/coin.ts";
 
 /**
  * Creates a new room with player and pushes it to the server
@@ -11,18 +12,30 @@ import { animatePageSwitching, showGame } from "../components/pageSwitcher.ts";
 export async function createRoom() {
   const roomNameInput = document.getElementById("room-name") as HTMLInputElement;
   const player: PlayerEntry = createNewPlayer();
+
+  const firstTurnSide = getRandomSide();
+
   const newRoom: RoomEntry = {
     id: getRandomId(),
-    name: roomNameInput.value,
+    name: roomNameInput.value || "Без назви",
     players: [],
-  };
+    gameStarted: false,
+    isDiceRolling: false,
+    lastDiceResult: -1,
+    timerState: new Date().toISOString(),
+    isTurn: firstTurnSide,
+    coinShown: true,
+    coin: {
+      result: firstTurnSide,
+      shown: true,
+      at: new Date().toISOString(),
+    },
+  } as any;
 
   setCurrentRoomId(newRoom.id);
 
-  // Wait until the room is written to the database
   await writeRoomData(newRoom, player);
 
-  // Animate only after room creation is confirmed
   animatePageSwitching(() => showGame(newRoom));
 
   return newRoom;

@@ -1,4 +1,4 @@
-import { createRoom } from "../server/rooms.ts";
+import { createRoom } from "../server/createGameRoom.ts";
 import {
   animatePageSwitching,
   showCreateGamePage,
