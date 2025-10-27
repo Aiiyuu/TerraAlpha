@@ -1,24 +1,4 @@
-// ShipMove.ts
 import Steps from '../components/stepsButtons';
-
-type IndexLike = number | string;
-
-const SPECIAL_REDIRECT: Record<string, string[]> = {
-  '6': ['6-1', '6-2'],
-  '12': ['12-1', '12-2'],
-  '18': ['18-1', '18-2'],
-};
-
-function getCellByIndex(index: IndexLike): HTMLElement | null {
-  const idx = String(index);
-  return (
-    document.querySelector<HTMLElement>(`.board [data-qa="field-${idx}"]`) ||
-    document.querySelector<HTMLElement>(`.board [data-qa="cell-${idx}"]`) ||
-    document.querySelector<HTMLElement>(`.board .cell[data-index="${idx}"]`) ||
-    document.getElementById(`field-${idx}`) ||
-    document.getElementById(`cell-${idx}`)
-  );
-}
 
 function parseCellIndex(cell: HTMLElement): number | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
@@ -58,20 +38,6 @@ function disableShipTemporarily(el: HTMLElement, reason: string) {
   }, 400);
 }
 
-function resolveTarget(predicted: HTMLElement): HTMLElement | null {
-  const base = parseCellIndex(predicted);
-  if (base == null) return null;
-  const alts = SPECIAL_REDIRECT[String(base)];
-  if (!alts) {
-    return isOccupied(predicted) ? null : predicted;
-  }
-  for (const alt of alts) {
-    const cell = getCellByIndex(alt);
-    if (cell && !isOccupied(cell)) return cell;
-  }
-  return null;
-}
-
 function emitDone(detail: {
   shipQa: string | null;
   fromIndex: number | null;
@@ -95,14 +61,16 @@ export function setupShipMove() {
       const shipEl = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship, button.ship');
       if (!shipEl) return;
 
-      const planned = Steps.getStepsForMove();
-      if (!Number.isFinite(planned as number) || (planned as number) <= 0) return;
+      const planned = Steps.getStepsForMove() as number;
+      if (!Number.isFinite(planned) || planned <= 0) return;
 
       const predicted = getPredictedCell();
-      if (!predicted) return;
+      if (!predicted) {
+        disableShipTemporarily(shipEl, 'no-prediction');
+        return;
+      }
 
-      const targetCell = resolveTarget(predicted);
-      if (!targetCell) {
+      if (isOccupied(predicted)) {
         disableShipTemporarily(shipEl, 'blocked');
         return;
       }
@@ -112,22 +80,22 @@ export function setupShipMove() {
       const fromIndex = fromCell ? parseCellIndex(fromCell) : null;
 
       clearPrediction();
-      targetCell.appendChild(shipEl);
+      predicted.appendChild(shipEl);
 
       const shipQa = shipEl.getAttribute('data-qa') || null;
       const toIndex =
-        targetCell.getAttribute('data-qa')?.replace(/^(?:field|cell)-/, '') ||
-        targetCell.getAttribute('data-index') ||
+        predicted.getAttribute('data-qa')?.replace(/^(?:field|cell)-/, '') ||
+        predicted.getAttribute('data-index') ||
         '';
 
       emitDone({
         shipQa,
         fromIndex,
         toIndex,
-        usedStep: planned as number,
+        usedStep: planned,
       });
 
-      consumeUsedStep(planned as number);
+      consumeUsedStep(planned);
     },
     true,
   );

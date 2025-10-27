@@ -46,10 +46,16 @@ export function startGame(room: RoomEntry) {
 
     detectTimerChanges(previousRoomState?.timerState, roomState.timerState!);
 
-    if (!currentPlayerSide) {
+    if (!currentPlayerId) {
       currentPlayerId = getCurrentPlayerId();
-      currentPlayerSide =
-        roomState?.players[0].id === currentPlayerId ? 'left' : 'right';
+    }
+
+    const myIndex = roomState.players.findIndex(p => p.id === currentPlayerId);
+    const haveTwoPlayers = roomState.players.length === 2;
+    const turnIndex = roomState.isTurn === 'left' ? 0 : 1;
+
+    if (myIndex !== -1) {
+      currentPlayerSide = myIndex === 0 ? 'left' : 'right';
     }
 
     if (roomState.players.length >= 1 && !leftPlayerIsConnected) {
@@ -62,19 +68,18 @@ export function startGame(room: RoomEntry) {
       rightPlayerisConnected = true;
     }
 
-    if (
-      roomState.players.length >= 2 &&
-      !roomState.isTurn &&
-      currentPlayerSide === 'left'
-    ) {
+    if (haveTwoPlayers && !roomState.isTurn && myIndex === 0 && !(roomState as any).coinShown) {
       const side: 'left' | 'right' = getRandomSide();
       await updateRoom(roomId, {
         timerState: new Date().toISOString(),
         isTurn: side,
-      });
+        coinShown: true,
+      } as any);
     }
 
-    if (previousRoomState?.isTurn !== roomState.isTurn && roomState.isTurn) {
+    const prevCoinShown = (previousRoomState as any)?.coinShown;
+    const nowCoinShown = (roomState as any)?.coinShown;
+    if (!prevCoinShown && nowCoinShown && roomState.isTurn) {
       flipCoin(roomState.isTurn);
     }
 
@@ -102,20 +107,15 @@ export function startGame(room: RoomEntry) {
       diceIsRolling = false;
     }
 
-    if (currentPlayerSide === roomState?.isTurn && roomState.players.length === 2) {
+    if (myIndex !== -1 && haveTwoPlayers && myIndex === turnIndex) {
       mainBtn.classList.remove('disabled');
     } else {
       mainBtn.classList.add('disabled');
     }
 
-    if (typeof currentPlayerSide !== 'undefined') {
-      const myIndex = currentPlayerSide === 'left' ? 0 : 1;
+    if (myIndex !== -1) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
-      const canUseSteps =
-        roomState.players.length === 2 &&
-        roomState.isTurn === currentPlayerSide &&
-        !roomState.isDiceRolling;
-
+      const canUseSteps = haveTwoPlayers && myIndex === turnIndex && !roomState.isDiceRolling;
       Steps.render(myStreak, canUseSteps);
     } else {
       Steps.clear();
@@ -140,10 +140,10 @@ export function startGame(room: RoomEntry) {
     }
 
     const btnType = mainBtn.getAttribute('data-type');
+    const turnIndex = previousRoomState!.isTurn === 'left' ? 0 : 1;
 
     if (btnType === 'dice') {
       const randomNum = Math.floor(Math.random() * 6) + 1;
-      const playerIndex = previousRoomState!.isTurn === 'left' ? 0 : 1;
 
       document.body.classList.add('steps-hidden');
 
@@ -154,19 +154,17 @@ export function startGame(room: RoomEntry) {
 
       updatePlayer(roomId, previousRoomState!.isTurn!, {
         diceHistory: [
-          ...(previousRoomState!.players[playerIndex].diceHistory ?? []),
+          ...(previousRoomState!.players[turnIndex].diceHistory ?? []),
           randomNum,
         ],
         diceStreak: [
-          ...(previousRoomState!.players[playerIndex].diceStreak ?? []),
+          ...(previousRoomState!.players[turnIndex].diceStreak ?? []),
           randomNum === 6 ? 5 : randomNum,
         ],
       });
 
       setTimeout(() => {
-        updateRoom(roomId, {
-          isDiceRolling: false,
-        });
+        updateRoom(roomId, { isDiceRolling: false });
 
         if (randomNum !== 6) {
           mainBtn.innerText = 'Закінчити хід';

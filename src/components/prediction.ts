@@ -1,6 +1,14 @@
 import Steps from '../components/stepsButtons';
 
-function getCellByIndex(index: number | string): HTMLElement | null {
+type IndexLike = number | string;
+
+const SPECIAL_REDIRECT: Record<string, string[]> = {
+  '6': ['6-1', '6-2'],
+  '12': ['12-1', '12-2'],
+  '18': ['18-1', '18-2'],
+};
+
+function getCellByIndex(index: IndexLike): HTMLElement | null {
   const idx = String(index);
   return (
     document.querySelector<HTMLElement>(`.board [data-qa="field-${idx}"]`) ||
@@ -11,23 +19,23 @@ function getCellByIndex(index: number | string): HTMLElement | null {
   );
 }
 
-function parseCellIndex(cell: HTMLElement): number | null {
+function parseCellParts(cell: HTMLElement): { base: number; sub: number | null } | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
-  const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)/);
-  return m ? Number(m[1]) : null;
+  const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)(?:-(\d))?/);
+  if (!m) return null;
+  return { base: Number(m[1]), sub: m[2] ? Number(m[2]) : null };
 }
 
-function getFromFieldIndexIfOnBoard(el: HTMLElement): number | null {
+function getFromPartsIfOnBoard(el: HTMLElement): { base: number; sub: number | null } | null {
   const parentCell =
     el.closest<HTMLElement>('.board [data-qa^="field-"], .board [data-qa^="cell-"], .board .cell[data-index]');
   if (!parentCell) return null;
-  return parseCellIndex(parentCell);
+  return parseCellParts(parentCell);
 }
 
-function computeTargetIndex(shipEl: HTMLElement, planned: number): number | null {
-  if (!Number.isFinite(planned) || planned <= 0) return null;
-  const from = getFromFieldIndexIfOnBoard(shipEl);
-  return from !== null ? from + planned : planned;
+function isOccupied(cell: HTMLElement | null): boolean {
+  if (!cell) return false;
+  return !!cell.querySelector('.ship, [data-role="ship"], button.ship, .cell-btn');
 }
 
 function clearPrediction() {
@@ -43,19 +51,55 @@ function pickupShipEl(scope: HTMLElement | null): HTMLElement | null {
   );
 }
 
-function isOccupied(cell: HTMLElement | null): boolean {
-  if (!cell) return false;
-  return !!cell.querySelector('.ship, [data-role="ship"], button.ship, .cell-btn');
+function pickLandingCell(targetBase: number): HTMLElement | null {
+  const alts = SPECIAL_REDIRECT[String(targetBase)];
+  if (alts) {
+    for (const idx of alts) {
+      const c = getCellByIndex(idx);
+      if (c && !isOccupied(c)) return c;
+    }
+    return null;
+  }
+  const cell = getCellByIndex(targetBase);
+  if (!cell || isOccupied(cell)) return null;
+  return cell;
 }
 
 function highlightFrom(shipEl: HTMLElement, planned: number | null) {
   clearPrediction();
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
-  const targetIndex = computeTargetIndex(shipEl, planned as number);
-  if (!Number.isFinite(targetIndex!)) return;
-  const cell = getCellByIndex(targetIndex as number);
-  if (!cell || isOccupied(cell)) return;
-  cell.classList.add('is-predicted');
+
+  const steps = planned as number;
+  const from = getFromPartsIfOnBoard(shipEl);
+
+  if (!from) {
+    const target = pickLandingCell(steps);
+    if (target) target.classList.add('is-predicted');
+    return;
+  }
+
+  const isSpecialBase = from.base === 6 || from.base === 12 || from.base === 18;
+
+  if (isSpecialBase && from.sub != null) {
+    if (from.sub === 1) {
+      if (steps <= 1) return;
+      const targetBase = from.base + (steps - 1);
+      const target = pickLandingCell(targetBase);
+      if (target) target.classList.add('is-predicted');
+      return;
+    }
+    if (from.sub === 2) {
+      if (steps <= 2) return;
+      const targetBase = from.base + (steps - 3);
+      const target = pickLandingCell(targetBase);
+      if (target) target.classList.add('is-predicted');
+      return;
+    }
+  }
+
+  const targetBase = from.base + steps;
+  const target = pickLandingCell(targetBase);
+  if (target) target.classList.add('is-predicted');
 }
 
 export function setupPrediction() {

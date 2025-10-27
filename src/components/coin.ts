@@ -7,25 +7,18 @@ export const COIN_ANIMATION_DURATION = 5000 + COIN_FLIP_DELAY;
 let isFlipping = false;
 let lastSide: 'left' | 'right' | null = null;
 
-function ensureCoinReady(): boolean {
-  if (!coinContainer) {
-    coinContainer = document.querySelector('.coin-container') as HTMLElement | null;
-  }
-  if (!coin) {
-    coin = document.querySelector('.coin') as HTMLElement | null;
-  }
+function ensure(): boolean {
+  if (!coinContainer) coinContainer = document.querySelector('.coin-container') as HTMLElement | null;
+  if (!coin) coin = document.querySelector('.coin') as HTMLElement | null;
   return !!(coinContainer && coin);
 }
 
-export function initCoin() {
-  ensureCoinReady();
+export function initCoin(): void {
+  ensure();
 }
 
 export function flipCoin(side: 'left' | 'right') {
-  if (!ensureCoinReady()) {
-    console.warn('[coin] Elements not found. Ensure .coin-container and .coin exist in DOM.');
-    return;
-  }
+  if (!ensure()) return;
   if (isFlipping || side === lastSide) return;
 
   isFlipping = true;
@@ -33,14 +26,14 @@ export function flipCoin(side: 'left' | 'right') {
 
   coinContainer!.classList.add('is-active');
 
-  coin!.style.transition = 'none';
-  coin!.style.transform = 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
+  (coin as HTMLElement).style.transition = 'none';
+  (coin as HTMLElement).style.transform = 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
   void (coin as any).offsetWidth;
-  coin!.style.transition = 'transform 5s ease';
+  (coin as HTMLElement).style.transition = 'transform 5s ease';
 
   setTimeout(() => {
     const deg = side === 'left' ? 3600 : 3780;
-    coin!.style.transform = `rotateY(${deg}deg)`;
+    (coin as HTMLElement).style.transform = `rotateY(${deg}deg)`;
   }, COIN_FLIP_DELAY);
 
   setTimeout(() => {
