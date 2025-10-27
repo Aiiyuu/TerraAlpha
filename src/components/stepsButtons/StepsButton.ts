@@ -1,13 +1,16 @@
 export class StepsButton {
   el: HTMLButtonElement;
+  value: number;
 
-  constructor(value: number, onClick: () => void) {
+  constructor(value: number, onClick: (value: number) => void) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "steps-btn";
     btn.textContent = String(value);
-    btn.addEventListener("click", onClick);
+    btn.dataset.value = String(value);
+    btn.addEventListener("click", () => onClick(value));
     this.el = btn;
+    this.value = value;
   }
 
   setEnabled(enabled: boolean) {
@@ -24,5 +27,9 @@ export class StepsButton {
 
   destroy() {
     this.el.remove();
+  }
+
+  consume() {
+    this.setHidden(true);
   }
 }

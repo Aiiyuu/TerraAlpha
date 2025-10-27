@@ -43,13 +43,18 @@ function pickupShipEl(scope: HTMLElement | null): HTMLElement | null {
   );
 }
 
+function isOccupied(cell: HTMLElement | null): boolean {
+  if (!cell) return false;
+  return !!cell.querySelector('.ship, [data-role="ship"], button.ship, .cell-btn');
+}
+
 function highlightFrom(shipEl: HTMLElement, planned: number | null) {
   clearPrediction();
   if (!Number.isFinite(planned) || (planned as number) <= 0) return;
   const targetIndex = computeTargetIndex(shipEl, planned as number);
   if (!Number.isFinite(targetIndex!)) return;
   const cell = getCellByIndex(targetIndex as number);
-  if (!cell) return;
+  if (!cell || isOccupied(cell)) return;
   cell.classList.add('is-predicted');
 }
 

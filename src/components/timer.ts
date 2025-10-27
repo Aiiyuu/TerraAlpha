@@ -83,8 +83,7 @@ export function createTimer(
 
   const interval = setInterval(() => {
     const delay = Math.ceil((endDate.getTime() - Date.now()) / 1000);
-    console.log(delay);
-
+ 
     updateTimerLook(delay);
 
     if (delay <= 0) {
