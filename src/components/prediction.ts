@@ -51,6 +51,18 @@ function pickupShipEl(scope: HTMLElement | null): HTMLElement | null {
   );
 }
 
+function setShipLocked(el: HTMLElement, locked: boolean) {
+  if (locked) {
+    el.classList.add('is-disabled');
+    el.setAttribute('aria-disabled', 'true');
+    el.setAttribute('data-prediction-locked', '1');
+  } else {
+    el.classList.remove('is-disabled');
+    el.removeAttribute('aria-disabled');
+    el.removeAttribute('data-prediction-locked');
+  }
+}
+
 function pickLandingCell(targetBase: number): HTMLElement | null {
   const alts = SPECIAL_REDIRECT[String(targetBase)];
   if (alts) {
@@ -65,67 +77,71 @@ function pickLandingCell(targetBase: number): HTMLElement | null {
   return cell;
 }
 
-function highlightFrom(shipEl: HTMLElement, planned: number | null) {
+function highlightFrom(shipEl: HTMLElement, planned: number | null): boolean {
   clearPrediction();
-  if (!Number.isFinite(planned) || (planned as number) <= 0) return;
+  if (!Number.isFinite(planned) || (planned as number) <= 0) return false;
 
   const steps = planned as number;
   const from = getFromPartsIfOnBoard(shipEl);
 
   if (!from) {
     const target = pickLandingCell(steps);
-    if (target) target.classList.add('is-predicted');
-    return;
+    if (!target) return false;
+    target.classList.add('is-predicted');
+    return true;
   }
 
   const isSpecialBase = from.base === 6 || from.base === 12 || from.base === 18;
 
   if (isSpecialBase && from.sub != null) {
     if (from.sub === 1) {
-      if (steps <= 1) return;
+      if (steps <= 1) return false;
       const targetBase = from.base + (steps - 1);
       const target = pickLandingCell(targetBase);
-      if (target) target.classList.add('is-predicted');
-      return;
+      if (!target) return false;
+      target.classList.add('is-predicted');
+      return true;
     }
     if (from.sub === 2) {
-      if (steps <= 2) return;
+      if (steps <= 2) return false;
       const targetBase = from.base + (steps - 3);
       const target = pickLandingCell(targetBase);
-      if (target) target.classList.add('is-predicted');
-      return;
+      if (!target) return false;
+      target.classList.add('is-predicted');
+      return true;
     }
   }
 
   const targetBase = from.base + steps;
   const target = pickLandingCell(targetBase);
-  if (target) target.classList.add('is-predicted');
+  if (!target) return false;
+  target.classList.add('is-predicted');
+  return true;
 }
 
 export function setupPrediction() {
   document.addEventListener(
-    'pointerover',
+    'pointerenter',
     (ev) => {
       const raw = ev.target as HTMLElement;
       const scope = raw?.closest<HTMLElement>('.cell, .cell-btn, [data-ship], .ship, button.ship') || null;
       const shipEl = pickupShipEl(scope);
       if (!shipEl) return;
       const planned = Steps.getStepsForMove();
-      highlightFrom(shipEl, planned);
+      const ok = highlightFrom(shipEl, planned);
+      setShipLocked(shipEl, !ok);
     },
     true,
   );
 
   document.addEventListener(
-    'pointerout',
+    'pointerleave',
     (ev) => {
-      const fromScope = (ev.target as HTMLElement)?.closest<HTMLElement>(
-        '.cell, .cell-btn, [data-ship], .ship, button.ship',
-      );
-      const to = ev.relatedTarget as HTMLElement | null;
-      const toScope = to?.closest('.cell, .cell-btn, [data-ship], .ship, button.ship') as HTMLElement | null;
-      if (toScope && toScope === fromScope) return;
-      if (toScope) return;
+      const raw = ev.target as HTMLElement;
+      const scope = raw?.closest<HTMLElement>('.cell, .cell-btn, [data-ship], .ship, button.ship') || null;
+      const shipEl = pickupShipEl(scope);
+      if (!shipEl) return;
+      setShipLocked(shipEl, false);
       clearPrediction();
     },
     true,

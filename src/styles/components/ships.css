@@ -41,7 +41,7 @@
 }
 
 #player1 .cell-btn svg #corpus path,
-[data-qa^="p1-"].cell-btn svg #corpus path  {
+[data-qa^="p1-"].cell-btn svg #corpus path {
   fill: var(--player1-color);
 }
 
@@ -67,15 +67,12 @@
   --ship-scale: 1.5;
 }
 
-[data-qa='p1-cell-8']:not(.ignore-ship-style) {
-  --ship-scale: 1.2;
-}
-
+[data-qa='p1-cell-8']:not(.ignore-ship-style),
 [data-qa='p2-cell-8']:not(.ignore-ship-style) {
   --ship-scale: 1.2;
 }
 
-.board .cell>.cell-btn {
+.board .cell > .cell-btn {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -88,50 +85,50 @@
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
 }
 
-.board .cell.is-forecast>.cell-btn {
+.board .cell.is-forecast > .cell-btn {
   position: relative;
   z-index: 3;
 }
 
-.board .cell>.cell-btn:hover:not(.is-disabled),
-.board .cell>.cell-btn:focus:not(.is-disabled) {
+.board .cell > .cell-btn:hover:not(.is-disabled),
+.board .cell > .cell-btn:focus:not(.is-disabled) {
   --ship-scale: 1.1;
 }
 
-.board .cell>.cell-btn[data-qa^="p1-cell-"]:hover:not(.is-disabled),
-.board .cell>.cell-btn[data-qa^="p1-cell-"]:focus:not(.is-disabled) {
+.board .cell > .cell-btn[data-qa^="p1-cell-"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa^="p1-cell-"]:focus:not(.is-disabled) {
   box-shadow: 0 0 0 2px var(--player1-color);
 }
 
-.board .cell>.cell-btn[data-qa^="p2-cell-"]:hover:not(.is-disabled),
-.board .cell>.cell-btn[data-qa^="p2-cell-"]:focus:not(.is-disabled) {
+.board .cell > .cell-btn[data-qa^="p2-cell-"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa^="p2-cell-"]:focus:not(.is-disabled) {
   box-shadow: 0 0 0 2px var(--player2-color);
 }
 
-.board .cell>.cell-btn[data-qa="p1-cell-8"]:hover:not(.is-disabled),
-.board .cell>.cell-btn[data-qa="p1-cell-8"]:focus:not(.is-disabled),
-.board .cell>.cell-btn[data-qa="p2-cell-8"]:hover:not(.is-disabled),
-.board .cell>.cell-btn[data-qa="p2-cell-8"]:focus:not(.is-disabled) {
+.board .cell > .cell-btn[data-qa="p1-cell-8"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p1-cell-8"]:focus:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p2-cell-8"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p2-cell-8"]:focus:not(.is-disabled) {
   --ship-scale: 1.5;
 }
 
-.ship.is-disabled,
-[data-ship].is-disabled,
 .hand-grid .cell-btn.is-disabled,
-.board .cell>.cell-btn.is-disabled {
-  opacity: 0.5;
-  pointer-events: none;
+.board .cell > .cell-btn.is-disabled,
+.ship.is-disabled,
+[data-ship].is-disabled {
+  opacity: 0.6;
   box-shadow: none !important;
+  cursor: not-allowed !important;
 }
 
 .is-disabled {
-  position: relative;
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
 }
 
 .ship-merge-vibrate {
-  animation: ship-vibrate .25s linear infinite;
+  animation: ship-vibrate 0.25s linear infinite;
   transform-origin: center;
   will-change: transform;
 }
