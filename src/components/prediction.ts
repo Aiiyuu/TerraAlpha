@@ -139,7 +139,9 @@ function computeTargetCell(from: { base: number | null; sub: string | null } | n
   if (!Number.isFinite(steps) || steps <= 0) return null;
 
   if (!from) {
-    return pickLandingCell(steps);
+    const proj = steps;
+    if (proj >= 27) return getCellByIndex('final-0');
+    return pickLandingCell(proj);
   }
 
   const { base, sub } = from;
@@ -148,11 +150,15 @@ function computeTargetCell(from: { base: number | null; sub: string | null } | n
   if (base === 6 || base === 12 || base === 18) {
     if (sub === '1') {
       if (steps <= 1) return null;
-      return pickLandingCell(base + (steps - 1));
+      const proj = base + (steps - 1);
+      if (proj >= 27) return getCellByIndex('final-0');
+      return pickLandingCell(proj);
     }
     if (sub === '2') {
       if (steps <= 2) return null;
-      return pickLandingCell(base + (steps - 3));
+      const proj = base + (steps - 3);
+      if (proj >= 27) return getCellByIndex('final-0');
+      return pickLandingCell(proj);
     }
   }
 
@@ -169,7 +175,9 @@ function computeTargetCell(from: { base: number | null; sub: string | null } | n
   if (base === 25 && steps >= 2) return getCellByIndex('final-0');
   if (base === 26 && steps >= 1) return getCellByIndex('final-0');
 
-  return pickLandingCell(base + steps);
+  const proj = base + steps;
+  if (proj >= 27) return getCellByIndex('final-0');
+  return pickLandingCell(proj);
 }
 
 function highlightFromEl(shipEl: HTMLElement, planned: number | null): boolean {
