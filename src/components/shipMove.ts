@@ -1,4 +1,5 @@
 import Steps from '../components/stepsButtons';
+import { animateShipFinalize } from '../utility/shipsFinalAnimation';
 
 function parseCellIndex(cell: HTMLElement): number | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
@@ -98,6 +99,10 @@ export function setupShipMove() {
         toIndex,
         usedStep: planned,
       });
+
+      if (predicted.getAttribute('data-qa') === 'final-0') {
+        animateShipFinalize(shipEl, shipQa);
+      }
 
       consumeUsedStep(planned);
     },
