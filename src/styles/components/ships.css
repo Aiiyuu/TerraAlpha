@@ -203,3 +203,17 @@
   0%   { transform: translate(-50%, -50%) scale(.88); opacity: 0; }
   100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
 }
+.board .cell > .cell-btn.is-overlay {
+  z-index: 5;
+}
+
+.cell-btn.over-spin {
+  animation: ta-over-spin 1.3s ease both;
+  transform-origin: center center;
+}
+
+@keyframes ta-over-spin {
+  0%   { transform: translate(-50%, -50%) rotate(0deg);   opacity: 1; }
+  60%  { transform: translate(-50%, -50%) rotate(220deg); opacity: .2; }
+  100% { transform: translate(-50%, -50%) rotate(350deg); opacity: 0; }
+}

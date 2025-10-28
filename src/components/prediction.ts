@@ -59,42 +59,13 @@ function getFromPartsIfOnBoard(el: HTMLElement): { base: number | null; sub: str
   return parseCellParts(parentCell);
 }
 
-function pickupShipEl(scope: HTMLElement | null): HTMLElement | null {
-  if (!scope) return null;
-  return (
-    scope.closest<HTMLElement>('.cell-btn, [data-ship], .ship, button.ship') ||
-    scope.querySelector<HTMLElement>('.cell-btn, [data-ship], .ship, button.ship') ||
-    null
-  );
-}
-
-function clearPrediction() {
-  document
-    .querySelectorAll('.board .is-predicted')
-    .forEach((el) => el.classList.remove('is-predicted'));
-
-  document
-    .querySelectorAll('.board .ta-bump')
-    .forEach((el) => el.closest('.cell-btn')?.classList.remove('ta-bump'));
-}
-
-
-function getQaPrefix(el: HTMLElement): 'p1' | 'p2' | null {
-  const qa = el.getAttribute('data-qa') || '';
-  const m = qa.match(/^(p[12])-/);
-  if (m) return m[1] as 'p1' | 'p2';
-  return null;
-}
-
 function getShipSide(el: HTMLElement): 'left' | 'right' | null {
   const ds = el.getAttribute('data-side') || el.dataset.side || '';
   if (ds === 'left' || ds === 'right') return ds;
-  const pref = getQaPrefix(el);
+  const qa = el.getAttribute('data-qa') || '';
+  const pref = qa.match(/^(p[12])-/)?.[1];
   if (pref === 'p1') return 'left';
   if (pref === 'p2') return 'right';
-  const owner = el.closest<HTMLElement>('#player1, #player2');
-  if (owner?.id === 'player1') return 'left';
-  if (owner?.id === 'player2') return 'right';
   if (el.classList.contains('left')) return 'left';
   if (el.classList.contains('right')) return 'right';
   return null;
@@ -116,108 +87,72 @@ function getCellOccupant(cell: HTMLElement | null): { el: HTMLElement; side: 'le
   return { el: occ, side: getShipSide(occ), isMother: isMotherShip(occ) };
 }
 
-function isEmpty(cell: HTMLElement | null): boolean {
-  return !getCellOccupant(cell);
+function isOccupied(cell: HTMLElement | null): boolean {
+  return !!getCellOccupant(cell);
 }
 
-function decideCellMode(
-  cell: HTMLElement | null,
-  currentSide: 'left' | 'right',
-  activeIsMother: boolean,
-): { cell: HTMLElement | null; mode: 'normal' | 'replace-own' | 'invalid' } {
-  if (!cell) return { cell: null, mode: 'invalid' };
-  const occ = getCellOccupant(cell);
-  if (!occ) return { cell, mode: 'normal' };
-  if (!occ.side) return { cell: null, mode: 'invalid' };
-  if (occ.side !== currentSide) return { cell: null, mode: 'invalid' };
-  if (activeIsMother && !occ.isMother) return { cell, mode: 'replace-own' };
-  return { cell: null, mode: 'invalid' };
+function clearPrediction() {
+  document.querySelectorAll('.board .is-predicted').forEach((el) => el.classList.remove('is-predicted'));
+  document.querySelectorAll('.board .ta-bump').forEach((el) => el.closest('.cell-btn')?.classList.remove('ta-bump'));
 }
 
-function selectRedirectCell(
-  targetBase: number | string,
-  currentSide: 'left' | 'right',
-  activeIsMother: boolean,
-): { cell: HTMLElement | null; mode: 'normal' | 'replace-own' | 'invalid' } {
+function pickupShipEl(scope: HTMLElement | null): HTMLElement | null {
+  if (!scope) return null;
+  return (
+    scope.closest<HTMLElement>('.cell-btn, [data-ship], .ship, button.ship') ||
+    scope.querySelector<HTMLElement>('.cell-btn, [data-ship], .ship, button.ship') ||
+    null
+  );
+}
+
+function setShipLocked(el: HTMLElement, locked: boolean) {
+  if (locked) {
+    el.classList.add('is-disabled');
+    el.setAttribute('aria-disabled', 'true');
+    el.setAttribute('data-prediction-locked', '1');
+  } else {
+    el.classList.remove('is-disabled');
+    el.removeAttribute('aria-disabled');
+    el.removeAttribute('data-prediction-locked');
+  }
+}
+
+function pickLandingCell(targetBase: number | string): HTMLElement | null {
   if (String(targetBase) === '27' || String(targetBase) === 'final-0') {
     const f0 = getCellByIndex('final-0');
-    return decideCellMode(f0, currentSide, activeIsMother);
+    return f0 || null;
   }
   const alts = SPECIAL_REDIRECT[String(targetBase)];
   if (alts) {
     for (const idx of alts) {
       const c = getCellByIndex(idx);
-      if (c && isEmpty(c)) return { cell: c, mode: 'normal' };
+      if (c && !isOccupied(c)) return c;
     }
-    if (activeIsMother) {
-      for (const idx of alts) {
-        const c = getCellByIndex(idx);
-        const res = decideCellMode(c, currentSide, activeIsMother);
-        if (res.mode === 'replace-own') return res;
-      }
-    }
-    return { cell: null, mode: 'invalid' };
+    return null;
   }
-  const c = getCellByIndex(targetBase);
-  return decideCellMode(c, currentSide, activeIsMother);
+  const cell = getCellByIndex(targetBase);
+  if (!cell) return null;
+  return cell;
 }
 
-function highlightFrom(shipEl: HTMLElement, planned: number | null): boolean {
-  clearPrediction();
-  if (!Number.isFinite(planned) || (planned as number) <= 0) return false;
-  const steps = planned as number;
-  const from = getFromPartsIfOnBoard(shipEl);
-  const currentSide = getShipSide(shipEl);
-  const activeIsMother = isMotherShip(shipEl);
-  if (!currentSide) return false;
+function computeTargetCell(from: { base: number | null; sub: string | null } | null, steps: number): HTMLElement | null {
+  if (!Number.isFinite(steps) || steps <= 0) return null;
 
   if (!from) {
-    const pick = selectRedirectCell(steps, currentSide, activeIsMother);
-    if (pick.mode === 'normal' && pick.cell) {
-      pick.cell.classList.add('is-predicted');
-      return true;
-    }
-    if (pick.mode === 'replace-own' && pick.cell) {
-      const occ = getCellOccupant(pick.cell);
-      if (occ) occ.el.closest('.cell-btn')?.classList.add('ta-bump');
-      return true;
-    }
-    return false;
+    return pickLandingCell(steps);
   }
 
   const { base, sub } = from;
-  if (base == null) return false;
+  if (base == null) return null;
 
   if (base === 6 || base === 12 || base === 18) {
     if (sub === '1') {
-      if (steps <= 1) return false;
-      const targetBase = base + (steps - 1);
-      const pick = selectRedirectCell(targetBase, currentSide, activeIsMother);
-      if (pick.mode === 'normal' && pick.cell) {
-        pick.cell.classList.add('is-predicted');
-        return true;
-      }
-      if (pick.mode === 'replace-own' && pick.cell) {
-        const occ = getCellOccupant(pick.cell);
-        if (occ) occ.el.classList.add('ta-bump');
-        return true;
-      }
-      return false;
+      if (steps <= 1) return null;
+      return pickLandingCell(base + (steps - 1));
     }
     if (sub === '2') {
-      if (steps <= 2) return false;
-      const targetBase = base + (steps - 3);
-      const pick = selectRedirectCell(targetBase, currentSide, activeIsMother);
-      if (pick.mode === 'normal' && pick.cell) {
-        pick.cell.classList.add('is-predicted');
-        return true;
-      }
-      if (pick.mode === 'replace-own' && pick.cell) {
-        const occ = getCellOccupant(pick.cell);
-        if (occ) occ.el.classList.add('ta-bump');
-        return true;
-      }
-      return false;
+      if (steps <= 2) return null;
+      return pickLandingCell(base + (steps - 3));
     }
   }
 
@@ -225,79 +160,53 @@ function highlightFrom(shipEl: HTMLElement, planned: number | null): boolean {
     const alts = ['final-2', 'final-1'];
     for (const idx of alts) {
       const c = getCellByIndex(idx);
-      if (c && isEmpty(c)) {
-        c.classList.add('is-predicted');
-        return true;
-      }
+      if (c && !isOccupied(c)) return c;
     }
-    if (activeIsMother) {
-      for (const idx of alts) {
-        const c = getCellByIndex(idx);
-        const res = decideCellMode(c, currentSide, activeIsMother);
-        if (res.mode === 'replace-own' && c) {
-          const occ = getCellOccupant(c);
-          if (occ) occ.el.classList.add('ta-bump');
-          return true;
-        }
-      }
+    return null;
+  }
+
+  if (base === 23 && steps >= 4) return getCellByIndex('final-0');
+  if (base === 25 && steps >= 2) return getCellByIndex('final-0');
+  if (base === 26 && steps >= 1) return getCellByIndex('final-0');
+
+  return pickLandingCell(base + steps);
+}
+
+function highlightFromEl(shipEl: HTMLElement, planned: number | null): boolean {
+  clearPrediction();
+  if (!Number.isFinite(planned) || (planned as number) <= 0) return false;
+
+  const steps = planned as number;
+  const from = getFromPartsIfOnBoard(shipEl);
+  const target = computeTargetCell(from, steps);
+  if (!target) return false;
+
+  const occ = getCellOccupant(target);
+  const activeSide = getShipSide(shipEl);
+  const activeIsMother = isMotherShip(shipEl);
+
+  if (occ) {
+    if (!occ.side || !activeSide) return false;
+
+    if (occ.side !== activeSide) {
+      return false;
     }
+
+if (activeIsMother && !occ.isMother) {
+  occ.el.closest('.cell-btn')?.classList.add('ta-bump');
+  return true;
+}
+
+    if (!activeIsMother && occ.isMother) {
+      occ.el.closest('.cell-btn')?.classList.add('ta-bump');
+      return true;
+    }
+
     return false;
   }
 
-  if (base === 23 && steps >= 4) {
-    const pick = selectRedirectCell('final-0', currentSide, activeIsMother);
-    if (pick.mode === 'normal' && pick.cell) {
-      pick.cell.classList.add('is-predicted');
-      return true;
-    }
-    if (pick.mode === 'replace-own' && pick.cell) {
-      const occ = getCellOccupant(pick.cell);
-      if (occ) occ.el.classList.add('ta-bump');
-      return true;
-    }
-    return false;
-  }
-
-  if (base === 25 && steps >= 2) {
-    const pick = selectRedirectCell('final-0', currentSide, activeIsMother);
-    if (pick.mode === 'normal' && pick.cell) {
-      pick.cell.classList.add('is-predicted');
-      return true;
-    }
-    if (pick.mode === 'replace-own' && pick.cell) {
-      const occ = getCellOccupant(pick.cell);
-      if (occ) occ.el.classList.add('ta-bump');
-      return true;
-    }
-    return false;
-  }
-
-  if (base === 26 && steps >= 1) {
-    const pick = selectRedirectCell('final-0', currentSide, activeIsMother);
-    if (pick.mode === 'normal' && pick.cell) {
-      pick.cell.classList.add('is-predicted');
-      return true;
-    }
-    if (pick.mode === 'replace-own' && pick.cell) {
-      const occ = getCellOccupant(pick.cell);
-      if (occ) occ.el.classList.add('ta-bump');
-      return true;
-    }
-    return false;
-  }
-
-  const targetBase = base + steps;
-  const pick = selectRedirectCell(targetBase, currentSide, activeIsMother);
-  if (pick.mode === 'normal' && pick.cell) {
-    pick.cell.classList.add('is-predicted');
-    return true;
-  }
-  if (pick.mode === 'replace-own' && pick.cell) {
-    const occ = getCellOccupant(pick.cell);
-    if (occ) occ.el.classList.add('ta-bump');
-    return true;
-  }
-  return false;
+  target.classList.add('is-predicted');
+  return true;
 }
 
 export function setupPrediction() {
@@ -309,16 +218,8 @@ export function setupPrediction() {
       const shipEl = pickupShipEl(scope);
       if (!shipEl) return;
       const planned = Steps.getStepsForMove();
-      const ok = highlightFrom(shipEl, planned);
-      if (ok) {
-        shipEl.classList.remove('is-disabled');
-        shipEl.removeAttribute('aria-disabled');
-        shipEl.removeAttribute('data-prediction-locked');
-      } else {
-        shipEl.classList.add('is-disabled');
-        shipEl.setAttribute('aria-disabled', 'true');
-        shipEl.setAttribute('data-prediction-locked', '1');
-      }
+      const ok = highlightFromEl(shipEl, planned);
+      setShipLocked(shipEl, !ok);
     },
     true,
   );
@@ -330,9 +231,7 @@ export function setupPrediction() {
       const scope = raw?.closest<HTMLElement>('.cell, .cell-btn, [data-ship], .ship, button.ship') || null;
       const shipEl = pickupShipEl(scope);
       if (!shipEl) return;
-      shipEl.classList.remove('is-disabled');
-      shipEl.removeAttribute('aria-disabled');
-      shipEl.removeAttribute('data-prediction-locked');
+      setShipLocked(shipEl, false);
       clearPrediction();
     },
     true,

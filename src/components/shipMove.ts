@@ -58,8 +58,7 @@ function getReplaceOwnTargetCell(): HTMLElement | null {
 
 function clearPrediction() {
   document.querySelectorAll('.board .is-predicted').forEach((el) => el.classList.remove('is-predicted'));
-  document.querySelectorAll('.board .ta-bump')
-    .forEach((el) => el.closest('.cell-btn')?.classList.remove('ta-bump'));
+  document.querySelectorAll('.board .ta-bump').forEach((el) => el.closest('.cell-btn')?.classList.remove('ta-bump'));
 }
 
 function disableShipTemporarily(el: HTMLElement, reason: string) {
@@ -93,6 +92,29 @@ function consumeUsedStep(usedStep: number) {
   (Steps as any).consumeStep?.(usedStep);
 }
 
+function waitForAnimation(el: Element, timeout: number) {
+  return new Promise<void>((resolve) => {
+    let done = false;
+    const onEnd = () => {
+      if (done) return;
+      done = true;
+      el.removeEventListener('animationend', onEnd);
+      resolve();
+    };
+    el.addEventListener('animationend', onEnd, { once: true });
+    setTimeout(onEnd, timeout + 50);
+  });
+}
+
+async function runSimpleOverMother(cellEl: HTMLElement, simpleBtn: HTMLElement) {
+  const motherBtn = cellEl.querySelector<HTMLElement>('.cell-btn');
+  motherBtn?.classList.remove('ta-bump');
+  simpleBtn.classList.add('is-overlay', 'over-spin');
+  cellEl.appendChild(simpleBtn);
+  await waitForAnimation(simpleBtn, 300);
+  simpleBtn.remove();
+}
+
 export function setupShipMove() {
   document.addEventListener(
     'click',
@@ -121,23 +143,27 @@ export function setupShipMove() {
 
       const occ = getCellOccupant(predicted);
       if (occ) {
-        if (!activeIsMother) { disableShipTemporarily(shipEl, 'blocked'); return; }
         if (!activeSide || !occ.side || occ.side !== activeSide) { disableShipTemporarily(shipEl, 'blocked'); return; }
-        if (occ.isMother) { disableShipTemporarily(shipEl, 'blocked'); return; }
-      }
 
-      clearPrediction();
-
-      if (occ) {
-        const outBtn = (occ.el.closest('.cell-btn') || occ.el) as HTMLElement;
-        await runShipReplace({
-          cellEl: predicted,
-          outBtn,
-          motherBtn: shipEl,
-          spinMs: 500,
-          popMs: 180,
-        });
+        if (activeIsMother && !occ.isMother) {
+          clearPrediction();
+          const outBtn = (occ.el.closest('.cell-btn') || occ.el) as HTMLElement;
+          await runShipReplace({
+            cellEl: predicted,
+            outBtn,
+            motherBtn: shipEl,
+            spinMs: 500,
+            popMs: 180,
+          });
+        } else if (!activeIsMother && occ.isMother) {
+          clearPrediction();
+          await runSimpleOverMother(predicted, shipEl);
+        } else {
+          disableShipTemporarily(shipEl, 'blocked');
+          return;
+        }
       } else {
+        clearPrediction();
         predicted.appendChild(shipEl);
       }
 
