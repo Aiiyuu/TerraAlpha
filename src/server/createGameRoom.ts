@@ -17,7 +17,7 @@ export async function createRoom() {
 
   const newRoom: RoomEntry = {
     id: getRandomId(),
-    name: roomNameInput.value || "Без назви",
+    name: roomNameInput.value || `Room-${getRandomId()}`,
     players: [],
     gameStarted: false,
     isDiceRolling: false,
@@ -30,7 +30,7 @@ export async function createRoom() {
       shown: true,
       at: new Date().toISOString(),
     },
-  } as any;
+  };
 
   setCurrentRoomId(newRoom.id);
 

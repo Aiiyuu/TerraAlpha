@@ -1,14 +1,21 @@
 import type { Room, RoomEntry } from "../types/room.ts";
 import type { Player, PlayerEntry } from "../types/player.ts";
 import { database } from "../firebase.ts";
-import { ref, set, get, update, onValue } from "firebase/database";
+import { ref, set, get, remove, update, onValue } from "firebase/database";
 import type { Phrase } from "../types/phrase.ts";
 
 /* [ADDED] Імпортуємо типи для кораблів */
-import type { RoomShips, PlayerShipsLeft, PlayerShipsRight, Side, ShipPos } from "../types/room.ts"; // [ADDED]
+import type {
+  RoomShips,
+  PlayerShipsLeft,
+  PlayerShipsRight,
+  Side,
+  ShipPos,
+} from "../types/room.ts"; // [ADDED]
 
 /* [ADDED] Дефолтний стан кораблів — усі в hand */
-const DEFAULT_LEFT: PlayerShipsLeft = { // [ADDED]
+const DEFAULT_LEFT: PlayerShipsLeft = {
+  // [ADDED]
   leftShip1: "hand",
   leftShip2: "hand",
   leftShip3: "hand",
@@ -19,7 +26,8 @@ const DEFAULT_LEFT: PlayerShipsLeft = { // [ADDED]
   leftMainShip: "hand",
 };
 
-const DEFAULT_RIGHT: PlayerShipsRight = { // [ADDED]
+const DEFAULT_RIGHT: PlayerShipsRight = {
+  // [ADDED]
   rightShip1: "hand",
   rightShip2: "hand",
   rightShip3: "hand",
@@ -60,6 +68,13 @@ export function listenToRooms(callback: (rooms: Room[]) => void) {
     const roomsArray: Room[] = Object.values(data);
     callback(roomsArray);
   });
+}
+
+export async function getAllRooms(): Promise<Room[]> {
+  const roomRef = ref(database, "rooms");
+  const snapshot = await get(roomRef);
+
+  return snapshot.val() ? Object.values(snapshot.val()) : [];
 }
 
 /**
@@ -114,32 +129,27 @@ export async function updatePlayer(
 ): Promise<void> {
   const roomRef = ref(database, "rooms/" + roomId);
 
-  try {
-    const snapshot = await get(roomRef);
-    if (!snapshot.exists()) {
-      alert(`Room with ID ${roomId} does not exist.`);
-    }
-
-    const roomData = snapshot.val();
-    const players: Player[] = roomData.players || [];
-    const playerIndex = playerSide === "left" ? 0 : 1;
-
-    if (!players[playerIndex]) {
-      alert(`Player at side '${playerSide}' does not exist in room ${roomId}.`);
-    }
-
-    const updatedPlayer = {
-      ...players[playerIndex],
-      ...updates,
-    };
-
-    players[playerIndex] = updatedPlayer;
-
-    await update(roomRef, { players });
-  } catch (error) {
-    alert(`Failed to update player: ${error}`);
-    throw error;
+  const snapshot = await get(roomRef);
+  if (!snapshot.exists()) {
+    alert(`Room with ID ${roomId} does not exist.`);
   }
+
+  const roomData = snapshot.val();
+  const players: Player[] = roomData.players || [];
+  const playerIndex = playerSide === "left" ? 0 : 1;
+
+  if (!players[playerIndex]) {
+    alert(`Player at side '${playerSide}' does not exist in room ${roomId}.`);
+  }
+
+  const updatedPlayer = {
+    ...players[playerIndex],
+    ...updates,
+  };
+
+  players[playerIndex] = updatedPlayer;
+
+  await update(roomRef, { players });
 }
 
 /**
@@ -179,21 +189,25 @@ export async function addNewPlayerToRoom(
 ): Promise<void> {
   const roomRef = ref(database, `rooms/${roomId}`);
 
-  try {
-    const snapshot = await get(roomRef);
-    if (!snapshot.exists()) {
-      alert(`Room with ID ${roomId} does not exist.`);
-      throw new Error(`Room with ID ${roomId} does not exist.`);
-    }
+  const snapshot = await get(roomRef);
 
-    const roomData = snapshot.val();
-    const players = roomData.players || [];
-    players.push(newUserObject);
-    await update(roomRef, { players });
-  } catch (error) {
-    alert(`Failed to add player to room: ${error}`);
-    return;
+  if (!snapshot.exists()) {
+    throw new Error(`Room with ID ${roomId} does not exist.`);
   }
+
+  const roomData = snapshot.val();
+  const players = roomData.players || [];
+
+  if (players[0]?.color === newUserObject.color) {
+    throw new Error("Your color is already taken");
+  }
+
+  if (players.length >= 2) {
+    throw new Error("The room is already full");
+  }
+
+  players.push(newUserObject);
+  await update(roomRef, { players });
 }
 
 export async function getRoomById(
@@ -201,17 +215,13 @@ export async function getRoomById(
 ): Promise<Room | undefined> {
   const roomRef = ref(database, `rooms/${roomId}`);
 
-  try {
-    const snapshot = await get(roomRef);
-    if (!snapshot.exists()) {
-      alert(`Room with ID ${roomId} does not exist.`);
-      throw new Error(`Room with ID ${roomId} does not exist.`);
-    }
-
-    return snapshot.val();
-  } catch (error) {
-    alert(`Failed to load the room: ${error}`);
+  const snapshot = await get(roomRef);
+  if (!snapshot.exists()) {
+    alert(`Room with ID ${roomId} does not exist.`);
+    throw new Error(`Room with ID ${roomId} does not exist.`);
   }
+
+  return snapshot.val();
 }
 
 /**
@@ -219,6 +229,35 @@ export async function getRoomById(
  */
 export function setCurrentRoomId(id: Room["id"]) {
   localStorage.setItem("currentRoomId", String(id));
+}
+
+export async function clearOutdatedRooms(): Promise<void> {
+  const roomsRef = ref(database, "rooms");
+  const snapshot = await get(roomsRef);
+
+  if (!snapshot.exists()) {
+    return;
+  }
+
+  const rooms: Record<string, Room> = snapshot.val();
+  const now = Date.now();
+  const timeToDelete = 60 * 60 * 1000;
+
+  const deletions = Object.entries(rooms)
+    .filter(([, room]) => {
+      if (!room.date) return false;
+      
+      const roomDate = new Date(room.date).getTime();
+      return now - roomDate > timeToDelete;
+    })
+    .map(async ([roomId]) => {
+      console.log(`Deleting outdated room: ${roomId}`);
+      await remove(ref(database, `rooms/${roomId}`));
+    });
+
+  await Promise.all(deletions);
+
+  console.log(`✅ Deleted ${deletions.length} outdated rooms.`);
 }
 
 export function getCurrentRoomId(): Room["id"] {

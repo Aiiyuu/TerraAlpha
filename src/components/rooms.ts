@@ -99,6 +99,7 @@ function generateTable(rooms: Room[]) {
           }
         } catch (error) {
           alert(`Error during joining room: ${error}`);
+          return;
         }
       }
     });

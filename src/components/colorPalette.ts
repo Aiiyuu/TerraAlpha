@@ -7,15 +7,11 @@ let colorItems: HTMLElement[] | undefined;
  * Creates a block of color items, with the first color selected by default.
  */
 export function setupColorPalette() {
-  colors.forEach((color, index) => {
+  colors.forEach((color) => {
     const span: HTMLSpanElement = document.createElement("span");
     span.classList.add("color-item");
     span.setAttribute("data-color", `${color}`);
     span.style.backgroundColor = `${color}`;
-
-    if (!index) {
-      span.classList.add("is-selected");
-    }
 
     colorPalette.append(span);
 
@@ -38,5 +34,5 @@ function selectColor(event: MouseEvent) {
   });
 
   const target = event.target as HTMLElement;
-  target.classList.add('is-selected');
+  target.classList.add("is-selected");
 }

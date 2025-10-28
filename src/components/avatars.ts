@@ -17,14 +17,10 @@ export function setUpdAvatars() {
  * and creates a form list from those items.
  */
 function loadListItems() {
-  avatars.forEach((avatar, index) => {
+  avatars.forEach((avatar) => {
     const div: HTMLDivElement = document.createElement("div");
     div.classList.add("avatar-item");
     div.setAttribute("data-id", String(avatar.id));
-
-    if (index === 0) {
-      div.classList.add('is-selected');
-    }
 
     const img: HTMLImageElement = document.createElement("img");
     img.src = avatar.img;

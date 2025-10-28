@@ -3,43 +3,40 @@ import {
   listeToRoomById,
   updatePlayer,
   updateRoom,
-} from '../server/server';
-import type { Phrase } from '../types/phrase';
-import type { Room, RoomEntry } from '../types/room';
-import { flipCoin, getRandomSide, initCoin } from './coin';
-import { showPhrase } from './dialog';
-import { HIDE_DICE_DELAY, throwDice } from './dice';
-import { setupLeftPlayer, setupRightPlayer } from './playersInfo';
-import { detectTimerChanges } from './timer';
-import Steps from '../components/stepsButtons';
-import { setupPrediction } from '../components/prediction';
-import { setupShipMove } from '../components/shipMove';
+} from "../server/server";
+import type { Phrase } from "../types/phrase";
+import type { Room, RoomEntry } from "../types/room";
+import { flipCoin, getRandomSide, initCoin } from "./coin";
+import { showPhrase } from "./dialog";
+import { HIDE_DICE_DELAY, throwDice } from "./dice";
+import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
+import { detectTimerChanges } from "./timer";
+import Steps from "../components/stepsButtons";
+import { setupPrediction } from "../components/prediction";
+import { setupShipMove } from "../components/shipMove";
 
-const mainBtn = document.getElementById('main-btn') as HTMLButtonElement;
+const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
 let previousRoomState: Room | undefined;
 let leftPlayerIsConnected = false;
 let rightPlayerisConnected = false;
-const shownPhrases: Phrase['id'][] = [];
+const shownPhrases: Phrase["id"][] = [];
 let diceIsRolling = false;
 let currentPlayerId: number | undefined;
-let currentPlayerSide: 'left' | 'right' | undefined;
+let currentPlayerSide: "left" | "right" | undefined;
 
-export function getCurrentTurnSide(): 'left' | 'right' {
-  return currentPlayerSide ?? 'left';
+export function getCurrentTurnSide(): "left" | "right" {
+  return currentPlayerSide ?? "left";
 }
 
 export function startGame(room: RoomEntry) {
-  const roomId: Room['id'] = room.id;
+  const roomId: Room["id"] = room.id;
 
   initCoin();
   Steps.mountBefore(mainBtn);
 
-  if (!(window as any).__predInit) {
-    (window as any).__predInit = true;
-    setupPrediction();
-    setupShipMove();
-  }
+  setupPrediction();
+  setupShipMove();
 
   listeToRoomById(roomId, async (roomState) => {
     if (!roomState) return;
@@ -50,14 +47,16 @@ export function startGame(room: RoomEntry) {
       currentPlayerId = getCurrentPlayerId();
     }
 
-    const myIndex = roomState.players.findIndex(p => p.id === currentPlayerId);
+    const myIndex = roomState.players.findIndex(
+      (p) => p.id === currentPlayerId
+    );
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = previousRoomState?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
     const isLeader = myIndex === 0;
 
     if (myIndex !== -1) {
-      currentPlayerSide = myIndex === 0 ? 'left' : 'right';
+      currentPlayerSide = myIndex === 0 ? "left" : "right";
     }
 
     if (roomState.players.length >= 1 && !leftPlayerIsConnected) {
@@ -76,11 +75,15 @@ export function startGame(room: RoomEntry) {
     const legacyNowShown = (roomState as any)?.coinShown;
 
     if (becameTwo && isLeader) {
-      const side: 'left' | 'right' =
-        (coinNode?.result as 'left' | 'right' | undefined) ?? getRandomSide();
+      const side: "left" | "right" =
+        (coinNode?.result as "left" | "right" | undefined) ?? getRandomSide();
       await updateRoom(roomId, {
         isTurn: side,
-        coin: { result: side, shown: true, at: new Date().toISOString() } as any,
+        coin: {
+          result: side,
+          shown: true,
+          at: new Date().toISOString(),
+        } as any,
         coinShown: true,
         timerState: new Date().toISOString(),
       } as any);
@@ -88,14 +91,14 @@ export function startGame(room: RoomEntry) {
 
     const shouldFlipOnce =
       haveTwoPlayers &&
-      (
-        ((!prevCoinNode || !prevCoinNode?.shown) && coinNode?.shown && coinNode?.result) ||
-        (!legacyPrevShown && legacyNowShown && roomState.isTurn)
-      );
+      (((!prevCoinNode || !prevCoinNode?.shown) &&
+        coinNode?.shown &&
+        coinNode?.result) ||
+        (!legacyPrevShown && legacyNowShown && roomState.isTurn));
 
     if (shouldFlipOnce) {
       const side =
-        (coinNode?.result as 'left' | 'right' | undefined) ?? roomState.isTurn!;
+        (coinNode?.result as "left" | "right" | undefined) ?? roomState.isTurn!;
       flipCoin(side);
     }
 
@@ -111,29 +114,46 @@ export function startGame(room: RoomEntry) {
     }
 
     if (roomState.isDiceRolling) {
-      document.body.classList.add('steps-hidden');
+      document.body.classList.add("steps-hidden");
     } else {
-      document.body.classList.remove('steps-hidden');
+      document.body.classList.remove("steps-hidden");
     }
 
-    if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
+    if (
+      !diceIsRolling &&
+      roomState?.lastDiceResult &&
+      roomState?.isDiceRolling
+    ) {
       diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = roomState.isTurn ? (roomState.isTurn === 'left' ? 0 : 1) : -1;
+    const turnIndex = roomState.isTurn
+      ? roomState.isTurn === "left"
+        ? 0
+        : 1
+      : -1;
 
-    if (myIndex !== -1 && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
-      mainBtn.classList.remove('disabled');
+    if (
+      myIndex !== -1 &&
+      haveTwoPlayers &&
+      turnIndex !== -1 &&
+      myIndex === turnIndex
+    ) {
+      mainBtn.classList.remove("disabled");
     } else {
-      mainBtn.classList.add('disabled');
+      mainBtn.classList.add("disabled");
     }
 
     if (myIndex !== -1) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
-      const canUseSteps = haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
+      const canUseSteps =
+        haveTwoPlayers &&
+        turnIndex !== -1 &&
+        myIndex === turnIndex &&
+        !roomState.isDiceRolling;
       Steps.render(myStreak, canUseSteps);
     } else {
       Steps.clear();
@@ -148,22 +168,26 @@ export function startGame(room: RoomEntry) {
     lastDiceResult: -1,
   });
 
-  mainBtn.addEventListener('click', () => {
+  mainBtn.addEventListener("click", () => {
     if (
       diceIsRolling ||
-      mainBtn.classList.contains('disabled') ||
+      mainBtn.classList.contains("disabled") ||
       previousRoomState?.players.length !== 2
     ) {
       return;
     }
 
-    const btnType = mainBtn.getAttribute('data-type');
-    const turnIndex = previousRoomState!.isTurn ? (previousRoomState!.isTurn === 'left' ? 0 : 1) : -1;
+    const btnType = mainBtn.getAttribute("data-type");
+    const turnIndex = previousRoomState!.isTurn
+      ? previousRoomState!.isTurn === "left"
+        ? 0
+        : 1
+      : -1;
 
-    if (btnType === 'dice') {
+    if (btnType === "dice") {
       const randomNum = Math.floor(Math.random() * 6) + 1;
 
-      document.body.classList.add('steps-hidden');
+      document.body.classList.add("steps-hidden");
 
       updateRoom(roomId, {
         isDiceRolling: true,
@@ -187,21 +211,21 @@ export function startGame(room: RoomEntry) {
         updateRoom(roomId, { isDiceRolling: false });
 
         if (randomNum !== 6) {
-          mainBtn.innerText = 'Закінчити хід';
-          mainBtn.setAttribute('data-type', 'end-turn');
+          mainBtn.innerText = "Закінчити хід";
+          mainBtn.setAttribute("data-type", "end-turn");
         }
       }, HIDE_DICE_DELAY);
-    } else if (btnType === 'end-turn') {
+    } else if (btnType === "end-turn") {
       updatePlayer(roomId, previousRoomState!.isTurn!, { diceStreak: [] });
       Steps.clear();
 
       updateRoom(roomId, {
-        isTurn: previousRoomState?.isTurn === 'left' ? 'right' : 'left',
+        isTurn: previousRoomState?.isTurn === "left" ? "right" : "left",
         timerState: new Date().toISOString(),
       });
 
-      mainBtn.innerText = 'Кинути кубик';
-      mainBtn.setAttribute('data-type', 'dice');
+      mainBtn.innerText = "Кинути кубик";
+      mainBtn.setAttribute("data-type", "dice");
     }
   });
 }

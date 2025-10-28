@@ -11,6 +11,7 @@ import { loadCellIcons } from "./components/cells.ts";
 import { loadImages } from "./components/loadImages.ts";
 import { setupColorPalette } from "./components/colorPalette.ts";
 import { setupShipImages } from "./components/shipImages.ts";
+import { clearOutdatedRooms } from "./server/server.ts";
 
 window.addEventListener("load", () => {
   setUpNavigation();
@@ -25,4 +26,5 @@ window.addEventListener("load", () => {
   setupAdaptiveMenuBtn();
   setupShipImages();
   loadImages();
+  clearOutdatedRooms();
 });

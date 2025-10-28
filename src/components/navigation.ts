@@ -1,7 +1,10 @@
 import { createRoom } from "../server/createGameRoom.ts";
+import { createNewPlayer, getRandomColor } from "../server/player.ts";
+import { addNewPlayerToRoom, getAllRooms } from "../server/server.ts";
 import {
   animatePageSwitching,
   showCreateGamePage,
+  showGame,
   showHomePage,
   showSelectGamePage,
 } from "./pageSwitcher.ts";
@@ -21,6 +24,10 @@ export function setUpNavigation() {
     "#navigation-select-room-btn"
   ) as HTMLElement;
 
+  const fastGameBtn = document.querySelector(
+    "#navigation-fast-game-btn"
+  ) as HTMLElement;
+
   createGameBtn.addEventListener("click", () => {
     animatePageSwitching(showCreateGamePage);
   });
@@ -36,6 +43,34 @@ export function setUpNavigation() {
 
   homeBtn.addEventListener("click", () => {
     animatePageSwitching(showHomePage);
+  });
+
+  fastGameBtn.addEventListener("click", async () => {
+    try {
+      const player = createNewPlayer();
+      const rooms = await getAllRooms();
+      const availableRooms = rooms.filter((room) => room.players.length < 2);
+
+      if (availableRooms.length) {
+        const oldestRoom = availableRooms.reduce((oldest, current) => {
+          return new Date(current.date) < new Date(oldest.date)
+            ? current
+            : oldest;
+        });
+
+        while (oldestRoom.players[0].color === player.color) {
+          player.color = getRandomColor();
+        }
+
+        await addNewPlayerToRoom(player, oldestRoom.id);
+
+        animatePageSwitching(() => showGame(oldestRoom));
+      } else {
+        createRoom();
+      }
+    } catch (error) {
+      alert("Failded fast game: " + error);
+    }
   });
 
   showHomePage();

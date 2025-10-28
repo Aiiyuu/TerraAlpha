@@ -16,7 +16,6 @@
   font-size: 1.4rem;
   font-weight: 700;
   border-radius: 12px;
-  border: 2px solid var(--border-color, #bbb);
   background-color: var(--btn-bg, #f8f8f8);
   color: var(--btn-text, #222);
   cursor: pointer;
@@ -36,16 +35,15 @@
   cursor: not-allowed;
 }
 
-/* колір за стороною - сюди можемо підключити var колір що обрав гравець*/
 .steps-btn--left {
-  background-color: #b32626;
-  color: #000;
+  background-color: var(--player1-color);
+  color: #fff;
   
 }
 
 .steps-btn--right {
-  background-color: #2c92eb;
-  color: #000;
+  background-color: var(--player2-color);
+  color: #fff;
   
 }
 
