@@ -2,8 +2,10 @@ import Steps from '../components/stepsButtons';
 
 function parseCellIndex(cell: HTMLElement): number | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
-  const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)/);
-  return m ? Number(m[1]) : null;
+  const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)|final-(\d+)/);
+  if (!m) return null;
+  if (m[2] !== undefined) return 27;
+  return Number(m[1]);
 }
 
 function isOccupied(cell: HTMLElement | null): boolean {
@@ -15,6 +17,7 @@ function getPredictedCell(): HTMLElement | null {
   return (
     document.querySelector<HTMLElement>('.board [data-qa^="field-"].is-predicted') ||
     document.querySelector<HTMLElement>('.board [data-qa^="cell-"].is-predicted') ||
+    document.querySelector<HTMLElement>('.board [data-qa^="final-"].is-predicted') ||
     document.querySelector<HTMLElement>('.board .cell.is-predicted')
   );
 }
@@ -70,13 +73,14 @@ export function setupShipMove() {
         return;
       }
 
-      if (isOccupied(predicted)) {
+      if (isOccupied(predicted) && !predicted.matches('[data-qa="final-0"]')) {
         disableShipTemporarily(shipEl, 'blocked');
         return;
       }
 
-      const fromCell =
-        shipEl.closest<HTMLElement>('.board [data-qa^="field-"], .board [data-qa^="cell-"], .board .cell[data-index]');
+      const fromCell = shipEl.closest<HTMLElement>(
+        '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
+      );
       const fromIndex = fromCell ? parseCellIndex(fromCell) : null;
 
       clearPrediction();
@@ -84,7 +88,7 @@ export function setupShipMove() {
 
       const shipQa = shipEl.getAttribute('data-qa') || null;
       const toIndex =
-        predicted.getAttribute('data-qa')?.replace(/^(?:field|cell)-/, '') ||
+        predicted.getAttribute('data-qa')?.replace(/^(?:field|cell|final)-/, '') ||
         predicted.getAttribute('data-index') ||
         '';
 
