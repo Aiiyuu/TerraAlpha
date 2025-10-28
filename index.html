@@ -52,7 +52,6 @@
             id="player-name"
             class="form-field-input"
             placeholder=" "
-            required
           />
           <label for="player-name" class="form-field-label">Імʼя гравця</label>
         </div>
@@ -104,7 +103,6 @@
                   id="room-name"
                   class="form-field-input"
                   placeholder=" "
-                  required
                 />
                 <label for="room-name" class="form-field-label"
                   >Імʼя кімнати</label
@@ -126,7 +124,7 @@
 
       <div id="game" class="is-hidden">
         <!-- PLAYER 1 -->
-        <section id="player1">
+        <section id="player1" class="player-section">
           <div class="player-info">
             <h2 class="player-name">PLAYER 1</h2>
           </div>
@@ -286,7 +284,7 @@
         </section>
 
         <!-- PLAYER 2 -->
-        <section id="player2">
+        <section id="player2" class="player-section">
           <div class="player-info">
             <h2 class="player-name">PLAYER 2</h2>
           </div>
@@ -322,12 +320,12 @@
 
     <div class="dice-container"></div>
 
-<div class="coin-container">
-  <div class="coin">
-    <div class="coin-face">&laquo; </div>
-    <div class="coin-back"> &raquo;</div>
-  </div>
-</div>
+    <div class="coin-container">
+      <div class="coin">
+        <div class="coin-face">&laquo;</div>
+        <div class="coin-back">&raquo;</div>
+      </div>
+    </div>
 
     <div id="dialog-container" class="dialog-container"></div>
 

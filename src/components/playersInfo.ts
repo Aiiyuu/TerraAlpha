@@ -11,6 +11,7 @@ const playerSection2 = document.querySelector("#player2") as HTMLElement;
  * @param player
  */
 export function setupLeftPlayer(player: Player) {
+  playerSection1.classList.add('is-visible');
   document.body.style.setProperty("--player1-color", player.color!);
   changePlayerNameAndAvatar(playerSection1, player);
   changePlayerDialogName(dialogs[0], player);
@@ -22,6 +23,8 @@ export function setupLeftPlayer(player: Player) {
  * @param player
  */
 export function setupRightPlayer(player: Player) {
+  playerSection1.classList.add('is-visible');
+  playerSection2.classList.add('is-visible');
   document.body.style.setProperty("--player2-color", player.color!);
   changePlayerNameAndAvatar(playerSection2, player);
   changePlayerDialogName(dialogs[1], player);
