@@ -22,12 +22,13 @@
 }
 
 .cell-btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: grid;
+  place-items: center;
+  line-height: 0;
 }
 
 .cell-btn svg {
+  display: block;
   width: 55px;
   height: 55px;
 }
@@ -72,7 +73,14 @@
   --ship-scale: 1.2;
 }
 
+.board .cell {
+  position: relative;
+}
+
 .board .cell > .cell-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -83,6 +91,15 @@
   opacity: 1;
   outline: none;
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%) scale(var(--ship-scale));
+}
+
+.board .cell > .cell-btn svg {
+  width: 100%;
+  height: 100%;
 }
 
 .board .cell.is-forecast > .cell-btn {
@@ -139,4 +156,27 @@
   50%  { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
   75%  { transform: translate(-50%, -50%) scale(1.5) translateX(1px); }
   100% { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
+}
+
+.ta-bump {
+  animation: ta-bump 0.28s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes ta-bump {
+  0%   { transform: translate(-50%, -50%) translateX(0); }
+  25%  { transform: translate(-50%, -50%) translateX(-2px); }
+  50%  { transform: translate(-50%, -50%) translateX(0); }
+  75%  { transform: translate(-50%, -50%) translateX(2px); }
+  100% { transform: translate(-50%, -50%) translateX(0); }
+}
+
+.board .cell.is-predicted:has(.ta-bump)::before,
+.board .cell.is-predicted:has(.ta-bump)::after {
+  display: none;
+}
+
+.board .cell:has(.ta-bump) {
+  cursor: pointer;
 }

@@ -9,9 +9,30 @@ function parseCellIndex(cell: HTMLElement): number | null {
   return Number(m[1]);
 }
 
+function getShipSide(el: HTMLElement): 'left' | 'right' | null {
+  const ds = el.getAttribute('data-side') || el.dataset.side || '';
+  if (ds === 'left' || ds === 'right') return ds;
+  if (el.classList.contains('left')) return 'left';
+  if (el.classList.contains('right')) return 'right';
+  return null;
+}
+
+function isMotherShip(el: HTMLElement): boolean {
+  if (!el) return false;
+  if (el.matches('[data-role="mother"],[data-ship="mother"],[data-mother="1"],.mother-ship')) return true;
+  return false;
+}
+
+function getCellOccupant(cell: HTMLElement | null): { el: HTMLElement; side: 'left' | 'right' | null; isMother: boolean } | null {
+  if (!cell) return null;
+  const occ =
+    cell.querySelector<HTMLElement>('.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]') || null;
+  if (!occ) return null;
+  return { el: occ, side: getShipSide(occ), isMother: isMotherShip(occ) };
+}
+
 function isOccupied(cell: HTMLElement | null): boolean {
-  if (!cell) return false;
-  return !!cell.querySelector('.ship, [data-role="ship"], button.ship, .cell-btn');
+  return !!getCellOccupant(cell);
 }
 
 function getPredictedCell(): HTMLElement | null {
@@ -23,8 +44,19 @@ function getPredictedCell(): HTMLElement | null {
   );
 }
 
+function getReplaceOwnTargetCell(): HTMLElement | null {
+  const bumped = document.querySelector<HTMLElement>('.board .ta-bump');
+  if (!bumped) return null;
+  return (
+    bumped.closest<HTMLElement>(
+      '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
+    ) || null
+  );
+}
+
 function clearPrediction() {
   document.querySelectorAll('.board .is-predicted').forEach((el) => el.classList.remove('is-predicted'));
+  document.querySelectorAll('.board .ta-bump').forEach((el) => el.classList.remove('ta-bump'));
 }
 
 function disableShipTemporarily(el: HTMLElement, reason: string) {
@@ -68,14 +100,11 @@ export function setupShipMove() {
       const planned = Steps.getStepsForMove() as number;
       if (!Number.isFinite(planned) || planned <= 0) return;
 
-      const predicted = getPredictedCell();
+      const predictedNormal = getPredictedCell();
+      const predictedReplace = getReplaceOwnTargetCell();
+      const predicted = predictedNormal || predictedReplace;
       if (!predicted) {
         disableShipTemporarily(shipEl, 'no-prediction');
-        return;
-      }
-
-      if (isOccupied(predicted) && !predicted.matches('[data-qa="final-0"]')) {
-        disableShipTemporarily(shipEl, 'blocked');
         return;
       }
 
@@ -84,7 +113,31 @@ export function setupShipMove() {
       );
       const fromIndex = fromCell ? parseCellIndex(fromCell) : null;
 
+      const activeSide = getShipSide(shipEl);
+      const activeIsMother = isMotherShip(shipEl);
+
+      const occ = getCellOccupant(predicted);
+      if (occ) {
+        if (!activeIsMother) {
+          disableShipTemporarily(shipEl, 'blocked');
+          return;
+        }
+        if (!activeSide || !occ.side || occ.side !== activeSide) {
+          disableShipTemporarily(shipEl, 'blocked');
+          return;
+        }
+        if (occ.isMother) {
+          disableShipTemporarily(shipEl, 'blocked');
+          return;
+        }
+      }
+
       clearPrediction();
+
+      if (occ) {
+        occ.el.remove();
+      }
+
       predicted.appendChild(shipEl);
 
       const shipQa = shipEl.getAttribute('data-qa') || null;
