@@ -14,6 +14,7 @@ import { detectTimerChanges } from "./timer";
 import Steps from "../components/stepsButtons";
 import { setupPrediction } from "../components/prediction";
 import { setupShipMove } from "../components/shipMove";
+import { initShipSync } from "../components/ShipSync";
 
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
@@ -24,6 +25,8 @@ const shownPhrases: Phrase["id"][] = [];
 let diceIsRolling = false;
 let currentPlayerId: number | undefined;
 let currentPlayerSide: "left" | "right" | undefined;
+let stopShipSync: (() => void) | null = null;
+let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null = null;
 
 export function getCurrentTurnSide(): "left" | "right" {
   return currentPlayerSide ?? "left";
@@ -32,11 +35,37 @@ export function getCurrentTurnSide(): "left" | "right" {
 export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
 
+  if (stopShipSync) {
+    try {
+      stopShipSync();
+    } catch {}
+    stopShipSync = null;
+  }
+
+  if (mainBtnHandler) {
+    mainBtn.removeEventListener("click", mainBtnHandler);
+    mainBtnHandler = null;
+  }
+
   initCoin();
   Steps.mountBefore(mainBtn);
 
   setupPrediction();
   setupShipMove();
+
+  const dispose = initShipSync(String(roomId));
+  if (typeof dispose === "function") {
+    stopShipSync = dispose;
+    window.addEventListener(
+      "beforeunload",
+      () => {
+        try {
+          stopShipSync?.();
+        } catch {}
+      },
+      { once: true }
+    );
+  }
 
   listeToRoomById(roomId, async (roomState) => {
     if (!roomState) return;
@@ -47,9 +76,7 @@ export function startGame(room: RoomEntry) {
       currentPlayerId = getCurrentPlayerId();
     }
 
-    const myIndex = roomState.players.findIndex(
-      (p) => p.id === currentPlayerId
-    );
+    const myIndex = roomState.players.findIndex((p) => p.id === currentPlayerId);
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = previousRoomState?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
@@ -57,6 +84,13 @@ export function startGame(room: RoomEntry) {
 
     if (myIndex !== -1) {
       currentPlayerSide = myIndex === 0 ? "left" : "right";
+      const mySide = currentPlayerSide;
+      const oppSide = mySide === "left" ? "right" : "left";
+      document.body.dataset.mySide = mySide;
+      document.body.setAttribute("data-turn-side", mySide);
+      document.body.setAttribute("data-opponent-side", oppSide);
+      document.body.classList.remove("side-left", "side-right");
+      document.body.classList.add(`side-${mySide}`);
     }
 
     if (roomState.players.length >= 1 && !leftPlayerIsConnected) {
@@ -119,41 +153,29 @@ export function startGame(room: RoomEntry) {
       document.body.classList.remove("steps-hidden");
     }
 
-    if (
-      !diceIsRolling &&
-      roomState?.lastDiceResult &&
-      roomState?.isDiceRolling
-    ) {
+    if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
       diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = roomState.isTurn
-      ? roomState.isTurn === "left"
-        ? 0
-        : 1
-      : -1;
+    const turnIndex = roomState.isTurn ? (roomState.isTurn === "left" ? 0 : 1) : -1;
 
-    if (
-      myIndex !== -1 &&
-      haveTwoPlayers &&
-      turnIndex !== -1 &&
-      myIndex === turnIndex
-    ) {
+    if (myIndex !== -1 && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
       mainBtn.classList.remove("disabled");
+      document.body.classList.remove("not-my-turn");
+      document.body.setAttribute("data-turn-active", "1");
     } else {
       mainBtn.classList.add("disabled");
+      document.body.classList.add("not-my-turn");
+      document.body.setAttribute("data-turn-active", "0");
     }
 
     if (myIndex !== -1) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
       const canUseSteps =
-        haveTwoPlayers &&
-        turnIndex !== -1 &&
-        myIndex === turnIndex &&
-        !roomState.isDiceRolling;
+        haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
       Steps.render(myStreak, canUseSteps);
     } else {
       Steps.clear();
@@ -168,7 +190,7 @@ export function startGame(room: RoomEntry) {
     lastDiceResult: -1,
   });
 
-  mainBtn.addEventListener("click", () => {
+  mainBtnHandler = () => {
     if (
       diceIsRolling ||
       mainBtn.classList.contains("disabled") ||
@@ -227,5 +249,7 @@ export function startGame(room: RoomEntry) {
       mainBtn.innerText = "Кинути кубик";
       mainBtn.setAttribute("data-type", "dice");
     }
-  });
+  };
+
+  mainBtn.addEventListener("click", mainBtnHandler);
 }

@@ -152,10 +152,10 @@
 }
 
 @keyframes ship-vibrate {
-  0%   { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
-  25%  { transform: translate(-50%, -50%) scale(1.5) translateX(-1px); }
-  50%  { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
-  75%  { transform: translate(-50%, -50%) scale(1.5) translateX(1px); }
+  0% { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
+  25% { transform: translate(-50%, -50%) scale(1.5) translateX(-1px); }
+  50% { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
+  75% { transform: translate(-50%, -50%) scale(1.5) translateX(1px); }
   100% { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
 }
 
@@ -166,10 +166,10 @@
 }
 
 @keyframes ta-bump {
-  0%   { transform: translate(-50%, -50%) translateX(0); }
-  25%  { transform: translate(-50%, -50%) translateX(-2px); }
-  50%  { transform: translate(-50%, -50%) translateX(0); }
-  75%  { transform: translate(-50%, -50%) translateX(2px); }
+  0% { transform: translate(-50%, -50%) translateX(0); }
+  25% { transform: translate(-50%, -50%) translateX(-2px); }
+  50% { transform: translate(-50%, -50%) translateX(0); }
+  75% { transform: translate(-50%, -50%) translateX(2px); }
   100% { transform: translate(-50%, -50%) translateX(0); }
 }
 
@@ -189,9 +189,9 @@
 }
 
 @keyframes ta-swap-out {
-  0%   { opacity: 1;   transform: translate(-50%, -50%) rotate(0deg); }
-  80%  { opacity: .15; transform: translate(-50%, -50%) rotate(220deg); }
-  100% { opacity: 0;   transform: translate(-50%, -50%) rotate(260deg); }
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+  80% { opacity: .15; transform: translate(-50%, -50%) rotate(220deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(260deg); }
 }
 
 .cell-btn.swap-in {
@@ -200,9 +200,10 @@
 }
 
 @keyframes ta-swap-in {
-  0%   { transform: translate(-50%, -50%) scale(.88); opacity: 0; }
-  100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+  0% { transform: translate(-50%, -50%) scale(.88); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
+
 .board .cell > .cell-btn.is-overlay {
   z-index: 5;
 }
@@ -213,7 +214,22 @@
 }
 
 @keyframes ta-over-spin {
-  0%   { transform: translate(-50%, -50%) rotate(0deg);   opacity: 1; }
-  60%  { transform: translate(-50%, -50%) rotate(220deg); opacity: .2; }
+  0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+  60% { transform: translate(-50%, -50%) rotate(220deg); opacity: .2; }
   100% { transform: translate(-50%, -50%) rotate(350deg); opacity: 0; }
+}
+
+body.side-left .cell-btn[data-side="right"],
+body.side-left .hand-grid .cell-btn[data-side="right"],
+body.side-right .cell-btn[data-side="left"],
+body.side-right .hand-grid .cell-btn[data-side="left"] {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+body.not-my-turn .cell-btn[data-side],
+body.not-my-turn .hand-grid .cell-btn[data-side] {
+  pointer-events: none;
+  opacity: 0.4;
 }

@@ -5,10 +5,8 @@ import { setCurrentRoomId, writeRoomData } from "./server.ts";
 import { createNewPlayer } from "./player.ts";
 import { animatePageSwitching, showGame } from "../components/pageSwitcher.ts";
 import { getRandomSide } from "../components/coin.ts";
+import { initShipSync } from "../components/ShipSync.ts";
 
-/**
- * Creates a new room with player and pushes it to the server
- */
 export async function createRoom() {
   const roomNameInput = document.getElementById("room-name") as HTMLInputElement;
   const player: PlayerEntry = createNewPlayer();
@@ -33,8 +31,9 @@ export async function createRoom() {
   };
 
   setCurrentRoomId(newRoom.id);
-
   await writeRoomData(newRoom, player);
+
+  initShipSync(String(newRoom.id));
 
   animatePageSwitching(() => showGame(newRoom));
 

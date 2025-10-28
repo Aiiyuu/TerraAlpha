@@ -1,265 +1,129 @@
 import type { Room, RoomEntry } from "../types/room.ts";
 import type { Player, PlayerEntry } from "../types/player.ts";
 import { database } from "../firebase.ts";
-import { ref, set, get, remove, update, onValue } from "firebase/database";
+import { ref, set, get, remove, update, onValue, child } from "firebase/database";
 import type { Phrase } from "../types/phrase.ts";
+import type { Side, ShipPos } from "../types/room.ts";
 
-/* [ADDED] Імпортуємо типи для кораблів */
-import type {
-  RoomShips,
-  PlayerShipsLeft,
-  PlayerShipsRight,
-  Side,
-  ShipPos,
-} from "../types/room.ts"; // [ADDED]
-
-/* [ADDED] Дефолтний стан кораблів — усі в hand */
-const DEFAULT_LEFT: PlayerShipsLeft = {
-  // [ADDED]
-  leftShip1: "hand",
-  leftShip2: "hand",
-  leftShip3: "hand",
-  leftShip4: "hand",
-  leftShip5: "hand",
-  leftShip6: "hand",
-  leftShip7: "hand",
-  leftMainShip: "hand",
+const SHIP_IDS: Record<Side, string[]> = {
+  left: Array.from({ length: 8 }, (_, i) => `p1-cell-${i + 1}`),
+  right: Array.from({ length: 8 }, (_, i) => `p2-cell-${i + 1}`),
 };
 
-const DEFAULT_RIGHT: PlayerShipsRight = {
-  // [ADDED]
-  rightShip1: "hand",
-  rightShip2: "hand",
-  rightShip3: "hand",
-  rightShip4: "hand",
-  rightShip5: "hand",
-  rightShip6: "hand",
-  rightShip7: "hand",
-  rightMainShip: "hand",
-};
+const roomRef = (roomId: Room["id"]) => ref(database, `rooms/${roomId}`);
+const shipsSideRef = (roomId: Room["id"], side: Side) => child(roomRef(roomId), `ships/${side}`);
+const shipRef = (roomId: Room["id"], side: Side, shipId: string) =>
+  child(roomRef(roomId), `ships/${side}/${shipId}`);
 
-/* [CHANGED] при створенні кімнати ми одразу записуємо ships */
+function toPlayer(entry: PlayerEntry): Player {
+  return {
+    ...entry,
+    itsTurn: false,
+    diceHistory: [],
+    diceStreak: [],
+  };
+}
+
 export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
-  return set(ref(database, `rooms/${id}`), {
-    id: id,
+  return set(roomRef(id), {
+    id,
     authorId: author.id,
-    name: name,
-    players: [author],
+    name,
+    players: [toPlayer(author)],
     date: new Date().toISOString(),
-    ships: { left: DEFAULT_LEFT, right: DEFAULT_RIGHT } as RoomShips, // [ADDED]
+    ships: { left: {}, right: {} },
   });
 }
 
-/**
- * Listens to the 'rooms' node in real-time and invokes the
- * @param callback Function to call whenever the rooms data changes
- */
 export function listenToRooms(callback: (rooms: Room[]) => void) {
   const roomsRef = ref(database, "rooms");
-
   onValue(roomsRef, (snapshot) => {
     const data = snapshot.val();
-
-    if (!data) {
-      callback([]);
-      return;
-    }
-
-    const roomsArray: Room[] = Object.values(data);
-    callback(roomsArray);
+    callback(data ? Object.values(data) : []);
   });
 }
 
 export async function getAllRooms(): Promise<Room[]> {
-  const roomRef = ref(database, "rooms");
-  const snapshot = await get(roomRef);
-
-  return snapshot.val() ? Object.values(snapshot.val()) : [];
+  const roomsRef = ref(database, "rooms");
+  const snap = await get(roomsRef);
+  return snap.val() ? Object.values(snap.val()) : [];
 }
 
-/**
- * Listens to the 'room' in real-time and invokes the
- * @param callback Function to call whenever the rooms data changes
- */
 export function listeToRoomById(
   roomId: Room["id"],
-  callback: (room: Room | undefined) => void
+  callback: (room: Room | undefined) => void,
 ) {
-  const roomRef = ref(database, "rooms/" + roomId);
-
-  onValue(roomRef, (snapshot) => {
-    const data = snapshot.val();
-
-    if (!data) {
-      callback(data);
-      return;
-    }
-
-    callback(data);
+  onValue(roomRef(roomId), (snapshot) => {
+    callback(snapshot.val() || undefined);
   });
 }
 
-/**
- * Updates the specified fields in a room. If a field doesn't exist, it will be added.
- *
- * @param roomId - The ID of the room to update
- * @param updates - An object containing the fields to update or add
- */
-export async function updateRoom(
-  roomId: Room["id"],
-  updates: Partial<Room>
-): Promise<void> {
-  const roomRef = ref(database, "rooms/" + roomId);
-
+export async function updateRoom(roomId: Room["id"], updates: Partial<Room>): Promise<void> {
   try {
-    await update(roomRef, updates);
+    await update(roomRef(roomId), updates);
   } catch (error) {
-    alert("Error updating room: ${error}");
+    alert(`Error updating room: ${error}`);
     throw error;
   }
 }
 
-/**
- * Updates the player state
- */
 export async function updatePlayer(
   roomId: Room["id"],
-  playerSide: "left" | "right",
-  updates: Partial<Player>
+  playerSide: Side,
+  updates: Partial<Player>,
 ): Promise<void> {
-  const roomRef = ref(database, "rooms/" + roomId);
+  const rRef = roomRef(roomId);
+  const snap = await get(rRef);
+  if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
 
-  const snapshot = await get(roomRef);
-  if (!snapshot.exists()) {
-    alert(`Room with ID ${roomId} does not exist.`);
-  }
-
-  const roomData = snapshot.val();
+  const roomData = snap.val() as Room;
   const players: Player[] = roomData.players || [];
-  const playerIndex = playerSide === "left" ? 0 : 1;
+  const idx = playerSide === "left" ? 0 : 1;
 
-  if (!players[playerIndex]) {
-    alert(`Player at side '${playerSide}' does not exist in room ${roomId}.`);
-  }
+  if (!players[idx]) throw new Error(`Player '${playerSide}' does not exist in room ${roomId}.`);
 
-  const updatedPlayer = {
-    ...players[playerIndex],
-    ...updates,
-  };
-
-  players[playerIndex] = updatedPlayer;
-
-  await update(roomRef, { players });
+  players[idx] = { ...players[idx], ...updates };
+  await update(rRef, { players });
 }
 
-/**
- * Updates the phrase array in a room. If a field doesn't exist, it will be added.
- */
-export async function addPhraseToRoom(
-  roomId: Room["id"],
-  newPhrase: Phrase
-): Promise<void> {
-  const roomRef = ref(database, "rooms/" + roomId);
+export async function addPhraseToRoom(roomId: Room["id"], newPhrase: Phrase): Promise<void> {
+  const rRef = roomRef(roomId);
+  const snap = await get(rRef);
+  if (!snap.exists()) throw new Error("Room does not exist");
 
-  try {
-    const snapshot = await get(roomRef);
+  const roomData = snap.val() as Room;
+  const phrases: Phrase[] = roomData.phrases || [];
 
-    if (!snapshot.exists()) {
-      throw new Error("Room does not exist");
-    }
-
-    const roomData = snapshot.val();
-    const phrases: Phrase[] = roomData.phrases || [];
-
-    const phraseExists = phrases.includes(newPhrase);
-
-    if (!phraseExists) {
-      const updatedPhrases = [...phrases, newPhrase];
-      await update(roomRef, { phrases: updatedPhrases });
-    }
-  } catch (error) {
-    alert(`Error adding phrase to room: ${error}`);
-    throw error;
+  const exists = phrases.some(p => p.id === newPhrase.id);
+  if (!exists) {
+    await update(rRef, { phrases: [...phrases, newPhrase] });
   }
 }
 
-export async function addNewPlayerToRoom(
-  newUserObject: PlayerEntry,
-  roomId: Room["id"]
-): Promise<void> {
-  const roomRef = ref(database, `rooms/${roomId}`);
+export async function addNewPlayerToRoom(newUser: PlayerEntry, roomId: Room["id"]): Promise<void> {
+  const rRef = roomRef(roomId);
+  const snap = await get(rRef);
+  if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
 
-  const snapshot = await get(roomRef);
-
-  if (!snapshot.exists()) {
-    throw new Error(`Room with ID ${roomId} does not exist.`);
-  }
-
-  const roomData = snapshot.val();
+  const roomData = snap.val() as Room;
   const players = roomData.players || [];
 
-  if (players[0]?.color === newUserObject.color) {
-    throw new Error("Your color is already taken");
-  }
+  if (players[0]?.color === newUser.color) throw new Error("Your color is already taken");
+  if (players.length >= 2) throw new Error("The room is already full");
 
-  if (players.length >= 2) {
-    throw new Error("The room is already full");
-  }
-
-  players.push(newUserObject);
-  await update(roomRef, { players });
+  players.push(toPlayer(newUser));
+  await update(rRef, { players });
 }
 
-export async function getRoomById(
-  roomId: Room["id"]
-): Promise<Room | undefined> {
-  const roomRef = ref(database, `rooms/${roomId}`);
-
-  const snapshot = await get(roomRef);
-  if (!snapshot.exists()) {
-    alert(`Room with ID ${roomId} does not exist.`);
-    throw new Error(`Room with ID ${roomId} does not exist.`);
-  }
-
-  return snapshot.val();
+export async function getRoomById(roomId: Room["id"]): Promise<Room | undefined> {
+  const snap = await get(roomRef(roomId));
+  if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
+  return snap.val() as Room;
 }
 
-/**
- * LocalStorage helpers
- */
 export function setCurrentRoomId(id: Room["id"]) {
   localStorage.setItem("currentRoomId", String(id));
 }
-
-export async function clearOutdatedRooms(): Promise<void> {
-  const roomsRef = ref(database, "rooms");
-  const snapshot = await get(roomsRef);
-
-  if (!snapshot.exists()) {
-    return;
-  }
-
-  const rooms: Record<string, Room> = snapshot.val();
-  const now = Date.now();
-  const timeToDelete = 60 * 60 * 1000;
-
-  const deletions = Object.entries(rooms)
-    .filter(([, room]) => {
-      if (!room.date) return false;
-      
-      const roomDate = new Date(room.date).getTime();
-      return now - roomDate > timeToDelete;
-    })
-    .map(async ([roomId]) => {
-      console.log(`Deleting outdated room: ${roomId}`);
-      await remove(ref(database, `rooms/${roomId}`));
-    });
-
-  await Promise.all(deletions);
-
-  console.log(`✅ Deleted ${deletions.length} outdated rooms.`);
-}
-
 export function getCurrentRoomId(): Room["id"] {
   return Number(localStorage.getItem("currentRoomId"));
 }
@@ -267,16 +131,60 @@ export function getCurrentRoomId(): Room["id"] {
 export function setCurrentPlayerName(userName: Player["name"]) {
   localStorage.setItem("currentPlayerName", userName);
 }
-
 export function getCurrentPlayerName(): Player["name"] {
-  const userName: string | null = localStorage.getItem("currentPlayerName");
-  return userName ? userName : "Невідомий гравець";
+  return localStorage.getItem("currentPlayerName") || "Невідомий гравець";
 }
 
 export function setCurrentPlayerId(id: Player["id"]) {
   localStorage.setItem("currentPlayerId", String(id));
 }
-
 export function getCurrentPlayerId() {
   return Number(localStorage.getItem("currentPlayerId"));
+}
+
+export async function clearOutdatedRooms(): Promise<void> {
+  const roomsRef = ref(database, "rooms");
+  const snapshot = await get(roomsRef);
+  if (!snapshot.exists()) return;
+
+  const rooms: Record<string, Room> = snapshot.val();
+  const now = Date.now();
+  const ttl = 60 * 60 * 1000;
+
+  const deletions = Object.entries(rooms)
+    .filter(([, room]) => room.date && now - new Date(room.date).getTime() > ttl)
+    .map(([roomId]) => remove(ref(database, `rooms/${roomId}`)));
+
+  await Promise.all(deletions);
+}
+
+export async function ensureShipsForSide(roomId: Room["id"], side: Side): Promise<void> {
+  const sideRef = shipsSideRef(roomId, side);
+  const snap = await get(sideRef);
+  const current = (snap.exists() ? snap.val() : {}) as Record<string, ShipPos>;
+
+  const toWrite: Record<string, ShipPos> = {};
+  for (const id of SHIP_IDS[side]) {
+    if (!(id in current)) toWrite[id] = "hand";
+  }
+  if (Object.keys(toWrite).length) {
+    await update(sideRef, toWrite);
+  }
+}
+
+export async function setShipPosition(
+  roomId: Room["id"],
+  side: Side,
+  shipId: string,
+  pos: ShipPos,
+): Promise<void> {
+  await update(shipRef(roomId, side, shipId), pos as any);
+}
+
+export async function patchShips(
+  roomId: Room["id"],
+  side: Side,
+  patch: Record<string, ShipPos>,
+): Promise<void> {
+  await update(shipsSideRef(roomId, side), patch);
 }

@@ -11,24 +11,9 @@ const SPECIAL_REDIRECT: Record<string, string[]> = {
 
 function getCellByIndex(index: IndexLike): HTMLElement | null {
   const idx = String(index);
-  if (idx === '25') {
-    const f2 =
-      document.querySelector<HTMLElement>('.board [data-qa="final-2"]') ||
-      document.getElementById('final-2');
-    if (f2) return f2;
-  }
-  if (idx === '26') {
-    const f1 =
-      document.querySelector<HTMLElement>('.board [data-qa="final-1"]') ||
-      document.getElementById('final-1');
-    if (f1) return f1;
-  }
-  if (idx === '27' || idx === 'final-0') {
-    const f0 =
-      document.querySelector<HTMLElement>('.board [data-qa="final-0"]') ||
-      document.getElementById('final-0');
-    if (f0) return f0;
-  }
+  if (idx === '25') return document.querySelector<HTMLElement>('[data-qa="final-2"]') || document.getElementById('final-2');
+  if (idx === '26') return document.querySelector<HTMLElement>('[data-qa="final-1"]') || document.getElementById('final-1');
+  if (idx === '27' || idx === 'final-0') return document.querySelector<HTMLElement>('[data-qa="final-0"]') || document.getElementById('final-0');
   return (
     document.querySelector<HTMLElement>(`.board [data-qa="field-${idx}"]`) ||
     document.querySelector<HTMLElement>(`.board [data-qa="cell-${idx}"]`) ||
@@ -81,8 +66,7 @@ function isMotherShip(el: HTMLElement): boolean {
 
 function getCellOccupant(cell: HTMLElement | null): { el: HTMLElement; side: 'left' | 'right' | null; isMother: boolean } | null {
   if (!cell) return null;
-  const occ =
-    cell.querySelector<HTMLElement>('.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]') || null;
+  const occ = cell.querySelector<HTMLElement>('.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]') || null;
   if (!occ) return null;
   return { el: occ, side: getShipSide(occ), isMother: isMotherShip(occ) };
 }
@@ -118,10 +102,7 @@ function setShipLocked(el: HTMLElement, locked: boolean) {
 }
 
 function pickLandingCell(targetBase: number | string): HTMLElement | null {
-  if (String(targetBase) === '27' || String(targetBase) === 'final-0') {
-    const f0 = getCellByIndex('final-0');
-    return f0 || null;
-  }
+  if (String(targetBase) === '27' || String(targetBase) === 'final-0') return getCellByIndex('final-0');
   const alts = SPECIAL_REDIRECT[String(targetBase)];
   if (alts) {
     for (const idx of alts) {
@@ -137,7 +118,6 @@ function pickLandingCell(targetBase: number | string): HTMLElement | null {
 
 function computeTargetCell(from: { base: number | null; sub: string | null } | null, steps: number): HTMLElement | null {
   if (!Number.isFinite(steps) || steps <= 0) return null;
-
   if (!from) {
     const proj = steps;
     if (proj >= 27) return getCellByIndex('final-0');
@@ -195,21 +175,16 @@ function highlightFromEl(shipEl: HTMLElement, planned: number | null): boolean {
 
   if (occ) {
     if (!occ.side || !activeSide) return false;
+    if (occ.side !== activeSide) return false;
 
-    if (occ.side !== activeSide) {
-      return false;
+    if (activeIsMother && !occ.isMother) {
+      occ.el.closest('.cell-btn')?.classList.add('ta-bump');
+      return true;
     }
-
-if (activeIsMother && !occ.isMother) {
-  occ.el.closest('.cell-btn')?.classList.add('ta-bump');
-  return true;
-}
-
     if (!activeIsMother && occ.isMother) {
       occ.el.closest('.cell-btn')?.classList.add('ta-bump');
       return true;
     }
-
     return false;
   }
 
@@ -225,6 +200,11 @@ export function setupPrediction() {
       const scope = raw?.closest<HTMLElement>('.cell, .cell-btn, [data-ship], .ship, button.ship') || null;
       const shipEl = pickupShipEl(scope);
       if (!shipEl) return;
+
+      const side = getShipSide(shipEl);
+      const mySide = document.body.getAttribute('data-turn-side');
+      if (mySide && side && mySide !== side) return; // 🚫 чужі кораблі ігноруються
+
       const planned = Steps.getStepsForMove();
       const ok = highlightFromEl(shipEl, planned);
       setShipLocked(shipEl, !ok);
