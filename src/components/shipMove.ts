@@ -1,5 +1,6 @@
 import Steps from '../components/stepsButtons';
 import { animateShipFinalize } from '../utility/shipsFinalAnimation';
+import { runShipReplace } from '../utility/shipReplace';
 
 function parseCellIndex(cell: HTMLElement): number | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
@@ -12,6 +13,10 @@ function parseCellIndex(cell: HTMLElement): number | null {
 function getShipSide(el: HTMLElement): 'left' | 'right' | null {
   const ds = el.getAttribute('data-side') || el.dataset.side || '';
   if (ds === 'left' || ds === 'right') return ds;
+  const qa = el.getAttribute('data-qa') || '';
+  const pref = qa.match(/^(p[12])-/)?.[1];
+  if (pref === 'p1') return 'left';
+  if (pref === 'p2') return 'right';
   if (el.classList.contains('left')) return 'left';
   if (el.classList.contains('right')) return 'right';
   return null;
@@ -20,6 +25,8 @@ function getShipSide(el: HTMLElement): 'left' | 'right' | null {
 function isMotherShip(el: HTMLElement): boolean {
   if (!el) return false;
   if (el.matches('[data-role="mother"],[data-ship="mother"],[data-mother="1"],.mother-ship')) return true;
+  const qa = el.getAttribute('data-qa') || '';
+  if (/-cell-8$/.test(qa)) return true;
   return false;
 }
 
@@ -29,10 +36,6 @@ function getCellOccupant(cell: HTMLElement | null): { el: HTMLElement; side: 'le
     cell.querySelector<HTMLElement>('.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]') || null;
   if (!occ) return null;
   return { el: occ, side: getShipSide(occ), isMother: isMotherShip(occ) };
-}
-
-function isOccupied(cell: HTMLElement | null): boolean {
-  return !!getCellOccupant(cell);
 }
 
 function getPredictedCell(): HTMLElement | null {
@@ -45,18 +48,18 @@ function getPredictedCell(): HTMLElement | null {
 }
 
 function getReplaceOwnTargetCell(): HTMLElement | null {
-  const bumped = document.querySelector<HTMLElement>('.board .ta-bump');
+  const bumped = document.querySelector<HTMLElement>('.board .cell-btn.ta-bump') ||
+                 document.querySelector<HTMLElement>('.board .ta-bump');
   if (!bumped) return null;
-  return (
-    bumped.closest<HTMLElement>(
-      '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
-    ) || null
+  return bumped.closest<HTMLElement>(
+    '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
   );
 }
 
 function clearPrediction() {
   document.querySelectorAll('.board .is-predicted').forEach((el) => el.classList.remove('is-predicted'));
-  document.querySelectorAll('.board .ta-bump').forEach((el) => el.classList.remove('ta-bump'));
+  document.querySelectorAll('.board .ta-bump')
+    .forEach((el) => el.closest('.cell-btn')?.classList.remove('ta-bump'));
 }
 
 function disableShipTemporarily(el: HTMLElement, reason: string) {
@@ -93,7 +96,7 @@ function consumeUsedStep(usedStep: number) {
 export function setupShipMove() {
   document.addEventListener(
     'click',
-    (ev) => {
+    async (ev) => {
       const shipEl = (ev.target as HTMLElement)?.closest<HTMLElement>('.cell-btn, [data-ship], .ship, button.ship');
       if (!shipEl) return;
 
@@ -118,27 +121,25 @@ export function setupShipMove() {
 
       const occ = getCellOccupant(predicted);
       if (occ) {
-        if (!activeIsMother) {
-          disableShipTemporarily(shipEl, 'blocked');
-          return;
-        }
-        if (!activeSide || !occ.side || occ.side !== activeSide) {
-          disableShipTemporarily(shipEl, 'blocked');
-          return;
-        }
-        if (occ.isMother) {
-          disableShipTemporarily(shipEl, 'blocked');
-          return;
-        }
+        if (!activeIsMother) { disableShipTemporarily(shipEl, 'blocked'); return; }
+        if (!activeSide || !occ.side || occ.side !== activeSide) { disableShipTemporarily(shipEl, 'blocked'); return; }
+        if (occ.isMother) { disableShipTemporarily(shipEl, 'blocked'); return; }
       }
 
       clearPrediction();
 
       if (occ) {
-        occ.el.remove();
+        const outBtn = (occ.el.closest('.cell-btn') || occ.el) as HTMLElement;
+        await runShipReplace({
+          cellEl: predicted,
+          outBtn,
+          motherBtn: shipEl,
+          spinMs: 500,
+          popMs: 180,
+        });
+      } else {
+        predicted.appendChild(shipEl);
       }
-
-      predicted.appendChild(shipEl);
 
       const shipQa = shipEl.getAttribute('data-qa') || null;
       const toIndex =
@@ -146,12 +147,7 @@ export function setupShipMove() {
         predicted.getAttribute('data-index') ||
         '';
 
-      emitDone({
-        shipQa,
-        fromIndex,
-        toIndex,
-        usedStep: planned,
-      });
+      emitDone({ shipQa, fromIndex, toIndex, usedStep: planned });
 
       if (predicted.getAttribute('data-qa') === 'final-0') {
         animateShipFinalize(shipEl, shipQa);
