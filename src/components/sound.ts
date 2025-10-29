@@ -1,4 +1,5 @@
 import type { SoundOptions } from "../types/soundOptions";
+import { getAudioContext, getMasterGain } from "./audioManager";
 
 type CreateSoundResult = {
   startSound: () => void;
@@ -16,7 +17,8 @@ export function createSound({
   infinite = false,
 }: SoundOptions): CreateSoundResult {
   // Audio context for managing sound
-  const audioContext = new (window.AudioContext || window.AudioContext)();
+  const audioContext = getAudioContext();
+  const masterGain = getMasterGain();
 
   let bufferSourceNode: AudioBufferSourceNode | null = null;
   let gainNode: GainNode | null = null;
@@ -41,7 +43,7 @@ export function createSound({
     // Connect nodes
     bufferSourceNode.buffer = buffer;
     bufferSourceNode.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    gainNode.connect(masterGain);
 
     // Handle infinite loop
     if (infinite) {

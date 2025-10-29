@@ -1,4 +1,7 @@
 .player-section {
+  display: flex;
+  flex-direction: column;
+  
   position: relative;
   transition: left var(--base-transition-duration) ease, right var(--base-transition-duration) ease;
 }

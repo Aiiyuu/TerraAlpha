@@ -15,3 +15,61 @@
   background: var(--purple-color);
   color: var(--light-color)
 }
+
+#main-btn {
+  background-color: var(--current-player-color);
+  color: #fff;
+}
+
+#main-btn[data-type="dice"] {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+#main-btn[data-type="dice"]::after {
+  content: "";
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 90%;
+  height: 90%;
+
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.buttons {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+#mute-btn {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  background-color: var(--current-player-color);
+}
+
+#mute-btn::after {
+  content: "";
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 60%;
+  height: 60%;
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}

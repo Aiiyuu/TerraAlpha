@@ -1,10 +1,14 @@
 import { PHRASE_REMOVAL_DELAY, phrases } from "../config.ts";
 import type { Phrase } from "../types/phrase.ts";
 import arrowIcon from "../assets/icons/arrow.png";
-import { addPhraseToRoom, getCurrentPlayerName, getCurrentRoomId } from "../server/server.ts";
+import {
+  addPhraseToRoom,
+  getCurrentPlayerName,
+  getCurrentRoomId,
+} from "../server/server.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
 
-const dialogs = [...document.querySelectorAll(".dialog")] as HTMLElement[];
+const dialog = document.querySelector(".dialog") as HTMLElement;
 
 const dialogContainer: HTMLElement | null =
   document.getElementById("dialog-container");
@@ -34,7 +38,7 @@ export function showPhrase(phrase: Phrase) {
   dialogPhrase.appendChild(dialogPhraseWrapper);
 
   const playerName: HTMLSpanElement = document.createElement("span");
-  playerName.innerText = phrase.userName;
+  playerName.innerText = phrase.userName || "";
   dialogPhraseWrapper.appendChild(playerName);
 
   const dialogText: HTMLParagraphElement = document.createElement("p");
@@ -54,88 +58,87 @@ export function showPhrase(phrase: Phrase) {
  * and adds event listeners to all items in the generated list.
  */
 export function setupDialog() {
-  dialogs.forEach((dialog) => {
-    const dialogList = dialog.querySelector(".dialog-list") as HTMLElement;
-    const dialogButton = dialog.querySelector(".dialog-button") as HTMLElement;
+  const dialogList = dialog.querySelector(".dialog-list") as HTMLElement;
+  const dialogButton = dialog.querySelector(".dialog-button") as HTMLElement;
 
-    // Dynamically load arrow icon for the button
-    const style: HTMLStyleElement = document.createElement("style");
-    style.textContent = `
+  // Dynamically load arrow icon for the button
+  const style: HTMLStyleElement = document.createElement("style");
+  style.textContent = `
       .dialog-button::after {
         background-image: url(${arrowIcon});
       }
     `;
-    document.head.appendChild(style);
+  document.head.appendChild(style);
 
-    if (!dialogList) {
-      throw new Error("Dialog is not found!");
+  if (!dialogList) {
+    throw new Error("Dialog is not found!");
+  }
+
+  let computedStyles: CSSStyleDeclaration;
+
+  hideDialog();
+
+  /* Generate a list of phrase dynamically based on the phrases array */
+  phrases.forEach((phrase) => {
+    const li: HTMLLIElement = document.createElement("li");
+    li.classList.add("dialog-list-item");
+
+    const img: HTMLImageElement = document.createElement("img");
+    img.src = phrase.img;
+
+    const text: HTMLParagraphElement = document.createElement("p");
+    text.innerHTML = phrase.text;
+
+    li.appendChild(img);
+    li.appendChild(text);
+
+    dialogList.appendChild(li);
+
+    if (!computedStyles) {
+      computedStyles = window.getComputedStyle(li);
     }
 
-    let computedStyles: CSSStyleDeclaration;
+    li.addEventListener("click", () => {
+      const currentRoomdId = getCurrentRoomId()!;
+      const MIN_X_POS = 20;
+      const MAX_X_POS = 80;
+      const randomX =
+        Math.floor(Math.random() * (MAX_X_POS - MIN_X_POS + 1)) + MIN_X_POS;
 
-    hideDialog();
+      const newPhrase: Phrase = {
+        id: getRandomId(),
+        userName: getCurrentPlayerName(),
+        text: phrase.text,
+        img: phrase.img,
+        x: randomX,
+      };
 
-    /* Generate a list of phrase dynamically based on the phrases array */
-    phrases.forEach((phrase) => {
-      const li: HTMLLIElement = document.createElement("li");
-      li.classList.add("dialog-list-item");
-
-      const img: HTMLImageElement = document.createElement("img");
-      img.src = phrase.img;
-
-      const text: HTMLParagraphElement = document.createElement("p");
-      text.innerHTML = phrase.text;
-
-      li.appendChild(img);
-      li.appendChild(text);
-
-      dialogList.appendChild(li);
-
-      if (!computedStyles) {
-        computedStyles = window.getComputedStyle(li);
-      }
-
-      li.addEventListener("click", () => {
-        const currentRoomdId = getCurrentRoomId()!;
-        const MIN_X_POS = 20;
-        const MAX_X_POS = 80;
-        const randomX = Math.floor(Math.random() * (MAX_X_POS - MIN_X_POS + 1)) + MIN_X_POS;
-
-        const newPhrase: Phrase = {
-          id: getRandomId(),
-          userName: getCurrentPlayerName(),
-          text: phrase.text,
-          img: phrase.img,
-          x: randomX,
-        };
-
-        hideDialog();
-        addPhraseToRoom(currentRoomdId, newPhrase);
-      });
+      hideDialog();
+      addPhraseToRoom(currentRoomdId, newPhrase);
     });
-
-    function showDialog() {
-      dialog.classList.add("dialog--active");
-
-      const height = parseFloat(computedStyles.height);
-      dialogList.style.height = `${height * phrases.length}px`;
-    }
-
-    function hideDialog() {
-      dialog.classList.remove("dialog--active");
-
-      dialogList.style.height = "0px";
-    }
-
-    function toggleDialog() {
-      if (dialog.classList.contains("dialog--active")) {
-        hideDialog();
-        return;
-      }
-
-      showDialog();
-    }
-
-    dialogButton?.addEventListener("click", toggleDialog);
   });
+
+  function showDialog() {
+    dialog.classList.add("dialog--active");
+
+    const height = parseFloat(computedStyles.height);
+    dialogList.style.height = `${height * phrases.length}px`;
+  }
+
+  function hideDialog() {
+    dialog.classList.remove("dialog--active");
+
+    dialogList.style.height = "0px";
+  }
+
+  function toggleDialog() {
+    if (dialog.classList.contains("dialog--active")) {
+      hideDialog();
+      return;
+    }
+
+    showDialog();
+  }
+
+  dialogButton?.addEventListener("click", toggleDialog);
 }
