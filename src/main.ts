@@ -12,6 +12,7 @@ import { loadImages } from "./components/loadImages.ts";
 import { setupColorPalette } from "./components/colorPalette.ts";
 import { setupShipImages } from "./components/shipImages.ts";
 import { clearOutdatedRooms } from "./server/server.ts";
+import { setupMuteBtn } from "./components/audioManager.ts";
 
 window.addEventListener("load", () => {
   setUpNavigation();
@@ -21,6 +22,7 @@ window.addEventListener("load", () => {
   setupRibbons();
   setupTimer();
   setupDice();
+  setupMuteBtn();
   setupColorPalette()
   loadCellIcons();
   setupAdaptiveMenuBtn();

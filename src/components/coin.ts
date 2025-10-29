@@ -1,3 +1,6 @@
+import coinSoundSrc from "../assets/sounds/coin.mp3";
+import { createSound } from "./sound";
+
 let coinContainer: HTMLElement | null = null;
 let coin: HTMLElement | null = null;
 
@@ -17,12 +20,15 @@ export function initCoin(): void {
   ensure();
 }
 
+const { startSound, stopSound } = createSound({ src: coinSoundSrc, infinite: true });
+
 export function flipCoin(side: 'left' | 'right') {
   if (!ensure()) return;
   if (isFlipping || side === lastSide) return;
 
   isFlipping = true;
   lastSide = side;
+  startSound();
 
   coinContainer!.classList.add('is-active');
 
@@ -39,6 +45,7 @@ export function flipCoin(side: 'left' | 'right') {
   setTimeout(() => {
     coinContainer!.classList.remove('is-active');
     isFlipping = false;
+    stopSound()
   }, COIN_ANIMATION_DURATION);
 }
 

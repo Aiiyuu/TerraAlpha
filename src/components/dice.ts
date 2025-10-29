@@ -1,3 +1,6 @@
+import { createSound } from "./sound";
+import diceSoundSrc from "../assets/sounds/dice.mp3";
+
 const diceContainer = document.querySelector(
   ".dice-container"
 ) as HTMLDivElement;
@@ -12,6 +15,12 @@ export const HIDE_DICE_DELAY = ANIMATION_DURATION + 1000;
 
 let isRolling = false;
 
+const { startSound, stopSound } = createSound({
+  src: diceSoundSrc,
+  loudness: 0.6,
+  infinite: true,
+});
+
 /**
  * This function generates a random value from 1 to 6 (including)
  * and fires the animation of the dice
@@ -20,12 +29,11 @@ let isRolling = false;
 export function throwDice(random: number) {
   if (isRolling) return;
 
+  startSound();
   const dice = document.querySelector(".dice") as HTMLDivElement;
 
   diceContainer?.classList.add("dice-container--roling");
-
   dice.style.animation = `rolling ${ANIMATION_DURATION}ms linear`;
-
   isRolling = true;
 
   setTimeout(() => {
@@ -64,7 +72,8 @@ export function throwDice(random: number) {
   setTimeout(() => {
     diceContainer?.classList.remove("dice-container--roling");
     isRolling = false;
-    dice.style.transform = 'none';
+    dice.style.transform = "none";
+    stopSound();
   }, HIDE_DICE_DELAY);
 }
 

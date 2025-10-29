@@ -129,16 +129,6 @@
             <h2 class="player-name">PLAYER 1</h2>
           </div>
 
-          <div class="dialog dialog-red" data-userName="Player 1">
-            <div class="dialog-button">Вибрати фразу</div>
-
-            <ul class="dialog-list"></ul>
-          </div>
-
-          <div class="chat chat-red">
-            <ul class="chat-wrapper player1" data-qa="p1-chat"></ul>
-          </div>
-
           <div class="hand-grid mx-auto" data-qa="p1-hand">
             <button class="cell-btn" data-qa="p1-cell-1"></button>
             <button class="cell-btn" data-qa="p1-cell-2"></button>
@@ -153,22 +143,33 @@
               data-ship="mother"
             ></button>
           </div>
+
+          <div class="dialog">
+            <div class="btn dialog-button">Вибрати фразу</div>
+            <ul class="dialog-list"></ul>
+          </div>
         </section>
 
         <!-- BOARD -->
         <section class="is-narrow has-text-centered middle-section">
-          <div class="timer" id="timer">
-            <svg
-              width="206"
-              height="70"
-              viewBox="0 0 206 70"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"
-              />
-            </svg>
+          <div class="game-header">
+            <div class="timer" id="timer">
+              <svg
+                width="206"
+                height="70"
+                viewBox="0 0 206 70"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"
+                />
+              </svg>
+            </div>
+
+            <div>
+              <button id="mute-btn" class="btn btn--purple"></button>
+            </div>
           </div>
 
           <div class="board" data-qa="board">
@@ -277,9 +278,7 @@
           </div>
 
           <div class="buttons">
-            <button id="main-btn" class="btn" data-type="dice">
-              Кинути кубик
-            </button>
+            <button id="main-btn" class="btn" data-type="dice"></button>
           </div>
         </section>
 
@@ -287,16 +286,6 @@
         <section id="player2" class="player-section">
           <div class="player-info">
             <h2 class="player-name">PLAYER 2</h2>
-          </div>
-
-          <div class="dialog dialog-blue" data-userName="Player 2">
-            <div class="dialog-button">Вибрати фразу</div>
-
-            <ul class="dialog-list"></ul>
-          </div>
-
-          <div class="chat chat-blue">
-            <ul class="chat-wrapper player2" data-qa="p2-chat"></ul>
           </div>
 
           <div class="hand-grid mx-auto" data-qa="p2-hand">
@@ -322,8 +311,12 @@
 
     <div class="coin-container">
       <div class="coin">
-        <div class="coin-face">&laquo;</div>
-        <div class="coin-back">&raquo;</div>
+        <div class="coin-face">
+          <img src="./src/assets/icons/point.png" alt="" />
+        </div>
+        <div class="coin-back">
+          <img src="./src/assets/icons/point.png" alt="" />
+        </div>
       </div>
     </div>
 

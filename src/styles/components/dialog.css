@@ -1,4 +1,6 @@
 .dialog {
+  margin-top: auto;
+  position: relative;
   color: #fff;
   border-radius: var(--dialog-radius);
 
@@ -26,8 +28,8 @@
   align-items: center;
 
   padding: 10px 5px;
-  margin-bottom: 25px;
   cursor: pointer;
+  background-color: var(--current-player-color);
 
   font-weight: bold;
 }
@@ -39,7 +41,7 @@
   margin-left: 10px;
   width: 15px;
   height: 15px;
-  transform: rotate(90deg);
+  transform: rotate(90deg) scaleY(-1);
   transition: transform var(--transition-time) ease;
 
   background-repeat: no-repeat;
@@ -48,6 +50,9 @@
 }
 
 .dialog-list {
+  top: -10px;
+  transform: translateY(-100%);
+
   position: absolute;
   z-index: 2;
 
@@ -64,6 +69,7 @@
   cursor: pointer;
   display: flex;
   justify-content: flex-start;
+  background: var(--current-player-color);
   align-items: center;
   padding: 20px 20px;
 }

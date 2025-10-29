@@ -15,6 +15,8 @@ import Steps from "../components/stepsButtons";
 import { setupPrediction } from "../components/prediction";
 import { setupShipMove } from "../components/shipMove";
 import { initShipSync } from "../components/ShipSync";
+import bgMusicSrc from "../assets/sounds/background-music.mp3";
+import { createSound } from "./sound";
 
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
@@ -26,7 +28,14 @@ let diceIsRolling = false;
 let currentPlayerId: number | undefined;
 let currentPlayerSide: "left" | "right" | undefined;
 let stopShipSync: (() => void) | null = null;
-let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null = null;
+let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null =
+  null;
+
+const { startSound: startBgMusic } = createSound({
+  src: bgMusicSrc,
+  loudness: 0.4,
+  infinite: true,
+});
 
 export function getCurrentTurnSide(): "left" | "right" {
   return currentPlayerSide ?? "left";
@@ -52,6 +61,7 @@ export function startGame(room: RoomEntry) {
 
   setupPrediction();
   setupShipMove();
+  startBgMusic();
 
   const dispose = initShipSync(String(roomId));
   if (typeof dispose === "function") {
@@ -74,9 +84,19 @@ export function startGame(room: RoomEntry) {
 
     if (!currentPlayerId) {
       currentPlayerId = getCurrentPlayerId();
+      const currentPlayer = roomState.players.find(
+        (player) => player.id === currentPlayerId
+      );
+
+      document.body.style.setProperty(
+        "--current-player-color",
+        currentPlayer?.color || ""
+      );
     }
 
-    const myIndex = roomState.players.findIndex((p) => p.id === currentPlayerId);
+    const myIndex = roomState.players.findIndex(
+      (p) => p.id === currentPlayerId
+    );
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = previousRoomState?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
@@ -136,8 +156,8 @@ export function startGame(room: RoomEntry) {
       flipCoin(side);
     }
 
-    if (roomState?.phrases?.length !== previousRoomState?.phrases?.length) {
-      if (roomState && roomState.phrases) {
+    if (roomState && roomState.phrases) {
+      if (roomState?.phrases?.length !== previousRoomState?.phrases?.length) {
         roomState.phrases.forEach((phrase) => {
           if (!shownPhrases.includes(phrase.id)) {
             showPhrase(phrase);
@@ -153,16 +173,29 @@ export function startGame(room: RoomEntry) {
       document.body.classList.remove("steps-hidden");
     }
 
-    if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
+    if (
+      !diceIsRolling &&
+      roomState?.lastDiceResult &&
+      roomState?.isDiceRolling
+    ) {
       diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = roomState.isTurn ? (roomState.isTurn === "left" ? 0 : 1) : -1;
+    const turnIndex = roomState.isTurn
+      ? roomState.isTurn === "left"
+        ? 0
+        : 1
+      : -1;
 
-    if (myIndex !== -1 && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
+    if (
+      myIndex !== -1 &&
+      haveTwoPlayers &&
+      turnIndex !== -1 &&
+      myIndex === turnIndex
+    ) {
       mainBtn.classList.remove("disabled");
       document.body.classList.remove("not-my-turn");
       document.body.setAttribute("data-turn-active", "1");
@@ -175,7 +208,10 @@ export function startGame(room: RoomEntry) {
     if (myIndex !== -1) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
       const canUseSteps =
-        haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
+        haveTwoPlayers &&
+        turnIndex !== -1 &&
+        myIndex === turnIndex &&
+        !roomState.isDiceRolling;
       Steps.render(myStreak, canUseSteps);
     } else {
       Steps.clear();
@@ -246,7 +282,7 @@ export function startGame(room: RoomEntry) {
         timerState: new Date().toISOString(),
       });
 
-      mainBtn.innerText = "Кинути кубик";
+      mainBtn.innerText = "";
       mainBtn.setAttribute("data-type", "dice");
     }
   };

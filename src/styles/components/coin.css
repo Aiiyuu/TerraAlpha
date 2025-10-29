@@ -27,6 +27,14 @@
   border-radius: 50%;
 }
 
+.coin img {
+  scale: 0.5;
+}
+
+.coin-face img {
+  transform: scaleX(-1);
+}
+
 .coin-face,
 .coin-back {
   position: absolute;
@@ -42,5 +50,10 @@
   border: 10px solid #FEE267;
 }
 
-.coin-face { transform: rotateY(0deg); }
-.coin-back { transform: rotateY(180deg); }
+.coin-face {
+  transform: rotateY(0deg);
+}
+
+.coin-back {
+  transform: rotateY(180deg);
+}

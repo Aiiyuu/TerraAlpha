@@ -1,6 +1,5 @@
 import type { Player } from "../types/player.ts";
 import { avatars } from "../config.ts";
-const dialogs = [...document.querySelectorAll(".dialog")] as HTMLElement[];
 
 const playerSection1 = document.querySelector("#player1") as HTMLElement;
 const playerSection2 = document.querySelector("#player2") as HTMLElement;
@@ -11,10 +10,9 @@ const playerSection2 = document.querySelector("#player2") as HTMLElement;
  * @param player
  */
 export function setupLeftPlayer(player: Player) {
-  playerSection1.classList.add('is-visible');
+  playerSection1.classList.add("is-visible");
   document.body.style.setProperty("--player1-color", player.color!);
   changePlayerNameAndAvatar(playerSection1, player);
-  changePlayerDialogName(dialogs[0], player);
 }
 
 /**
@@ -23,11 +21,10 @@ export function setupLeftPlayer(player: Player) {
  * @param player
  */
 export function setupRightPlayer(player: Player) {
-  playerSection1.classList.add('is-visible');
-  playerSection2.classList.add('is-visible');
+  playerSection1.classList.add("is-visible");
+  playerSection2.classList.add("is-visible");
   document.body.style.setProperty("--player2-color", player.color!);
   changePlayerNameAndAvatar(playerSection2, player);
-  changePlayerDialogName(dialogs[1], player);
 }
 
 function changePlayerNameAndAvatar(wrapper: HTMLElement, player: Player) {
@@ -47,8 +44,4 @@ function changePlayerNameAndAvatar(wrapper: HTMLElement, player: Player) {
 
     infoBlock.appendChild(img);
   }
-}
-
-function changePlayerDialogName(dialog: HTMLElement, player: Player) {
-  dialog.setAttribute("data-userName", player.name);
 }

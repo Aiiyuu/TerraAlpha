@@ -88,11 +88,14 @@ export async function updatePlayer(
 
 export async function addPhraseToRoom(roomId: Room["id"], newPhrase: Phrase): Promise<void> {
   const rRef = roomRef(roomId);
+  console.log(roomId)
+  
   const snap = await get(rRef);
   if (!snap.exists()) throw new Error("Room does not exist");
-
+  
   const roomData = snap.val() as Room;
   const phrases: Phrase[] = roomData.phrases || [];
+
 
   const exists = phrases.some(p => p.id === newPhrase.id);
   if (!exists) {

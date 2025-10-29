@@ -1,3 +1,4 @@
+@import url('./components/reset.css');
 @import url('./components/sections.css');
 @import url('./components/animations.css');
 @import url('./components/navbar.css');
@@ -8,35 +9,14 @@
 @import url('./components/buttons.css');
 @import url('./components/rooms-table.css');
 @import url('./components/dice.css');
-@import url('./components/chat.css');
 @import url('./components/dialog.css');
 @import url('./components/coin.css');
 @import url('./components/timer.css');
 @import url('./components/board.css');
 @import url('./components/ships.css');
 @import url('./components/game.css');
+@import url('./components/hand.css');
 @import url('./components/color-palette.css');
-
-html,
-body,
-* {
-  user-select: none;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  text-decoration: none;
-}
-
-button,
-input,
-input:focus {
-  border: none;
-  background-color: transparent;
-  outline: none;
-}
 
 body {
   position: fixed;
@@ -72,104 +52,6 @@ body {
 
 .is-hidden {
   display: none;
-}
-
-.hand-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  border: 2px solid #444;
-  border-radius: 8px;
-  padding: 8px;
-  width: max-content;
-}
-
-.corner-text {
-  position: absolute;
-  bottom: 4px;
-  right: 6px;
-  font-size: 14px;
-  color: #fff;
-  opacity: 0.9;
-  font-weight: 600;
-  pointer-events: none;
-}
-
-.cell-btn {
-  width: 64px;
-  height: 64px;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  background: #fff;
-  box-shadow: 0 0 3px #ccc inset;
-  cursor: pointer;
-  transition: all .15s ease-in-out;
-}
-
-.cell-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
-}
-
-.cell-btn:active {
-  transform: translateY(0);
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
-}
-
-.cell-btn:focus-visible {
-  outline: 2px solid #3273dc;
-  outline-offset: 2px;
-}
-
-.board-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  width: 540px;
-  aspect-ratio: 1 / 1;
-  padding: 8px;
-  background: transparent;
-  margin-inline: auto;
-}
-
-.cell {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border: 4px solid #111;
-  box-shadow: 0 0 4px rgba(0, 0, 0, .2) inset;
-}
-
-.square {
-  border-radius: 6px;
-}
-
-.circle {
-  border-radius: 50%;
-}
-
-.grey {
-  background: #5e8d92;
-}
-
-.white {
-  background: #fff;
-}
-
-.red {
-  background: #e22;
-}
-
-.empty {
-  border: none;
-  background: transparent;
-  box-shadow: none;
-}
-
-.has-text-outline {
-  text-shadow: -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
 }
 
 .active {

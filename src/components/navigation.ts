@@ -1,6 +1,10 @@
 import { createRoom } from "../server/createGameRoom.ts";
 import { createNewPlayer, getRandomColor } from "../server/player.ts";
-import { addNewPlayerToRoom, getAllRooms } from "../server/server.ts";
+import {
+  addNewPlayerToRoom,
+  getAllRooms,
+  setCurrentRoomId,
+} from "../server/server.ts";
 import {
   animatePageSwitching,
   showCreateGamePage,
@@ -18,15 +22,15 @@ const form = document.querySelector("#form") as HTMLElement;
 export function setUpNavigation() {
   const createGameBtn = document.querySelector(
     "#navigation-create-room-btn"
-  ) as HTMLElement;
+  ) as HTMLButtonElement;
 
   const selectGameBtn = document.querySelector(
     "#navigation-select-room-btn"
-  ) as HTMLElement;
+  ) as HTMLButtonElement;
 
   const fastGameBtn = document.querySelector(
     "#navigation-fast-game-btn"
-  ) as HTMLElement;
+  ) as HTMLButtonElement;
 
   createGameBtn.addEventListener("click", () => {
     animatePageSwitching(showCreateGamePage);
@@ -46,6 +50,9 @@ export function setUpNavigation() {
   });
 
   fastGameBtn.addEventListener("click", async () => {
+    if (fastGameBtn.disabled) return;
+    fastGameBtn.disabled = true;
+
     try {
       const player = createNewPlayer();
       const rooms = await getAllRooms();
@@ -63,6 +70,7 @@ export function setUpNavigation() {
         }
 
         await addNewPlayerToRoom(player, oldestRoom.id);
+        setCurrentRoomId(oldestRoom.id);
 
         animatePageSwitching(() => showGame(oldestRoom));
       } else {
