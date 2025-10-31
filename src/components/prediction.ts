@@ -123,10 +123,8 @@ function computeTargetCell(from: { base: number | null; sub: string | null } | n
     if (proj >= 27) return getCellByIndex('final-0');
     return pickLandingCell(proj);
   }
-
   const { base, sub } = from;
   if (base == null) return null;
-
   if (base === 6 || base === 12 || base === 18) {
     if (sub === '1') {
       if (steps <= 1) return null;
@@ -141,7 +139,6 @@ function computeTargetCell(from: { base: number | null; sub: string | null } | n
       return pickLandingCell(proj);
     }
   }
-
   if (base === 24) {
     const alts = ['final-2', 'final-1'];
     for (const idx of alts) {
@@ -150,11 +147,9 @@ function computeTargetCell(from: { base: number | null; sub: string | null } | n
     }
     return null;
   }
-
   if (base === 23 && steps >= 4) return getCellByIndex('final-0');
   if (base === 25 && steps >= 2) return getCellByIndex('final-0');
   if (base === 26 && steps >= 1) return getCellByIndex('final-0');
-
   const proj = base + steps;
   if (proj >= 27) return getCellByIndex('final-0');
   return pickLandingCell(proj);
@@ -163,20 +158,16 @@ function computeTargetCell(from: { base: number | null; sub: string | null } | n
 function highlightFromEl(shipEl: HTMLElement, planned: number | null): boolean {
   clearPrediction();
   if (!Number.isFinite(planned) || (planned as number) <= 0) return false;
-
   const steps = planned as number;
   const from = getFromPartsIfOnBoard(shipEl);
   const target = computeTargetCell(from, steps);
   if (!target) return false;
-
   const occ = getCellOccupant(target);
   const activeSide = getShipSide(shipEl);
   const activeIsMother = isMotherShip(shipEl);
-
   if (occ) {
     if (!occ.side || !activeSide) return false;
     if (occ.side !== activeSide) return false;
-
     if (activeIsMother && !occ.isMother) {
       occ.el.closest('.cell-btn')?.classList.add('ta-bump');
       return true;
@@ -187,24 +178,45 @@ function highlightFromEl(shipEl: HTMLElement, planned: number | null): boolean {
     }
     return false;
   }
-
   target.classList.add('is-predicted');
   return true;
+}
+
+function pickScopeFromEvent(ev: Event): HTMLElement | null {
+  const SEL = '.cell, .cell-btn, [data-ship], .ship, button.ship';
+  const path = (ev as any).composedPath?.() as EventTarget[] | undefined;
+  if (path && path.length) {
+    for (const t of path) {
+      const el = t as any;
+      if (el && typeof el.closest === 'function') {
+        const hit = el.closest(SEL) as HTMLElement | null;
+        if (hit) return hit;
+      }
+      if (el && el.parentElement && typeof el.parentElement.closest === 'function') {
+        const hit = el.parentElement.closest(SEL) as HTMLElement | null;
+        if (hit) return hit;
+      }
+    }
+    return null;
+  }
+  const nt = ev.target as any;
+  const el: Element | null =
+    nt && nt.nodeType === 1 ? nt : nt?.parentElement ?? null;
+  return el && typeof (el as any).closest === 'function'
+    ? (el as Element).closest(SEL) as HTMLElement | null
+    : null;
 }
 
 export function setupPrediction() {
   document.addEventListener(
     'pointerenter',
     (ev) => {
-      const raw = ev.target as HTMLElement;
-      const scope = raw?.closest<HTMLElement>('.cell, .cell-btn, [data-ship], .ship, button.ship') || null;
+      const scope = pickScopeFromEvent(ev);
       const shipEl = pickupShipEl(scope);
       if (!shipEl) return;
-
       const side = getShipSide(shipEl);
       const mySide = document.body.getAttribute('data-turn-side');
-      if (mySide && side && mySide !== side) return; // 🚫 чужі кораблі ігноруються
-
+      if (mySide && side && mySide !== side) return;
       const planned = Steps.getStepsForMove();
       const ok = highlightFromEl(shipEl, planned);
       setShipLocked(shipEl, !ok);
@@ -215,8 +227,7 @@ export function setupPrediction() {
   document.addEventListener(
     'pointerleave',
     (ev) => {
-      const raw = ev.target as HTMLElement;
-      const scope = raw?.closest<HTMLElement>('.cell, .cell-btn, [data-ship], .ship, button.ship') || null;
+      const scope = pickScopeFromEvent(ev);
       const shipEl = pickupShipEl(scope);
       if (!shipEl) return;
       setShipLocked(shipEl, false);

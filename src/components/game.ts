@@ -15,6 +15,9 @@ import Steps from "../components/stepsButtons";
 import { setupPrediction } from "../components/prediction";
 import { setupShipMove } from "../components/shipMove";
 import { initShipSync } from "../components/ShipSync";
+import { initMainPrediction } from "../components/MainPrediction";
+import { initPlayerBlockedInfo } from "../components/playerBlockedInfo";
+import { initPlayerWin } from "../components/playerWin";
 import bgMusicSrc from "../assets/sounds/background-music.mp3";
 import { createSound } from "./sound";
 
@@ -28,8 +31,10 @@ let diceIsRolling = false;
 let currentPlayerId: number | undefined;
 let currentPlayerSide: "left" | "right" | undefined;
 let stopShipSync: (() => void) | null = null;
-let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null =
-  null;
+let stopMainPrediction: (() => void) | null = null;
+let stopPlayerBlockedInfo: (() => void) | null = null;
+let stopPlayerWin: (() => void) | null = null;
+let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null = null;
 
 const { startSound: startBgMusic } = createSound({
   src: bgMusicSrc,
@@ -51,6 +56,27 @@ export function startGame(room: RoomEntry) {
     stopShipSync = null;
   }
 
+  if (stopMainPrediction) {
+    try {
+      stopMainPrediction();
+    } catch {}
+    stopMainPrediction = null;
+  }
+
+  if (stopPlayerBlockedInfo) {
+    try {
+      stopPlayerBlockedInfo();
+    } catch {}
+    stopPlayerBlockedInfo = null;
+  }
+
+  if (stopPlayerWin) {
+    try {
+      stopPlayerWin();
+    } catch {}
+    stopPlayerWin = null;
+  }
+
   if (mainBtnHandler) {
     mainBtn.removeEventListener("click", mainBtnHandler);
     mainBtnHandler = null;
@@ -58,7 +84,6 @@ export function startGame(room: RoomEntry) {
 
   initCoin();
   Steps.mountBefore(mainBtn);
-
   setupPrediction();
   setupShipMove();
   startBgMusic();
@@ -77,6 +102,26 @@ export function startGame(room: RoomEntry) {
     );
   }
 
+  stopMainPrediction = initMainPrediction(roomId);
+  stopPlayerBlockedInfo = initPlayerBlockedInfo(roomId);
+  stopPlayerWin = initPlayerWin(roomId);
+
+  window.addEventListener(
+    "beforeunload",
+    () => {
+      try {
+        stopMainPrediction?.();
+      } catch {}
+      try {
+        stopPlayerBlockedInfo?.();
+      } catch {}
+      try {
+        stopPlayerWin?.();
+      } catch {}
+    },
+    { once: true }
+  );
+
   listeToRoomById(roomId, async (roomState) => {
     if (!roomState) return;
 
@@ -84,19 +129,11 @@ export function startGame(room: RoomEntry) {
 
     if (!currentPlayerId) {
       currentPlayerId = getCurrentPlayerId();
-      const currentPlayer = roomState.players.find(
-        (player) => player.id === currentPlayerId
-      );
-
-      document.body.style.setProperty(
-        "--current-player-color",
-        currentPlayer?.color || ""
-      );
+      const currentPlayer = roomState.players.find((player) => player.id === currentPlayerId);
+      document.body.style.setProperty("--current-player-color", currentPlayer?.color || "");
     }
 
-    const myIndex = roomState.players.findIndex(
-      (p) => p.id === currentPlayerId
-    );
+    const myIndex = roomState.players.findIndex((p) => p.id === currentPlayerId);
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = previousRoomState?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
@@ -145,9 +182,7 @@ export function startGame(room: RoomEntry) {
 
     const shouldFlipOnce =
       haveTwoPlayers &&
-      (((!prevCoinNode || !prevCoinNode?.shown) &&
-        coinNode?.shown &&
-        coinNode?.result) ||
+      (((!prevCoinNode || !prevCoinNode?.shown) && coinNode?.shown && coinNode?.result) ||
         (!legacyPrevShown && legacyNowShown && roomState.isTurn));
 
     if (shouldFlipOnce) {
@@ -173,29 +208,16 @@ export function startGame(room: RoomEntry) {
       document.body.classList.remove("steps-hidden");
     }
 
-    if (
-      !diceIsRolling &&
-      roomState?.lastDiceResult &&
-      roomState?.isDiceRolling
-    ) {
+    if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
       diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = roomState.isTurn
-      ? roomState.isTurn === "left"
-        ? 0
-        : 1
-      : -1;
+    const turnIndex = roomState.isTurn ? (roomState.isTurn === "left" ? 0 : 1) : -1;
 
-    if (
-      myIndex !== -1 &&
-      haveTwoPlayers &&
-      turnIndex !== -1 &&
-      myIndex === turnIndex
-    ) {
+    if (myIndex !== -1 && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
       mainBtn.classList.remove("disabled");
       document.body.classList.remove("not-my-turn");
       document.body.setAttribute("data-turn-active", "1");
@@ -208,10 +230,7 @@ export function startGame(room: RoomEntry) {
     if (myIndex !== -1) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
       const canUseSteps =
-        haveTwoPlayers &&
-        turnIndex !== -1 &&
-        myIndex === turnIndex &&
-        !roomState.isDiceRolling;
+        haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
       Steps.render(myStreak, canUseSteps);
     } else {
       Steps.clear();
