@@ -16,6 +16,7 @@ import avatar9 from "./assets/images/avatars/avatar-9.png";
 
 import type { Phrase } from "./types/phrase.ts";
 import type { Avatar } from "./types/avatar.ts";
+import type { Player } from "./types/player.ts";
 
 export const PHRASE_REMOVAL_DELAY = 15000;
 export const phrases: Phrase[] = [
@@ -95,3 +96,52 @@ export const colors: string[] = [
   "#AF52DE",
   "#561530",
 ];
+
+export const RESET_BTN_COOLDOWN = 15000;
+
+export const RESET_ACTION_DURATION = 10000;
+export const INFORM_ACTION_DURATION = 5000;
+export const COIN_RESULT_DURATION = 5000;
+export const HEPER_WARNING_DURATION = 3000;
+
+
+// export const helper = {
+//   restartGame: (userName: Player["name"]) => `Gravec ${userName} bazhaie pere3anustutu ihru`,
+//   acceptRestart: (userName: Player["name"]) => `Gravec ${userName} pryiniav vashu propozyciiu pere3anustutu hru`,
+//   rejectRestart: (userName: Player["name"]) => `Gravec ${userName} vidkhylyv vashu propozyciiu pere3anustutu hru`,
+//   coinWinner: (userName: Player["name"]) => `Gravec ${userName} vyhrav v monetsi, otzhe zaraz yoho khid. Kudai kybik!`,
+//   currentPlayerCoinWinner: "Ty vyhrauv v monetsi! Zaraz tvii hid. Kudai kybik!",
+
+//   diceStreak: (isCurrentPlayerStreak: boolean) => {
+//     return isCurrentPlayerStreak
+//       ? 'Tobi vypalo 6, znovu tvoja cherha kydaty kubyk'
+//       : 'Supernku vypalo 6, znovu yoho cherha kydaty kubyk'
+//   },
+  
+//   diceRes: (isCurrentPlayerStreak: boolean, res: number) => {
+//     return isCurrentPlayerStreak
+//       ? `Tobi vypalo ${res}. Tvoja cherha robutu hid!`
+//       : `Supernuky vypalo ${res}, Yoho cherha robutu hid`
+//   }
+// };
+
+
+export const helper = {
+  restartGame: (userName: Player["name"]) => `Гравець ${userName} бажає перезапустити гру`,
+  acceptRestart: (userName: Player["name"]) => `Гравець ${userName} прийняв вашу пропозиція перезапустити гру`,
+  rejectRestart: (userName: Player["name"]) => `Гравець ${userName} відхилив вашу пропозиція перезапустити гру`,
+  coinWinner: (userName: Player["name"]) => `Гравець ${userName} виграв в монетці, отже зараз його хід. Кидай кубик!`,
+  currentPlayerCoinWinner: "Ти виграу в монетці! Зараз твій хід. Кидай кубик!",
+
+  diceStreak: (isCurrentPlayerStreak: boolean) => {
+    return isCurrentPlayerStreak
+      ? 'Тобі випало 6, знову твоя черга кидати кубик'
+      : 'Супернку випало 6, знову його черга кидати кубик'
+  },
+  
+  diceRes: (isCurrentPlayerStreak: boolean, res: number) => {
+    return isCurrentPlayerStreak
+      ? `Тобі випало ${res}. Твоя черга робити хід!`
+      : `Супернку випало ${res}, Його черга робити хід`
+  }
+};

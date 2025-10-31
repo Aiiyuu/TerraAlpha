@@ -13,6 +13,8 @@ import { setupColorPalette } from "./components/colorPalette.ts";
 import { setupShipImages } from "./components/shipImages.ts";
 import { clearOutdatedRooms } from "./server/server.ts";
 import { setupMuteBtn } from "./components/audioManager.ts";
+import { setUpHelperBtn } from "./components/helper.ts";
+import { setupResetBtn } from "./components/reset.ts";
 
 window.addEventListener("load", () => {
   setUpNavigation();
@@ -23,7 +25,9 @@ window.addEventListener("load", () => {
   setupTimer();
   setupDice();
   setupMuteBtn();
-  setupColorPalette()
+  setUpHelperBtn();
+  setupResetBtn();
+  setupColorPalette();
   loadCellIcons();
   setupAdaptiveMenuBtn();
   setupShipImages();

@@ -1,4 +1,7 @@
 import coinSoundSrc from "../assets/sounds/coin.mp3";
+import { COIN_RESULT_DURATION, helper } from "../config";
+import type { Room, Side } from "../types/room";
+import { HelperTypes, triggerHelper } from "./helper";
 import { createSound } from "./sound";
 
 let coinContainer: HTMLElement | null = null;
@@ -8,11 +11,14 @@ const COIN_FLIP_DELAY = 500;
 export const COIN_ANIMATION_DURATION = 5000 + COIN_FLIP_DELAY;
 
 let isFlipping = false;
-let lastSide: 'left' | 'right' | null = null;
+let lastSide: "left" | "right" | null = null;
 
 function ensure(): boolean {
-  if (!coinContainer) coinContainer = document.querySelector('.coin-container') as HTMLElement | null;
-  if (!coin) coin = document.querySelector('.coin') as HTMLElement | null;
+  if (!coinContainer)
+    coinContainer = document.querySelector(
+      ".coin-container"
+    ) as HTMLElement | null;
+  if (!coin) coin = document.querySelector(".coin") as HTMLElement | null;
   return !!(coinContainer && coin);
 }
 
@@ -20,9 +26,12 @@ export function initCoin(): void {
   ensure();
 }
 
-const { startSound, stopSound } = createSound({ src: coinSoundSrc, infinite: true });
+const { startSound, stopSound } = createSound({
+  src: coinSoundSrc,
+  infinite: true,
+});
 
-export function flipCoin(side: 'left' | 'right') {
+export function flipCoin(side: Side) {
   if (!ensure()) return;
   if (isFlipping || side === lastSide) return;
 
@@ -30,25 +39,53 @@ export function flipCoin(side: 'left' | 'right') {
   lastSide = side;
   startSound();
 
-  coinContainer!.classList.add('is-active');
+  coinContainer!.classList.add("is-active");
 
-  (coin as HTMLElement).style.transition = 'none';
-  (coin as HTMLElement).style.transform = 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)';
-  void (coin as any).offsetWidth;
-  (coin as HTMLElement).style.transition = 'transform 5s ease';
+  (coin as HTMLElement).style.transition = "none";
+  (coin as HTMLElement).style.transform =
+    "rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
+  void (coin as HTMLElement).offsetWidth;
+  (coin as HTMLElement).style.transition = "transform 5s ease";
 
   setTimeout(() => {
-    const deg = side === 'left' ? 3600 : 3780;
+    const deg = side === "left" ? 3600 : 3780;
     (coin as HTMLElement).style.transform = `rotateY(${deg}deg)`;
   }, COIN_FLIP_DELAY);
 
   setTimeout(() => {
-    coinContainer!.classList.remove('is-active');
+    coinContainer!.classList.remove("is-active");
     isFlipping = false;
-    stopSound()
+    stopSound();
   }, COIN_ANIMATION_DURATION);
 }
 
-export function getRandomSide(): 'left' | 'right' {
-  return Math.random() < 0.5 ? 'left' : 'right';
+export function declareCoinResult(
+  side: Side,
+  currentPlayerSide: Side,
+  roomState: Room
+) {
+  if (isFlipping || side === lastSide) return;
+
+  setTimeout(() => {
+    let text = helper.currentPlayerCoinWinner;
+
+    if (side !== currentPlayerSide) {
+      const name =
+        currentPlayerSide === "left"
+          ? roomState.players[1].name
+          : roomState.players[0].name;
+
+      text = helper.coinWinner(name);
+    }
+
+    triggerHelper({
+      duration: COIN_RESULT_DURATION,
+      text: text,
+      type: HelperTypes.HELPER_HINT,
+    });
+  }, COIN_ANIMATION_DURATION);
+}
+
+export function getRandomSide(): "left" | "right" {
+  return Math.random() < 0.5 ? "left" : "right";
 }

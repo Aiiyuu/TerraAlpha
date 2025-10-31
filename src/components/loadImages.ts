@@ -6,6 +6,8 @@ import starImg from "../assets/images/decorations/star.png";
 import diceIcon from "../assets/icons/dice.png";
 import mutedIcon from "../assets/icons/muted.png";
 import unMutedIcon from "../assets/icons/unmuted.png";
+import helperOnIcon from "../assets/icons/helper-on.png";
+import helperOffIcon from "../assets/icons/helper-off.png";
 
 const astronaut: HTMLElement | null = document.querySelector(".astronaut");
 const planet1: HTMLElement | null = document.querySelector(".planet-1");
@@ -46,6 +48,14 @@ export function loadImages() {
 
     #mute-btn[data-is-muted="false"]::after {
       background-image: url(${unMutedIcon});
+    }
+
+    #helper-btn::after {
+      background-image: url(${helperOnIcon});
+    }
+
+    #helper-btn.is-off::after {
+      background-image: url(${helperOffIcon});
     }
   `;
 

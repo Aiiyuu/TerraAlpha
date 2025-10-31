@@ -167,7 +167,14 @@
               </svg>
             </div>
 
-            <div>
+            <div class="header-btn-group">
+              <button id="helper-btn" class="btn btn--purple"></button>
+
+              <button id="reset-btn" class="btn btn--purple">
+                <img src="./src/assets/icons/reset.png" alt="reset" />
+                <div id="reset-cooldown" class="reset-cooldown"></div>
+              </button>
+
               <button id="mute-btn" class="btn btn--purple"></button>
             </div>
           </div>
@@ -302,7 +309,6 @@
               data-ship="mother"
             ></button>
           </div>
-          g
         </section>
       </div>
     </main>
@@ -321,6 +327,26 @@
     </div>
 
     <div id="dialog-container" class="dialog-container"></div>
+
+    <div id="helper-container" class="helper">
+      <div id="helper-icon" class="helper-icon"></div>
+
+      <div class="helper-wrapper">
+        <p id="helper-text" class="helper-text"></p>
+
+        <div id="helper-btns" class="helper-btn-group">
+          <button id="helper-accept-btn" class="btn btn--green btn-sm">
+            <img src="./src/assets/icons/check.png" alt="accept" />
+          </button>
+
+          <button id="helper-reject-btn" class="btn btn--red btn-sm">
+            <img src="./src/assets/icons/cross.png" alt="reject" />
+          </button>
+        </div>
+
+        <div id="helper-progress-bar" class="helper-progress-bar"></div>
+      </div>
+    </div>
 
     <div id="ribbons-container" class="ribbons"></div>
     <!-- Script files -->

@@ -4,6 +4,7 @@ import { database } from "../firebase.ts";
 import { ref, set, get, remove, update, onValue, child } from "firebase/database";
 import type { Phrase } from "../types/phrase.ts";
 import type { Side, ShipPos } from "../types/room.ts";
+import type { Action } from "../types/action.ts";
 
 const SHIP_IDS: Record<Side, string[]> = {
   left: Array.from({ length: 8 }, (_, i) => `p1-cell-${i + 1}`),
@@ -56,6 +57,20 @@ export function listeToRoomById(
   onValue(roomRef(roomId), (snapshot) => {
     callback(snapshot.val() || undefined);
   });
+}
+
+export async function addActionToRoom(roomId: Room["id"], action: Action): Promise<void> {
+  const ref = roomRef(roomId);
+  const snap = await get(ref);
+
+  if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
+
+  const roomData = snap.val() as Room;
+  const actions: Action[] = roomData.actions || [];
+  
+  actions.push(action);
+
+  await update(ref, { actions });
 }
 
 export async function updateRoom(roomId: Room["id"], updates: Partial<Room>): Promise<void> {
@@ -159,6 +174,26 @@ export async function clearOutdatedRooms(): Promise<void> {
     .map(([roomId]) => remove(ref(database, `rooms/${roomId}`)));
 
   await Promise.all(deletions);
+}
+
+export async function clearOutdatedActions(roomId: Room['id']): Promise<void> {
+  const ref = roomRef(roomId);
+  const snap = await get(ref);
+
+  if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
+
+  const roomData = snap.val() as Room;
+  const actions: Action[] = roomData.actions || [];
+
+  const now = new Date();
+  const validActions = actions.filter(action => {
+    const endsAtDate = new Date(action.endsAt);
+    return endsAtDate > now;
+  });
+
+  if (validActions.length !== actions.length) {
+    await update(ref, { actions: validActions });
+  }
 }
 
 export async function ensureShipsForSide(roomId: Room["id"], side: Side): Promise<void> {

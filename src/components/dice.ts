@@ -1,5 +1,8 @@
 import { createSound } from "./sound";
 import diceSoundSrc from "../assets/sounds/dice.mp3";
+import type { Room, Side } from "../types/room";
+import { HelperTypes, triggerHelper } from "./helper";
+import { helper, HEPER_WARNING_DURATION } from "../config";
 
 const diceContainer = document.querySelector(
   ".dice-container"
@@ -99,4 +102,26 @@ export function setupDice() {
 
   // Append the created DOM element to the container
   diceContainer!.appendChild(temp.firstElementChild!);
+}
+
+export function syncDiceHelper(
+  roomState: Room,
+  currentPlayerSide: Side,
+  diceRes: number
+) {
+  setTimeout(() => {
+    if (roomState.lastDiceResult === 6) {
+      triggerHelper({
+        duration: HEPER_WARNING_DURATION,
+        text: helper.diceStreak(currentPlayerSide === roomState?.isTurn),
+        type: HelperTypes.HELPER_HINT,
+      });
+    } else {
+      triggerHelper({
+        duration: HEPER_WARNING_DURATION,
+        text: helper.diceRes(currentPlayerSide === roomState?.isTurn, diceRes),
+        type: HelperTypes.HELPER_HINT,
+      });
+    }
+  }, HIDE_DICE_DELAY);
 }
