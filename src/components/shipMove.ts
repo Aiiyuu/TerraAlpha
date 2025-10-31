@@ -1,6 +1,7 @@
 import Steps from '../components/stepsButtons';
 import { animateShipFinalize } from '../utility/shipsFinalAnimation';
 import { runShipReplace } from '../utility/shipReplace';
+import { flyShip } from '../components/ShipFly';
 
 function parseCellIndex(cell: HTMLElement): number | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
@@ -11,7 +12,7 @@ function parseCellIndex(cell: HTMLElement): number | null {
 }
 
 function getShipSide(el: HTMLElement): 'left' | 'right' | null {
-  const ds = el.getAttribute('data-side') || el.dataset.side || '';
+  const ds = el.getAttribute('data-side') || (el as any).dataset?.side || '';
   if (ds === 'left' || ds === 'right') return ds;
   const qa = el.getAttribute('data-qa') || '';
   const pref = qa.match(/^(p[12])-/)?.[1];
@@ -53,12 +54,9 @@ function getPredictedCell(): HTMLElement | null {
 }
 
 function getReplaceOwnTargetCell(): HTMLElement | null {
-  const bumped = document.querySelector<HTMLElement>('.board .cell-btn.ta-bump') ||
-    document.querySelector<HTMLElement>('.board .ta-bump');
+  const bumped = document.querySelector<HTMLElement>('.board .cell-btn.ta-bump') || document.querySelector<HTMLElement>('.board .ta-bump');
   if (!bumped) return null;
-  return bumped.closest<HTMLElement>(
-    '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
-  );
+  return bumped.closest<HTMLElement>('.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]');
 }
 
 function clearPrediction() {
@@ -100,7 +98,7 @@ function consumeUsedStep(usedStep: number) {
   (Steps as any).consumeStep?.(usedStep);
 }
 
-const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 function waitForAnimation(el: Element, timeout: number) {
   return new Promise<void>((resolve) => {
@@ -108,7 +106,7 @@ function waitForAnimation(el: Element, timeout: number) {
     const onEnd = () => {
       if (done) return;
       done = true;
-      el.removeEventListener('animationend', onEnd);
+      (el as HTMLElement).removeEventListener('animationend', onEnd);
       resolve();
     };
     el.addEventListener('animationend', onEnd, { once: true });
@@ -127,6 +125,23 @@ async function runSimpleOverMother(cellEl: HTMLElement, simpleBtn: HTMLElement) 
   simpleBtn.remove();
 }
 
+function parseTargetIndex(predicted: HTMLElement): number {
+  const qa = predicted.getAttribute('data-qa') || '';
+  if (qa.startsWith('final-')) return 27;
+  const m = qa.match(/\d+/)?.[0];
+  if (m) return Number(m);
+  const di = predicted.getAttribute('data-index');
+  if (di && /^\d+$/.test(di)) return Number(di);
+  return NaN;
+}
+
+function prevIndex(idx: number): number {
+  if (idx >= 27) return 26;
+  if (idx === 26) return 25;
+  if (idx === 25) return 24;
+  return Math.max(1, idx - 1);
+}
+
 let clickGate = 0;
 
 export function setupShipMove() {
@@ -142,7 +157,7 @@ export function setupShipMove() {
 
       ensureDataSide(shipEl);
 
-      const planned = (Steps as any).getStepsForMove?.() as number ?? (Steps as any).getStepsForMove?.();
+      const planned = ((Steps as any).getStepsForMove?.() as number) ?? (Steps as any).getStepsForMove?.();
       if (!Number.isFinite(planned) || planned <= 0) return;
 
       const predictedNormal = getPredictedCell();
@@ -153,9 +168,7 @@ export function setupShipMove() {
         return;
       }
 
-      const fromCell = shipEl.closest<HTMLElement>(
-        '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
-      );
+      const fromCell = shipEl.closest<HTMLElement>('.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]');
       const fromIndex = fromCell ? parseCellIndex(fromCell) : null;
 
       const activeSide = getShipSide(shipEl);
@@ -175,10 +188,7 @@ export function setupShipMove() {
           ensureDataSide(shipEl);
 
           const shipQa = shipEl.getAttribute('data-qa') || null;
-          const toIndex =
-            predicted.getAttribute('data-qa') ||
-            predicted.getAttribute('data-index') ||
-            '';
+          const toIndex = predicted.getAttribute('data-qa') || predicted.getAttribute('data-index') || '';
 
           emitDone({
             shipQa,
@@ -187,7 +197,7 @@ export function setupShipMove() {
             usedStep: planned,
             finalizedQa: outBtn.getAttribute('data-qa') || null,
             finalizedToIndex: 'final-0',
-            moveKind: 'replaceOwn',
+            moveKind: 'replaceOwn'
           });
 
           await sleep(120);
@@ -197,7 +207,7 @@ export function setupShipMove() {
             outBtn,
             motherBtn: shipEl,
             spinMs: 500,
-            popMs: 180,
+            popMs: 180
           });
 
           if (predicted.getAttribute('data-qa') === 'final-0') {
@@ -212,19 +222,23 @@ export function setupShipMove() {
           clearPrediction();
 
           const shipQa = shipEl.getAttribute('data-qa') || null;
-          const toIndex =
-            predicted.getAttribute('data-qa') ||
-            predicted.getAttribute('data-index') ||
-            '';
+          const toQa = predicted.getAttribute('data-qa') || predicted.getAttribute('data-index') || '';
+          let toIndexNum = toQa.match(/\d+/)?.[0] ? Number(toQa.match(/\d+/)![0]) : 27;
+          if (/^final-/.test(toQa)) toIndexNum = 27;
+          const prevIdx = prevIndex(toIndexNum);
+
+          if (fromIndex == null || prevIdx > fromIndex) {
+            await flyShip({ shipEl, fromIndex, toIndex: prevIdx, stepMs: 160, hideOriginal: false });
+          }
 
           emitDone({
             shipQa,
             fromIndex,
-            toIndex,
+            toIndex: toQa,
             usedStep: planned,
             finalizedQa: shipQa,
             finalizedToIndex: 'final-0',
-            moveKind: 'overMother',
+            moveKind: 'overMother'
           });
 
           await sleep(120);
@@ -241,15 +255,23 @@ export function setupShipMove() {
 
       clearPrediction();
       ensureDataSide(shipEl);
+
+      const toIndexNum = parseTargetIndex(predicted);
+
+      await flyShip({ shipEl, fromIndex, toIndex: toIndexNum, stepMs: 160 });
+
       predicted.appendChild(shipEl);
 
       const shipQa = shipEl.getAttribute('data-qa') || null;
-      const toIndex =
-        predicted.getAttribute('data-qa') ||
-        predicted.getAttribute('data-index') ||
-        '';
+      const toIndex = predicted.getAttribute('data-qa') || predicted.getAttribute('data-index') || '';
 
-      emitDone({ shipQa, fromIndex, toIndex, usedStep: planned, moveKind: toIndex === 'final-0' ? 'finalize' : 'move' });
+      emitDone({
+        shipQa,
+        fromIndex,
+        toIndex,
+        usedStep: planned,
+        moveKind: toIndex === 'final-0' ? 'finalize' : 'move'
+      });
 
       if (predicted.getAttribute('data-qa') === 'final-0') {
         animateShipFinalize(shipEl, shipQa);
@@ -257,6 +279,6 @@ export function setupShipMove() {
 
       consumeUsedStep(planned);
     },
-    true,
+    true
   );
 }
