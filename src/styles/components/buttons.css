@@ -11,12 +11,29 @@
   opacity: 0.7 !important;
 }
 
+.btn.btn-sm {
+  padding: 10px 15px;
+}
+
 .btn.btn--purple {
   background: var(--purple-color);
   color: var(--light-color)
 }
 
-#main-btn {
+.btn.btn--red {
+  background: var(--red-color);
+  color: var(--light-color)
+}
+
+.btn.btn--green {
+  background: var(--green-color);
+  color: var(--light-color)
+}
+
+#main-btn,
+#reset-btn,
+#helper-btn,
+#mute-btn {
   background-color: var(--current-player-color);
   color: #fff;
 }
@@ -51,14 +68,24 @@
   width: 100%;
 }
 
-#mute-btn {
-  position: relative;
-  width: 50px;
-  height: 50px;
-  background-color: var(--current-player-color);
+.header-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-#mute-btn::after {
+#mute-btn,
+#reset-btn,
+#helper-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  width: 50px;
+  height: 50px;
+}
+
+#mute-btn::after,
+#helper-btn::after {
   content: "";
 
   position: absolute;
@@ -66,10 +93,52 @@
   left: 50%;
   transform: translate(-50%, -50%);
 
-  width: 60%;
-  height: 60%;
+  width: 30px;
+  height: 30px;
 
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
+}
+
+#helper-btn::after {
+  width: 40px;
+  height: 40px;
+}
+
+#reset-btn img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 30px;
+  height: 30px;
+}
+
+@property --progress {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.reset-cooldown {
+  --cooldown-color: rgba(0, 0, 0, 0.7);
+  
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(var(--cooldown-color) 0deg, var(--cooldown-color) var(--progress, 0deg), transparent 0deg);
+}
+
+@keyframes cooldown-progress {
+  from {
+    --progress: 360deg;
+  }
+
+  to {
+    --progress: 0deg;
+  }
 }

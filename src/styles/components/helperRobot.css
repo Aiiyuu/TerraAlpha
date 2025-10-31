@@ -1,0 +1,147 @@
+.helper-icon {
+  /* ROBOT COLORS */
+  --robot-color-regular: var(--green-color);
+  --robot-color-angry: #FF3C3C;
+  --robot-color-offer: #7FD5DC;
+
+  --robot-color: var(--robot-color-regular);
+
+  /* ROBOT BODY VALUES */
+  --robot-body-animation-duration: 2s;
+  --robot-body-offset: 20px;
+
+  /* HEAD VALUES */
+  --head-animation-duration: 1s;
+  --head-rotation: 5deg;
+
+  /* HAND VALUES */
+  --hand-animation-duration: 1.5s;
+  --hand-rotation-max: -100deg;
+  --hand-ration-min: -90deg;
+  --hand-initial-rotation: 0deg;
+
+  --hand-x-while-rotate: -20px;
+  --hand-y-while-rotate: 60px;
+  --hand-initial-x-while-rotate: 0;
+  --hand-initial-y-while-rotate: 0;
+}
+
+.helper-icon.regular {
+  --robot-color: var(--robot-color-regular);
+}
+
+.helper-icon.angry {
+  --robot-color: var(--robot-color-angry);
+}
+
+.helper-icon.offer {
+  --robot-color: var(--robot-color-offer);
+}
+
+.helper-icon #robot {
+  transform-origin: center center;
+  transform-box: fill-box;
+  animation: robot var(--robot-body-animation-duration) ease infinite alternate;
+}
+
+.helper-icon #head {
+  transform-origin: bottom center;
+  transform-box: fill-box;
+  animation: head var(--head-animation-duration) ease infinite alternate;
+}
+
+.helper-icon #hand-right {
+  transform-origin: top left;
+  transform-box: fill-box;
+}
+
+.helper-icon #hand-left {
+  transform-origin: top right;
+  transform-box: fill-box;
+}
+
+.helper-icon.regular #hand-right {
+  animation: hand-right var(--hand-animation-duration) ease infinite;
+}
+
+.helper-icon.angry #hand-right {
+  animation: hand-right var(--hand-animation-duration) ease infinite;
+}
+
+.helper-icon.angry #hand-left {
+  animation: hand-left var(--hand-animation-duration) ease infinite;
+}
+
+.helper-icon #changing-line,
+.helper-icon #face path,
+.helper-icon #face circle {
+  fill: var(--robot-color);
+}
+
+@keyframes robot {
+  from {
+    transform: translateY(calc(var(--robot-body-offset) * -1));
+  }
+
+  to {
+    transform: translateY(var(--robot-body-offset));
+  }
+}
+
+@keyframes head {
+  from {
+    transform: rotate(var(--head-rotation));
+  }
+
+  to {
+    transform: rotate(calc(var(--head-rotation) * -1));
+  }
+}
+
+@keyframes hand-right {
+
+  0%,
+  100% {
+    transform: translate(var(--hand-initial-x-while-rotate), var(--hand-initial-y-while-rotate)) rotate(var(--hand-initial-rotation));
+  }
+
+  20% {
+    transform: translate(var(--hand-x-while-rotate), var(--hand-y-while-rotate)) rotate(var(--hand-rotation-max));
+  }
+
+  40% {
+    transform: translate(var(--hand-x-while-rotate), var(--hand-y-while-rotate)) rotate(var(--hand-rotation-min));
+  }
+
+  60% {
+    transform: translate(var(--hand-x-while-rotate), var(--hand-y-while-rotate)) rotate(var(--hand-rotation-max));
+  }
+
+  80% {
+    transform: translate(var(--hand-x-while-rotate), var(--hand-y-while-rotate)) rotate(var(--hand-rotation-min));
+  }
+}
+
+@keyframes hand-left {
+
+  0%,
+  100% {
+    transform: translate(var(--hand-initial-x-while-rotate), var(--hand-initial-y-while-rotate)) rotate(calc(var(--hand-initial-rotation) * -1));
+  }
+
+  20% {
+    transform: translate(calc(var(--hand-x-while-rotate) * -1), var(--hand-y-while-rotate)) rotate(calc(var(--hand-rotation-max) * -1));
+  }
+
+  40% {
+    transform: translate(calc(var(--hand-x-while-rotate) * -1), var(--hand-y-while-rotate)) rotate(calc(var(--hand-rotation-min) * -1));
+  }
+
+  60% {
+    transform: translate(calc(var(--hand-x-while-rotate) * -1), var(--hand-y-while-rotate)) rotate(calc(var(--hand-rotation-max) * -1));
+  }
+
+  80% {
+    transform: translate(calc(var(--hand-x-while-rotate) * -1), var(--hand-y-while-rotate)) rotate(calc(var(--hand-rotation-min) * -1));
+  }
+}

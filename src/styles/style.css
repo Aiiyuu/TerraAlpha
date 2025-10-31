@@ -17,6 +17,8 @@
 @import url('./components/game.css');
 @import url('./components/hand.css');
 @import url('./components/color-palette.css');
+@import url('./components/helper.css');
+@import url('./components/helperRobot.css');
 
 body {
   position: fixed;
@@ -39,7 +41,8 @@ body {
   --page-margin: 40px;
   --base-text-color: #A4B7C7;
   --purple-color: #DD7BDF;
-  --green-color: #4CAF50;
+  --red-color: #EA2F14;
+  --green-color: #2A8153;
   --light-color: #FBFDFE;
   --dark-color: #132440;
   --base-transition-duration: 300ms;

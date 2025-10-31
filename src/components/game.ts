@@ -1,4 +1,5 @@
 import {
+  clearOutdatedActions,
   getCurrentPlayerId,
   listeToRoomById,
   updatePlayer,
@@ -6,9 +7,9 @@ import {
 } from "../server/server";
 import type { Phrase } from "../types/phrase";
 import type { Room, RoomEntry } from "../types/room";
-import { flipCoin, getRandomSide, initCoin } from "./coin";
+import { declareCoinResult, flipCoin, getRandomSide, initCoin } from "./coin";
 import { showPhrase } from "./dialog";
-import { HIDE_DICE_DELAY, throwDice } from "./dice";
+import { HIDE_DICE_DELAY, syncDiceHelper, throwDice } from "./dice";
 import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
 import { detectTimerChanges } from "./timer";
 import Steps from "../components/stepsButtons";
@@ -20,6 +21,8 @@ import { initPlayerBlockedInfo } from "../components/playerBlockedInfo";
 import { initPlayerWin } from "../components/playerWin";
 import bgMusicSrc from "../assets/sounds/background-music.mp3";
 import { createSound } from "./sound";
+import { syncActions } from "./actions";
+import { syncResetBtn } from "./reset";
 
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
@@ -34,7 +37,8 @@ let stopShipSync: (() => void) | null = null;
 let stopMainPrediction: (() => void) | null = null;
 let stopPlayerBlockedInfo: (() => void) | null = null;
 let stopPlayerWin: (() => void) | null = null;
-let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null = null;
+let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null =
+  null;
 
 const { startSound: startBgMusic } = createSound({
   src: bgMusicSrc,
@@ -125,15 +129,25 @@ export function startGame(room: RoomEntry) {
   listeToRoomById(roomId, async (roomState) => {
     if (!roomState) return;
 
+    syncActions(roomState.actions || []);
+    syncResetBtn(roomState.lastResetOffer);
+    clearOutdatedActions(roomId);
     detectTimerChanges(previousRoomState?.timerState, roomState.timerState!);
 
     if (!currentPlayerId) {
       currentPlayerId = getCurrentPlayerId();
-      const currentPlayer = roomState.players.find((player) => player.id === currentPlayerId);
-      document.body.style.setProperty("--current-player-color", currentPlayer?.color || "");
+      const currentPlayer = roomState.players.find(
+        (player) => player.id === currentPlayerId
+      );
+      document.body.style.setProperty(
+        "--current-player-color",
+        currentPlayer?.color || ""
+      );
     }
 
-    const myIndex = roomState.players.findIndex((p) => p.id === currentPlayerId);
+    const myIndex = roomState.players.findIndex(
+      (p) => p.id === currentPlayerId
+    );
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = previousRoomState?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
@@ -182,12 +196,16 @@ export function startGame(room: RoomEntry) {
 
     const shouldFlipOnce =
       haveTwoPlayers &&
-      (((!prevCoinNode || !prevCoinNode?.shown) && coinNode?.shown && coinNode?.result) ||
+      (((!prevCoinNode || !prevCoinNode?.shown) &&
+        coinNode?.shown &&
+        coinNode?.result) ||
         (!legacyPrevShown && legacyNowShown && roomState.isTurn));
 
     if (shouldFlipOnce) {
       const side =
         (coinNode?.result as "left" | "right" | undefined) ?? roomState.isTurn!;
+
+      declareCoinResult(side, currentPlayerSide || "left", roomState);
       flipCoin(side);
     }
 
@@ -208,16 +226,35 @@ export function startGame(room: RoomEntry) {
       document.body.classList.remove("steps-hidden");
     }
 
-    if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
+    if (
+      !diceIsRolling &&
+      roomState?.lastDiceResult &&
+      roomState?.isDiceRolling
+    ) {
       diceIsRolling = true;
+
       throwDice(roomState.lastDiceResult);
+      syncDiceHelper(
+        roomState,
+        currentPlayerSide || "left",
+        roomState.lastDiceResult
+      );
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = roomState.isTurn ? (roomState.isTurn === "left" ? 0 : 1) : -1;
+    const turnIndex = roomState.isTurn
+      ? roomState.isTurn === "left"
+        ? 0
+        : 1
+      : -1;
 
-    if (myIndex !== -1 && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
+    if (
+      myIndex !== -1 &&
+      haveTwoPlayers &&
+      turnIndex !== -1 &&
+      myIndex === turnIndex
+    ) {
       mainBtn.classList.remove("disabled");
       document.body.classList.remove("not-my-turn");
       document.body.setAttribute("data-turn-active", "1");
@@ -230,7 +267,10 @@ export function startGame(room: RoomEntry) {
     if (myIndex !== -1) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
       const canUseSteps =
-        haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
+        haveTwoPlayers &&
+        turnIndex !== -1 &&
+        myIndex === turnIndex &&
+        !roomState.isDiceRolling;
       Steps.render(myStreak, canUseSteps);
     } else {
       Steps.clear();
