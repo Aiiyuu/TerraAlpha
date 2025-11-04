@@ -1,0 +1,92 @@
+{
+  "en": {
+    "logo": "Some <span>Logo</span>",
+    "fastGameBtn": "Fast Game",
+    "selectRoomBtn": "Select Room",
+    "createRoomBtn": "Create Room",
+    "backToHomePageBtn": "Back to home page",
+    "playerNameInput": "Player's name",
+    "playerColorInput": "Player's color",
+    "playerAvatarInput": "Player's avatar",
+    "roomNameInput": "Room's name",
+    "noRooms": "No available rooms found",
+    "name": "Name",
+    "author": "Author",
+    "date": "Date",
+    "playersCount": "Players",
+    "throwPhrase": "Throw Phrase",
+    "helper": {
+      "welcome": "🤖 Welcome, Commander! I’m your navigator-bot, ready to guide the fleet through the stars! 🚀\n\n🎲 Roll the dice to see how many steps you’ll take.\n🛰️ Move your ships from start to finish.\n💫 Whoever completes the fleet first rules the galaxy!\n\nIf something goes wrong — we’ll blame Sergey! 😉",
+      "restartGame": "🛰️ Signal from {name}: game restart initiated 🔄. Prepare for system reboot ⚡...",
+      "acceptRestart": "✅ Data confirmed: {name} approved your game restart proposal 🔄. Reboot starting 🚀!",
+      "rejectRestart": "⚠️ Alarm! {name} rejected your game restart proposal ❌. System continues in current mode 🛸!",
+      "coinWinner": {
+        "current": "🤖 Beep-beep! You won the coin toss 🪙! It’s your turn now 🎲. Don’t delay!",
+        "other": "🛰️ Signal from {name}: won the coin toss 🪙. Their turn now!"
+      },
+      "diceStreak": {
+        "current": "🎲 Bingo! You rolled a 6️⃣! Roll again 🤖",
+        "other": "🎲 Oh! Opponent rolled a 6️⃣! Their turn 🚀"
+      },
+      "diceRes": {
+        "current": "🎲 You rolled {res}️⃣. Your turn ⚡",
+        "other": "🎲 Opponent rolled {res}️⃣. Their turn 🛸"
+      },
+      "notYourTurn": "🚨ERROR! Unauthorized action! It’s not your turn, organic being!",
+      "timerWarning": "🚨Your seconds burn faster than a meteor in the atmosphere! MOVE!",
+      "otherPlayerTurnEnded": "⚡ Opponent ended their turn 🛸. Your turn to roll the dice 🎲! Don’t delay, earthling 🤖"
+    },
+    "phrases": {
+      "1": "Oh, lucky, lucky!",
+      "2": "Eh, you loser!",
+      "3": "Now I’ll show you where the crayfish winter!",
+      "4": "One more step and victory!",
+      "5": "You won’t outrun me!"
+    }
+  },
+  "ua": {
+    "logo": "Якийсь <span>Логотип</span>",
+    "fastGameBtn": "Швидка Гра",
+    "selectRoomBtn": "Вибрати Кімнату",
+    "createRoomBtn": "Створити Кімнату",
+    "backToHomePageBtn": "Назад на головну сторінку",
+    "playerNameInput": "Імʼя гравця",
+    "playerColorInput": "Колір гравця",
+    "playerAvatarInput": "Аватарка гравця",
+    "roomNameInput": "Імʼя кімнати",
+    "noRooms": "Незнайдено вільних кімнат",
+    "name": "Назва",
+    "author": "Автор",
+    "date": "Дата",
+    "playersCount": "Ігроки",
+    "throwPhrase": "Кинути Фразу",
+    "helper": {
+      "welcome": "🤖 Вітаю, командире! Я — твій навігатор-бот, готовий вести флот серед зірок! 🚀\n\n🎲 Кинь кубик, щоб дізнатись, скільки кроків зробиш.\n🛰️ Рухай кораблі від старту до фінішу.\n💫 Хто першим проведе весь флот — той володар галактики!\n\nЯкщо щось піде не так — звинуватимо Сергія! 😉",
+      "restartGame": "🛰️ Сигнал від {name}: ініційовано перезапуск гри 🔄. Готуйтеся до перезавантаження системи ⚡...",
+      "acceptRestart": "✅ Дані підтверджено: {name} схвалив(ла) вашу пропозицію перезапустити гру 🔄. Перезавантаження починається 🚀!",
+      "rejectRestart": "⚠️ Аларм! {name} відхилив(ла) вашу пропозицію перезапустити гру ❌. Система продовжує роботу в поточному режимі 🛸!",
+      "coinWinner": {
+        "current": "🤖 Біп-біп! Ти виграв у монетку 🪙! Твій хід зараз 🎲. Не зволікай!",
+        "other": "🛰️ Сигнал від {name}: виграв у монетку 🪙. Черга за ним!"
+      },
+      "diceStreak": {
+        "current": "🎲 Бінго! Тобі випало 6️⃣! Знову твоя черга кидати кубик 🤖",
+        "other": "🎲 Ой! Суперник отримав 6️⃣! Його черга кидати кубик 🚀"
+      },
+      "diceRes": {
+        "current": "🎲 Тобі випало {res}️⃣. Твоя черга робити хід ⚡",
+        "other": "🎲 Супернику випало {res}️⃣. Його черга робити хід 🛸"
+      },
+      "notYourTurn": "🚨ПОМИЛКА! Несанкціонована дія! Це не твій хід, органічна істото!",
+      "timerWarning": "🚨Твої секунди згорають швидше, ніж метеор у атмосфері! РУХАЙСЯ!",
+      "otherPlayerTurnEnded": "⚡ Суперник завершив свій хід 🛸. Твоя черга кидати кубик 🎲! Не зволікай, землянин 🤖"
+    },
+    "phrases": {
+      "1": "О, повезло, повезло",
+      "2": "Ех ти, лузер",
+      "3": "Зараз я тобі покажу, де раки зимують",
+      "4": "Ще один крок і перемога",
+      "5": "Ти мене не доженеш"
+    }
+  }
+}

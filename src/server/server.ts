@@ -5,6 +5,7 @@ import { ref, set, get, remove, update, onValue, child } from "firebase/database
 import type { Phrase } from "../types/phrase.ts";
 import type { Side, ShipPos } from "../types/room.ts";
 import type { Action } from "../types/action.ts";
+import { getRandomId } from "../utility/getRandomId.ts";
 
 const SHIP_IDS: Record<Side, string[]> = {
   left: Array.from({ length: 8 }, (_, i) => `p1-cell-${i + 1}`),
@@ -59,7 +60,7 @@ export function listeToRoomById(
   });
 }
 
-export async function addActionToRoom(roomId: Room["id"], action: Action): Promise<void> {
+export async function addActionToRoom(roomId: Room["id"], action: Partial<Action>): Promise<void> {
   const ref = roomRef(roomId);
   const snap = await get(ref);
 
@@ -68,7 +69,9 @@ export async function addActionToRoom(roomId: Room["id"], action: Action): Promi
   const roomData = snap.val() as Room;
   const actions: Action[] = roomData.actions || [];
   
-  actions.push(action);
+  action.id = getRandomId();
+
+  actions.push(action as Action);
 
   await update(ref, { actions });
 }
@@ -103,8 +106,6 @@ export async function updatePlayer(
 
 export async function addPhraseToRoom(roomId: Room["id"], newPhrase: Phrase): Promise<void> {
   const rRef = roomRef(roomId);
-  console.log(roomId)
-  
   const snap = await get(rRef);
   if (!snap.exists()) throw new Error("Room does not exist");
   

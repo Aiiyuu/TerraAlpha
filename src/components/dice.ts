@@ -110,16 +110,19 @@ export function syncDiceHelper(
   diceRes: number
 ) {
   setTimeout(() => {
+    const current =
+      currentPlayerSide === roomState?.isTurn ? "current" : "other";
+
     if (roomState.lastDiceResult === 6) {
       triggerHelper({
         duration: HEPER_WARNING_DURATION,
-        text: helper.diceStreak(currentPlayerSide === roomState?.isTurn),
+        text: helper(`helper.diceStreak.${current}`),
         type: HelperTypes.HELPER_HINT,
       });
     } else {
       triggerHelper({
         duration: HEPER_WARNING_DURATION,
-        text: helper.diceRes(currentPlayerSide === roomState?.isTurn, diceRes),
+        text: helper(`helper.diceRes.${current}`, { res: diceRes }),
         type: HelperTypes.HELPER_HINT,
       });
     }

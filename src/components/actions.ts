@@ -5,22 +5,31 @@ import { handleReset } from "./reset";
 
 const showedActions: Action["id"][] = [];
 
+function getHelperType(actionType: ActionTypes) {
+  switch (actionType) {
+    case ActionTypes.RESET:
+      return HelperTypes.HELPER_OFFER;
+    case ActionTypes.INFORM:
+      return HelperTypes.HELPER_INFORM;
+    case ActionTypes.WARNING:
+      return HelperTypes.HELPER_WARNING;
+    case ActionTypes.HINT:
+    default:
+      return HelperTypes.HELPER_HINT;
+  }
+}
+
 export function syncActions(actions: Action[]) {
   for (const action of actions) {
     if (showedActions.includes(action.id)) continue;
 
     if (action.authorName !== getCurrentPlayerName()) {
       showedActions.push(action.id);
-      
-      const actionType =
-        action.type === ActionTypes.INFORM
-          ? HelperTypes.HELPER_WARNING
-          : HelperTypes.HELPER_OFFER;
 
       triggerHelper({
         duration: action.duration,
         text: action.text,
-        type: actionType,
+        type: getHelperType(action.type),
         ...handleReset,
       });
     }

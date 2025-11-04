@@ -1,3 +1,6 @@
+import { helper, HELPER_TIMER_WARNING_THRESHOLD } from "../config";
+import { HelperTypes, triggerHelper } from "./helper";
+
 const timer: HTMLElement | null = document.getElementById("timer");
 let timerSpanList: HTMLElement[] = [];
 
@@ -46,7 +49,7 @@ export function setupTimer() {
  * It also finds the `timerSpanList` if it has not been found yet.
  * @param time
  */
-export function updateTimerLook(time: number) {
+function updateTimerLook(time: number) {
   if (!timerSpanList.length) {
     timerSpanList = [
       ...document.querySelectorAll(".timer-text-list"),
@@ -74,7 +77,8 @@ export function createTimer(
   startTimePoint: string,
   timeDuration: number,
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  callback: Function
+  callback: Function,
+  isCurrentPlayer: boolean
 ): () => void {
   if (timer?.classList.contains("timer--isActive")) return () => false;
 
@@ -83,7 +87,15 @@ export function createTimer(
 
   const interval = setInterval(() => {
     const delay = Math.ceil((endDate.getTime() - Date.now()) / 1000);
- 
+
+    if (isCurrentPlayer && delay === HELPER_TIMER_WARNING_THRESHOLD / 1000) {
+      triggerHelper({
+        duration: HELPER_TIMER_WARNING_THRESHOLD,
+        text: helper('helper.timerWarning'),
+        type: HelperTypes.HELPER_WARNING,
+      });
+    }
+
     updateTimerLook(delay);
 
     if (delay <= 0) {
@@ -105,7 +117,8 @@ const CURRENT_ROUND_DURATION = 60;
 /* Manage timer detection */
 export function detectTimerChanges(
   prevTimer: undefined | string,
-  currTimer: string
+  currTimer: string,
+  isCurrentPlayer: boolean
 ) {
   if (prevTimer === currTimer) return;
 
@@ -114,7 +127,12 @@ export function detectTimerChanges(
     prevTimerInterval = null;
   }
 
-  prevTimerInterval = createTimer(currTimer, CURRENT_ROUND_DURATION, () => {
-    alert("Time is up after rolling dice");
-  });
+  prevTimerInterval = createTimer(
+    currTimer,
+    CURRENT_ROUND_DURATION,
+    () => {
+      alert("Time is up after rolling dice");
+    },
+    isCurrentPlayer
+  );
 }

@@ -16,74 +16,30 @@ import avatar9 from "./assets/images/avatars/avatar-9.png";
 
 import type { Phrase } from "./types/phrase.ts";
 import type { Avatar } from "./types/avatar.ts";
-import type { Player } from "./types/player.ts";
+
+import lngJSON from "./language.json";
+import { getLanguage } from "./components/language.ts";
+import { Language } from "./types/language.ts";
 
 export const PHRASE_REMOVAL_DELAY = 15000;
 export const phrases: Phrase[] = [
-  {
-    id: 1,
-    text: "О, повезло, повезло!",
-    img: luckyImg,
-  },
-  {
-    id: 2,
-    text: "Ех, ти лузер!",
-    img: looserImg,
-  },
-  {
-    id: 3,
-    text: "Зараз я тобі покажу, де раки зимують!",
-    img: angryImg,
-  },
-  {
-    id: 4,
-    text: "Ще один крок і перемога!",
-    img: winImg,
-  },
-  {
-    id: 5,
-    text: "Ти мене не обженеш!",
-    img: laughImg,
-  },
+  { id: 1, img: luckyImg },
+  { id: 2, img: looserImg },
+  { id: 3, img: angryImg },
+  { id: 4, img: winImg },
+  { id: 5, img: laughImg },
 ];
 
 export const avatars: Avatar[] = [
-  {
-    id: 1,
-    img: avatar1,
-  },
-  {
-    id: 2,
-    img: avatar2,
-  },
-  {
-    id: 3,
-    img: avatar3,
-  },
-  {
-    id: 4,
-    img: avatar4,
-  },
-  {
-    id: 5,
-    img: avatar5,
-  },
-  {
-    id: 6,
-    img: avatar6,
-  },
-  {
-    id: 7,
-    img: avatar7,
-  },
-  {
-    id: 8,
-    img: avatar8,
-  },
-  {
-    id: 9,
-    img: avatar9,
-  },
+  { id: 1, img: avatar1 },
+  { id: 2, img: avatar2 },
+  { id: 3, img: avatar3 },
+  { id: 4, img: avatar4 },
+  { id: 5, img: avatar5 },
+  { id: 6, img: avatar6 },
+  { id: 7, img: avatar7 },
+  { id: 8, img: avatar8 },
+  { id: 9, img: avatar9 },
 ];
 
 export const colors: string[] = [
@@ -103,45 +59,35 @@ export const RESET_ACTION_DURATION = 10000;
 export const INFORM_ACTION_DURATION = 5000;
 export const COIN_RESULT_DURATION = 5000;
 export const HEPER_WARNING_DURATION = 3000;
+export const HELPER_WELCOME_DURATION = 8000;
+export const HELPER_NOT_YOUR_TURN_DURATION = 5000;
+export const HELPER_END_TURN_DURATION = 5000;
 
+export const HELPER_TIMER_WARNING_THRESHOLD = 10000;
+export const TIMER_DELAY_TO_CALL_HELPER = 10000;
 
-// export const helper = {
-//   restartGame: (userName: Player["name"]) => `Gravec ${userName} bazhaie pere3anustutu ihru`,
-//   acceptRestart: (userName: Player["name"]) => `Gravec ${userName} pryiniav vashu propozyciiu pere3anustutu hru`,
-//   rejectRestart: (userName: Player["name"]) => `Gravec ${userName} vidkhylyv vashu propozyciiu pere3anustutu hru`,
-//   coinWinner: (userName: Player["name"]) => `Gravec ${userName} vyhrav v monetsi, otzhe zaraz yoho khid. Kudai kybik!`,
-//   currentPlayerCoinWinner: "Ty vyhrauv v monetsi! Zaraz tvii hid. Kudai kybik!",
+type Placeholders = Record<string, string | number>;
 
-//   diceStreak: (isCurrentPlayerStreak: boolean) => {
-//     return isCurrentPlayerStreak
-//       ? 'Tobi vypalo 6, znovu tvoja cherha kydaty kubyk'
-//       : 'Supernku vypalo 6, znovu yoho cherha kydaty kubyk'
-//   },
-  
-//   diceRes: (isCurrentPlayerStreak: boolean, res: number) => {
-//     return isCurrentPlayerStreak
-//       ? `Tobi vypalo ${res}. Tvoja cherha robutu hid!`
-//       : `Supernuky vypalo ${res}, Yoho cherha robutu hid`
-//   }
-// };
+export function helper(key: string, placeholders?: Placeholders) {
+  const lng = getLanguage() || Language.EN;
+  const keys = key.split(".");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let result: any = lngJSON[lng];
 
-export const helper = {
-  restartGame: (userName: Player["name"]) => `Гравець ${userName} бажає перезапустити гру`,
-  acceptRestart: (userName: Player["name"]) => `Гравець ${userName} прийняв вашу пропозиція перезапустити гру`,
-  rejectRestart: (userName: Player["name"]) => `Гравець ${userName} відхилив вашу пропозиція перезапустити гру`,
-  coinWinner: (userName: Player["name"]) => `Гравець ${userName} виграв в монетці, отже зараз його хід. Кидай кубик!`,
-  currentPlayerCoinWinner: "Ти виграу в монетці! Зараз твій хід. Кидай кубик!",
-
-  diceStreak: (isCurrentPlayerStreak: boolean) => {
-    return isCurrentPlayerStreak
-      ? 'Тобі випало 6, знову твоя черга кидати кубик'
-      : 'Супернку випало 6, знову його черга кидати кубик'
-  },
-  
-  diceRes: (isCurrentPlayerStreak: boolean, res: number) => {
-    return isCurrentPlayerStreak
-      ? `Тобі випало ${res}. Твоя черга робити хід!`
-      : `Супернку випало ${res}, Його черга робити хід`
+  for (const k of keys) {
+    if (result && k in result) {
+      result = result[k];
+    } else {
+      return key;
+    }
   }
-};
+
+  if (typeof result === "string" && placeholders) {
+    result = result.replace(/\{(\w+)\}/g, (_, p) => {
+      return placeholders[p] !== undefined ? String(placeholders[p]) : `{${p}}`;
+    });
+  }
+
+  return result;
+}

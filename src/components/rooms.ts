@@ -11,6 +11,7 @@ import {
 import type { Room } from "../types/room.ts";
 import { createNewPlayer } from "../server/player.ts";
 import { animatePageSwitching, showGame } from "./pageSwitcher.ts";
+import { translatePage } from "./language.ts";
 
 const table = document.getElementById("table") as HTMLTableElement;
 
@@ -28,8 +29,10 @@ function generateTable(rooms: Room[]) {
 
   if (!rooms.length) {
     table.innerHTML = `
-      <h2 class="rooms-not-found">Назнайдено вільних місць</h2>
+      <h2 class="rooms-not-found" data-lng="noRooms"></h2>
     `;
+
+    translatePage();
     return;
   }
 
@@ -50,8 +53,8 @@ function generateTable(rooms: Room[]) {
       <td><img src="${avatar.img}" alt="${
       author?.name || "Unknown"
     }'s avatar"></td>
-      <td>${room.name || "Без назви"}</td>
-      <td>${author?.name || "Невідомо"}</td>
+      <td>${room.name || "Unknown"}</td>
+      <td>${author?.name || "Unknown"}</td>
       <td>${timeAgo(String(room.date))}</td>
       <td>${players.length}/2</td>
     </tr>
@@ -63,10 +66,10 @@ function generateTable(rooms: Room[]) {
       <thead>
         <tr>
           <th></th>
-          <th>Назва</th>
-          <th>Автор</th>
-          <th>Дата</th>
-          <th>Ігроки</th>
+          <th data-lng="name"></th>
+          <th data-lng="author"></th>
+          <th data-lng="date"></th>
+          <th data-lng="playersCount"></th>
         </tr>
       </thead>
       <tbody id="rooms-table-body">
@@ -104,4 +107,6 @@ function generateTable(rooms: Room[]) {
       }
     });
   });
+
+  translatePage();
 }

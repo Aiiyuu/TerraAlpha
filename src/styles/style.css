@@ -1,13 +1,12 @@
 @import url('./components/reset.css');
-@import url('./components/sections.css');
 @import url('./components/animations.css');
 @import url('./components/navbar.css');
 @import url('./components/header.css');
-@import url('./components/form-section.css');
+@import url('./components/formSection.css');
 @import url('./components/avatars.css');
 @import url('./components/ribbons.css');
 @import url('./components/buttons.css');
-@import url('./components/rooms-table.css');
+@import url('./components/roomsTable.css');
 @import url('./components/dice.css');
 @import url('./components/dialog.css');
 @import url('./components/coin.css');
@@ -16,7 +15,7 @@
 @import url('./components/ships.css');
 @import url('./components/game.css');
 @import url('./components/hand.css');
-@import url('./components/color-palette.css');
+@import url('./components/colorPalette.css');
 @import url('./components/helper.css');
 @import url('./components/helperRobot.css');
 

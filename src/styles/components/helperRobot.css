@@ -2,6 +2,7 @@
   /* ROBOT COLORS */
   --robot-color-regular: var(--green-color);
   --robot-color-angry: #FF3C3C;
+  --robot-color-inform: #FFE100;
   --robot-color-offer: #7FD5DC;
 
   --robot-color: var(--robot-color-regular);
@@ -28,6 +29,10 @@
 
 .helper-icon.regular {
   --robot-color: var(--robot-color-regular);
+}
+
+.helper-icon.inform {
+  --robot-color: var(--robot-color-inform);
 }
 
 .helper-icon.angry {
@@ -74,7 +79,8 @@
 
 .helper-icon #changing-line,
 .helper-icon #face path,
-.helper-icon #face circle {
+.helper-icon #face circle,
+.helper-icon #face rect {
   fill: var(--robot-color);
 }
 

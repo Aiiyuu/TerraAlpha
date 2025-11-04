@@ -1,3 +1,7 @@
+import languageJSON from "../language.json";
+import { Language } from "../types/language";
+import { getLanguage } from "./language";
+
 const REGULAR_FACE = `
   <g id="face-regular">
     <path d="M169.557 160.541C169.557 172.531 159.838 166.564 147.848 166.564C135.859 166.564 126.139 172.531 126.139 160.541C126.139 148.55 135.859 138.832 147.848 138.832C159.838 138.832 169.557 148.55 169.557 160.541Z" fill="#7FD5DC"/>
@@ -26,18 +30,28 @@ const OFFER_FACE = `
       <path d="M145.88 178.873C148.181 178.873 150.047 177.008 150.047 174.707C150.047 172.406 148.181 170.54 145.88 170.54C143.579 170.54 141.714 172.406 141.714 174.707C141.714 177.008 143.579 178.873 145.88 178.873Z" fill="#63A361"/>
     </g>
   </g>
-;`;
+`;
+
+const INFORM_FACE = `
+  <g id="face-warning">
+    <rect x="171.064" y="188.89" width="60" height="10"/>
+    <circle cx="147.041" cy="155.957" r="20"/>
+    <circle cx="255.317" cy="155.957" r="20"/>
+  </g>
+`;
 
 export enum HelperRobotType {
   REGULAR = "regular",
   ANGRY = "angry",
   OFFER = "offer",
+  INFORM = "inform",
 }
 
 export const helperFace: Record<HelperRobotType, string> = {
   [HelperRobotType.REGULAR]: REGULAR_FACE,
   [HelperRobotType.ANGRY]: ANGRY_FACE,
   [HelperRobotType.OFFER]: OFFER_FACE,
+  [HelperRobotType.INFORM]: INFORM_FACE,
 };
 
 export const helperSVG = (type: HelperRobotType): string => `
@@ -93,3 +107,22 @@ export const helperSVG = (type: HelperRobotType): string => `
     </g>
   </svg>
 `;
+
+type Placeholders = { [key: string]: string };
+
+export const helper = (key: string, data?: Placeholders): string => {
+  const lng: Language = getLanguage();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const textObj = languageJSON[lng] as Record<string, any>;
+
+  let text = textObj[key] || key;
+
+  if (data) {
+    for (const [placeholder, value] of Object.entries(data)) {
+      const regex = new RegExp(`\\{${placeholder}\\}`, "g");
+      text = text.replace(regex, value);
+    }
+  }
+
+  return text;
+};

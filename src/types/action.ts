@@ -6,10 +6,12 @@ export interface Action {
   endsAt: string;
   duration: number;
   text: string;
-  authorName: Player['name'];
+  authorName: Player["name"];
 }
 
 export enum ActionTypes {
   RESET = "reset",
   INFORM = "inform",
+  HINT = "hint",
+  WARNING = "warning",
 }

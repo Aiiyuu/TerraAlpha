@@ -1,3 +1,4 @@
+import lngJSON from "../language.json";
 import { PHRASE_REMOVAL_DELAY, phrases } from "../config.ts";
 import type { Phrase } from "../types/phrase.ts";
 import arrowIcon from "../assets/icons/arrow.png";
@@ -7,15 +8,13 @@ import {
   getCurrentRoomId,
 } from "../server/server.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
+import { getLanguage } from "./language.ts";
 
-const dialog = document.querySelector(".dialog") as HTMLElement;
+const dialogContainer = document.getElementById(
+  "dialog-container"
+) as HTMLElement;
 
-const dialogContainer: HTMLElement | null =
-  document.getElementById("dialog-container");
-
-if (!dialogContainer) {
-  throw new Error("Dialog container is not found!");
-}
+let computedStyles: CSSStyleDeclaration;
 
 /**
  * This function is responsible for creating the phrase element
@@ -24,6 +23,8 @@ if (!dialogContainer) {
  * @param id
  */
 export function showPhrase(phrase: Phrase) {
+  const phraseTexts = lngJSON[getLanguage()]["phrases"];
+
   const dialogPhrase: HTMLDivElement = document.createElement("div");
   dialogPhrase.classList.add("dialog-phrase");
 
@@ -42,7 +43,9 @@ export function showPhrase(phrase: Phrase) {
   dialogPhraseWrapper.appendChild(playerName);
 
   const dialogText: HTMLParagraphElement = document.createElement("p");
-  dialogText.innerText = phrase.text;
+  dialogText.innerText = (phraseTexts as Record<string, string>)[
+    String(phrase.index)
+  ];
   dialogPhraseWrapper.appendChild(dialogText);
 
   dialogContainer!.appendChild(dialogPhrase);
@@ -58,8 +61,11 @@ export function showPhrase(phrase: Phrase) {
  * and adds event listeners to all items in the generated list.
  */
 export function setupDialog() {
+  const dialog = document.querySelector(".dialog") as HTMLElement;
   const dialogList = dialog.querySelector(".dialog-list") as HTMLElement;
   const dialogButton = dialog.querySelector(".dialog-button") as HTMLElement;
+
+  renderPhrases();
 
   // Dynamically load arrow icon for the button
   const style: HTMLStyleElement = document.createElement("style");
@@ -74,49 +80,7 @@ export function setupDialog() {
     throw new Error("Dialog is not found!");
   }
 
-  let computedStyles: CSSStyleDeclaration;
-
   hideDialog();
-
-  /* Generate a list of phrase dynamically based on the phrases array */
-  phrases.forEach((phrase) => {
-    const li: HTMLLIElement = document.createElement("li");
-    li.classList.add("dialog-list-item");
-
-    const img: HTMLImageElement = document.createElement("img");
-    img.src = phrase.img;
-
-    const text: HTMLParagraphElement = document.createElement("p");
-    text.innerHTML = phrase.text;
-
-    li.appendChild(img);
-    li.appendChild(text);
-
-    dialogList.appendChild(li);
-
-    if (!computedStyles) {
-      computedStyles = window.getComputedStyle(li);
-    }
-
-    li.addEventListener("click", () => {
-      const currentRoomdId = getCurrentRoomId()!;
-      const MIN_X_POS = 20;
-      const MAX_X_POS = 80;
-      const randomX =
-        Math.floor(Math.random() * (MAX_X_POS - MIN_X_POS + 1)) + MIN_X_POS;
-
-      const newPhrase: Phrase = {
-        id: getRandomId(),
-        userName: getCurrentPlayerName(),
-        text: phrase.text,
-        img: phrase.img,
-        x: randomX,
-      };
-
-      hideDialog();
-      addPhraseToRoom(currentRoomdId, newPhrase);
-    });
-  });
 
   function showDialog() {
     dialog.classList.add("dialog--active");
@@ -127,7 +91,6 @@ export function setupDialog() {
 
   function hideDialog() {
     dialog.classList.remove("dialog--active");
-
     dialogList.style.height = "0px";
   }
 
@@ -141,4 +104,56 @@ export function setupDialog() {
   }
 
   dialogButton?.addEventListener("click", toggleDialog);
+}
+
+export function renderPhrases() {
+  const phraseTexts = lngJSON[getLanguage()]["phrases"];
+  const dialog = document.querySelector(".dialog") as HTMLElement;
+  const dialogList = dialog.querySelector(".dialog-list") as HTMLElement;
+
+  dialogList.innerHTML = "";
+
+  function hideDialog() {
+    dialog.classList.remove("dialog--active");
+    dialogList.style.height = "0px";
+  }
+
+  phrases.forEach((phrase) => {
+    const li = document.createElement("li");
+    li.classList.add("dialog-list-item");
+    computedStyles = window.getComputedStyle(li);
+
+    const img = document.createElement("img");
+    img.src = phrase.img;
+
+    const text = document.createElement("p");
+    const phraseText = (phraseTexts as Record<string, string>)[
+      String(phrase.id)
+    ];
+    text.textContent = phraseText;
+
+    li.appendChild(img);
+    li.appendChild(text);
+
+    dialogList.appendChild(li);
+
+    li.addEventListener("click", () => {
+      const currentRoomId = getCurrentRoomId()!;
+      const MIN_X_POS = 20;
+      const MAX_X_POS = 80;
+      const randomX =
+        Math.floor(Math.random() * (MAX_X_POS - MIN_X_POS + 1)) + MIN_X_POS;
+
+      const newPhrase: Phrase = {
+        id: getRandomId(),
+        userName: getCurrentPlayerName(),
+        index: phrase.id,
+        img: phrase.img,
+        x: randomX,
+      };
+
+      hideDialog();
+      addPhraseToRoom(currentRoomId, newPhrase);
+    });
+  });
 }

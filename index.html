@@ -18,23 +18,7 @@
   <body>
     <header id="home" class="header">
       <nav class="nav">
-        <a href="#" class="nav-brand">Якийсь <span>Логотип</span></a>
-
-        <ul class="nav-list">
-          <li class="nav-item">
-            <a class="nav-link" href="#">lorem</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">lorem</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">lorem</a>
-          </li>
-        </ul>
-
-        <button class="nav-menu-btn">
-          <div class="nav-lines"></div>
-        </button>
+        <a href="#" class="nav-brand" data-lng="logo"></a>
       </nav>
 
       <div class="header-wrapper">
@@ -53,29 +37,39 @@
             class="form-field-input"
             placeholder=" "
           />
-          <label for="player-name" class="form-field-label">Імʼя гравця</label>
+          <label
+            for="player-name"
+            class="form-field-label"
+            data-lng="playerNameInput"
+          ></label>
         </div>
 
         <div class="form-field form-field-color">
-          <h4 class="form-field-label">Колір гравця</h4>
+          <h4 class="form-field-label" data-lng="playerColorInput"></h4>
           <div id="color-palette"></div>
         </div>
 
         <div id="avatars" class="avatars">
-          <h4 class="form-field-label">Аватарка гравця</h4>
+          <h4 class="form-field-label" data-lng="playerAvatarInput"></h4>
           <div id="avatar-menu"></div>
         </div>
 
         <div class="header-button-group">
-          <button id="navigation-fast-game-btn" class="btn btn--purple">
-            Швидка гра
-          </button>
-          <button id="navigation-select-room-btn" class="btn btn--purple">
-            Вибрати кімнату
-          </button>
-          <button id="navigation-create-room-btn" class="btn btn--purple">
-            Створити кімнату
-          </button>
+          <button
+            id="navigation-fast-game-btn"
+            class="btn btn--purple"
+            data-lng="fastGameBtn"
+          ></button>
+          <button
+            id="navigation-select-room-btn"
+            class="btn btn--purple"
+            data-lng="selectRoomBtn"
+          ></button>
+          <button
+            id="navigation-create-room-btn"
+            class="btn btn--purple"
+            data-lng="createRoomBtn"
+          ></button>
         </div>
       </div>
 
@@ -93,7 +87,7 @@
 
         <form id="form" class="form-wrapper">
           <div class="form">
-            <a href="#" class="form-brand">Якийсь <span>Логотип</span></a>
+            <a href="#" class="form-brand" data-lng="logo"></a>
 
             <div class="form-field-group">
               <div id="room-field" class="form-field form-field--floating">
@@ -104,21 +98,30 @@
                   class="form-field-input"
                   placeholder=" "
                 />
-                <label for="room-name" class="form-field-label"
-                  >Імʼя кімнати</label
-                >
+                <label
+                  for="room-name"
+                  class="form-field-label"
+                  data-lng="roomNameInput"
+                ></label>
               </div>
             </div>
+
             <div id="table"></div>
           </div>
 
-          <button type="submit" id="create-room-btn" class="btn btn--purple">
-            Створити кімнату
-          </button>
+          <button
+            type="submit"
+            id="create-room-btn"
+            class="btn btn--purple"
+            data-lng="createRoomBtn"
+          ></button>
 
-          <button type="button" id="back-to-home" class="btn btn--purple">
-            Назад на головну сторінку
-          </button>
+          <button
+            type="button"
+            id="back-to-home"
+            class="btn btn--purple"
+            data-lng="backToHomePageBtn"
+          ></button>
         </form>
       </section>
 
@@ -127,6 +130,18 @@
         <section id="player1" class="player-section">
           <div class="player-info">
             <h2 class="player-name">PLAYER 1</h2>
+          </div>
+
+          <div class="player-navigation">
+            <div class="btn-group">
+              <button id="lng-btn" class="btn btn--purple"></button>
+              <button id="helper-btn" class="btn btn--purple"></button>
+              <button id="reset-btn" class="btn btn--purple">
+                <img src="./src/assets/icons/reset.png" alt="reset" />
+                <div id="reset-cooldown" class="reset-cooldown"></div>
+              </button>
+              <button id="mute-btn" class="btn btn--purple"></button>
+            </div>
           </div>
 
           <div class="hand-grid mx-auto" data-qa="p1-hand">
@@ -143,15 +158,10 @@
               data-ship="mother"
             ></button>
           </div>
-
-          <div class="dialog">
-            <div class="btn dialog-button">Вибрати фразу</div>
-            <ul class="dialog-list"></ul>
-          </div>
         </section>
 
         <!-- BOARD -->
-        <section class="is-narrow has-text-centered middle-section">
+        <section class="middle-section">
           <div class="game-header">
             <div class="timer" id="timer">
               <svg
@@ -165,17 +175,6 @@
                   d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"
                 />
               </svg>
-            </div>
-
-            <div class="header-btn-group">
-              <button id="helper-btn" class="btn btn--purple"></button>
-
-              <button id="reset-btn" class="btn btn--purple">
-                <img src="./src/assets/icons/reset.png" alt="reset" />
-                <div id="reset-cooldown" class="reset-cooldown"></div>
-              </button>
-
-              <button id="mute-btn" class="btn btn--purple"></button>
             </div>
           </div>
 
@@ -293,6 +292,13 @@
         <section id="player2" class="player-section">
           <div class="player-info">
             <h2 class="player-name">PLAYER 2</h2>
+          </div>
+
+          <div class="player-navigation">
+            <div class="dialog">
+              <div class="btn dialog-button">Вибрати фразу</div>
+              <ul class="dialog-list"></ul>
+            </div>
           </div>
 
           <div class="hand-grid mx-auto" data-qa="p2-hand">
