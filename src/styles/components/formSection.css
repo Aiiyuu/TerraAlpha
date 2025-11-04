@@ -33,6 +33,9 @@
 }
 
 .form-wrapper {
+  overflow-y: auto;
+  height: 100vh;
+
   padding: var(--page-margin);
   margin-inline: auto;
   max-width: var(--max-page-width);

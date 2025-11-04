@@ -1,10 +1,11 @@
 import { HelperRobotType, helperSVG } from "./helperSVG";
+import helperSoundSrc from "../assets/sounds/helper.mp3";
+import { createSound } from "./sound";
 
 const helper = document.getElementById("helper-container") as HTMLElement;
 const helperIcon = document.getElementById("helper-icon") as HTMLElement;
 const helperText = document.getElementById("helper-text") as HTMLElement;
 const helperBtns = document.getElementById("helper-btns") as HTMLElement;
-const helperBtn = document.getElementById("helper-btn") as HTMLElement;
 const helperBar = document.getElementById("helper-progress-bar") as HTMLElement;
 const acceptBtn = document.getElementById("helper-accept-btn") as HTMLElement;
 const rejectBtn = document.getElementById("helper-reject-btn") as HTMLElement;
@@ -21,12 +22,14 @@ export enum HelperTypes {
   HELPER_HINT = "helper_hint",
   HELPER_WARNING = "helper_warning",
   HELPER_OFFER = "helper_offer",
+  HELPER_INFORM = "helper_inform",
 }
 
 const helperFaceTypes: Record<HelperTypes, HelperRobotType> = {
   [HelperTypes.HELPER_HINT]: HelperRobotType.REGULAR,
   [HelperTypes.HELPER_WARNING]: HelperRobotType.ANGRY,
   [HelperTypes.HELPER_OFFER]: HelperRobotType.OFFER,
+  [HelperTypes.HELPER_INFORM]: HelperRobotType.INFORM,
 };
 
 const DEFAULT_DURATION = 3000;
@@ -34,8 +37,15 @@ const INTERFAL_BETWEEN_HELPER = 500;
 const WORD_PRINT_INTERVAL = 20;
 const queue: HelperArgs[] = [];
 
+const { startSound, stopSound } = createSound({
+  src: helperSoundSrc,
+  loudness: 0.2,
+  infinite: true,
+});
+
 export function setUpHelperBtn() {
   const isOff = getIsDisabled();
+  const helperBtn = document.getElementById("helper-btn") as HTMLElement;
 
   if (isOff) helperBtn.classList.add("is-off");
 
@@ -127,6 +137,7 @@ function displayHelper(
   type: HelperTypes,
   duration: HelperArgs["duration"]
 ) {
+  startSound();
   setHelperState(helperFaceTypes[type]);
 
   helper.classList.add("visible");
@@ -152,6 +163,7 @@ function displayHelper(
 }
 
 function hideHelper() {
+  stopSound();
   helper.classList.remove("visible");
   helperBtns.classList.remove("visible");
 }

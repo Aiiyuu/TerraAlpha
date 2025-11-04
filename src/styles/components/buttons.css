@@ -33,7 +33,8 @@
 #main-btn,
 #reset-btn,
 #helper-btn,
-#mute-btn {
+#mute-btn,
+#lng-btn {
   background-color: var(--current-player-color);
   color: #fff;
 }
@@ -68,7 +69,7 @@
   width: 100%;
 }
 
-.header-btn-group {
+.btn-group {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -76,7 +77,8 @@
 
 #mute-btn,
 #reset-btn,
-#helper-btn {
+#helper-btn,
+#lng-btn {
   position: relative;
   overflow: hidden;
   padding: 0;
@@ -114,6 +116,16 @@
 
   width: 30px;
   height: 30px;
+}
+
+#lng-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#lng-btn img {
+  width: 60%;
 }
 
 @property --progress {

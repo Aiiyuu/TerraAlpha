@@ -1,6 +1,8 @@
 import {
+  addActionToRoom,
   clearOutdatedActions,
   getCurrentPlayerId,
+  getCurrentPlayerName,
   listeToRoomById,
   updatePlayer,
   updateRoom,
@@ -10,7 +12,11 @@ import type { Room, RoomEntry } from "../types/room";
 import { declareCoinResult, flipCoin, getRandomSide, initCoin } from "./coin";
 import { showPhrase } from "./dialog";
 import { HIDE_DICE_DELAY, syncDiceHelper, throwDice } from "./dice";
-import { setupLeftPlayer, setupRightPlayer } from "./playersInfo";
+import {
+  setupLeftPlayer,
+  setupPlayerColors,
+  setupRightPlayer,
+} from "./playersInfo";
 import { detectTimerChanges } from "./timer";
 import Steps from "../components/stepsButtons";
 import { setupPrediction } from "../components/prediction";
@@ -23,6 +29,15 @@ import bgMusicSrc from "../assets/sounds/background-music.mp3";
 import { createSound } from "./sound";
 import { syncActions } from "./actions";
 import { syncResetBtn } from "./reset";
+import { HelperTypes, triggerHelper } from "./helper";
+import {
+  helper,
+  HELPER_END_TURN_DURATION,
+  HELPER_NOT_YOUR_TURN_DURATION,
+  HELPER_WELCOME_DURATION,
+} from "../config";
+import { ActionTypes } from "../types/action";
+import { getEndDate } from "../utility/getEndDate";
 
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
@@ -52,6 +67,12 @@ export function getCurrentTurnSide(): "left" | "right" {
 
 export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
+
+  triggerHelper({
+    duration: HELPER_WELCOME_DURATION,
+    text: helper("helper.welcome"),
+    type: HelperTypes.HELPER_HINT,
+  });
 
   if (stopShipSync) {
     try {
@@ -132,17 +153,15 @@ export function startGame(room: RoomEntry) {
     syncActions(roomState.actions || []);
     syncResetBtn(roomState.lastResetOffer);
     clearOutdatedActions(roomId);
-    detectTimerChanges(previousRoomState?.timerState, roomState.timerState!);
+    detectTimerChanges(
+      previousRoomState?.timerState,
+      roomState.timerState!,
+      currentPlayerSide === roomState.isTurn
+    );
 
     if (!currentPlayerId) {
       currentPlayerId = getCurrentPlayerId();
-      const currentPlayer = roomState.players.find(
-        (player) => player.id === currentPlayerId
-      );
-      document.body.style.setProperty(
-        "--current-player-color",
-        currentPlayer?.color || ""
-      );
+      setupPlayerColors(roomState, currentPlayerId);
     }
 
     const myIndex = roomState.players.findIndex(
@@ -165,12 +184,13 @@ export function startGame(room: RoomEntry) {
     }
 
     if (roomState.players.length >= 1 && !leftPlayerIsConnected) {
-      setupLeftPlayer(roomState.players[0]);
+      setupLeftPlayer(roomState.players[0], currentPlayerSide);
       leftPlayerIsConnected = true;
     }
 
     if (roomState.players.length >= 2 && !rightPlayerisConnected) {
-      setupRightPlayer(roomState.players[1]);
+      setupRightPlayer(roomState.players[1], currentPlayerSide);
+      setupPlayerColors(roomState, currentPlayerId);
       rightPlayerisConnected = true;
     }
 
@@ -291,6 +311,11 @@ export function startGame(room: RoomEntry) {
       mainBtn.classList.contains("disabled") ||
       previousRoomState?.players.length !== 2
     ) {
+      triggerHelper({
+        duration: HELPER_NOT_YOUR_TURN_DURATION,
+        text: helper("helper.notYourTurn"),
+        type: HelperTypes.HELPER_WARNING,
+      });
       return;
     }
 
@@ -343,6 +368,14 @@ export function startGame(room: RoomEntry) {
 
       mainBtn.innerText = "";
       mainBtn.setAttribute("data-type", "dice");
+
+      addActionToRoom(roomId, {
+        type: ActionTypes.HINT,
+        endsAt: getEndDate(HELPER_END_TURN_DURATION),
+        duration: HELPER_END_TURN_DURATION,
+        text: helper.otherPlayerTurnEnded,
+        authorName: getCurrentPlayerName(),
+      });
     }
   };
 

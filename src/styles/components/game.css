@@ -14,33 +14,12 @@
   background-size: cover;
 }
 
-#game > section {
+.player-section {
   padding-top: 30px;
-}
-
-#game > section.middle-section {
-  padding-top: 0;
-}
-
-.player1.move-button,
-.player1.dice-button {
-  background-color: var(--player1-color);
-  color: var(--light-color);
-}
-
-.player2.move-button,
-.player2.dice-button {
-  background-color: var(--player2-color);
-  color: var(--light-color);
-}
-
-
-#player1 .player-name {
-  color: var(--player1-color);
-}
-
-#player2 .player-name {
-  color: var(--player2-color);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: left var(--base-transition-duration) ease, right var(--base-transition-duration) ease;
 }
 
 .player-info {
@@ -48,6 +27,23 @@
   align-items: center;
   justify-content: flex-end;
   margin-bottom: 30px;
+}
+
+#player2 {
+  transition: transform var(--base-transition-duration) ease;
+  transform: translateX(100vw);
+}
+
+#player2.is-visible {
+  transform: translateX(0);
+}
+
+#player1 .player-name {
+  color: var(--player1-color);
+}
+
+#player2 .player-name {
+  color: var(--player2-color);
 }
 
 #player1 .player-info {
@@ -74,10 +70,4 @@
 #main-btn.disabled {
   cursor: not-allowed;
   opacity: 0.4;
-}
-
-.game-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }

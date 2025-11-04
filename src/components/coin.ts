@@ -67,20 +67,16 @@ export function declareCoinResult(
   if (isFlipping || side === lastSide) return;
 
   setTimeout(() => {
-    let text = helper.currentPlayerCoinWinner;
+    const name =
+      currentPlayerSide === "left"
+        ? roomState.players[1].name
+        : roomState.players[0].name;
 
-    if (side !== currentPlayerSide) {
-      const name =
-        currentPlayerSide === "left"
-          ? roomState.players[1].name
-          : roomState.players[0].name;
-
-      text = helper.coinWinner(name);
-    }
+    const current = currentPlayerSide === side ? "current" : "other";
 
     triggerHelper({
       duration: COIN_RESULT_DURATION,
-      text: text,
+      text: helper(`helper.coinWinner.${current}`, { name }),
       type: HelperTypes.HELPER_HINT,
     });
   }, COIN_ANIMATION_DURATION);

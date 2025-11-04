@@ -1,5 +1,4 @@
 .dialog {
-  margin-top: auto;
   position: relative;
   color: #fff;
   border-radius: var(--dialog-radius);
@@ -29,7 +28,7 @@
 
   padding: 10px 5px;
   cursor: pointer;
-  background-color: var(--current-player-color);
+  background-color: var(--not-current-player-color);
 
   font-weight: bold;
 }
@@ -50,8 +49,7 @@
 }
 
 .dialog-list {
-  top: -10px;
-  transform: translateY(-100%);
+  top: calc(100% + 10px);
 
   position: absolute;
   z-index: 2;
@@ -69,7 +67,7 @@
   cursor: pointer;
   display: flex;
   justify-content: flex-start;
-  background: var(--current-player-color);
+  background: var(--not-current-player-color);
   align-items: center;
   padding: 20px 20px;
 }
