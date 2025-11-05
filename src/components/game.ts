@@ -373,7 +373,7 @@ export function startGame(room: RoomEntry) {
         type: ActionTypes.HINT,
         endsAt: getEndDate(HELPER_END_TURN_DURATION),
         duration: HELPER_END_TURN_DURATION,
-        text: helper.otherPlayerTurnEnded,
+        text: helper("helper.otherPlayerTurnEnded"),
         authorName: getCurrentPlayerName(),
       });
     }
