@@ -73,8 +73,11 @@ const { startSound: startBgMusic } = createSound({
 const safeUpdate = (id: Room["id"], patch: FirebasePatch) =>
   updateRoom(id, patch).catch(() => undefined);
 
-const safeUpdatePlayer = (id: Room["id"], side: Side, patch: Record<string, unknown>) =>
-  updatePlayer(id, side, patch).catch(() => undefined);
+const safeUpdatePlayer = (
+  id: Room["id"],
+  side: Side,
+  patch: Record<string, unknown>
+) => updatePlayer(id, side, patch).catch(() => undefined);
 
 export function getCurrentTurnSide(): Side {
   return currentPlayerSide ?? "left";
@@ -89,16 +92,12 @@ export function startGame(room: RoomEntry) {
     type: HelperTypes.HELPER_HINT,
   });
 
-  // знімаємо попередні підписки без try/catch
   stopShipSync?.();
   stopShipSync = null;
-
   stopMainPrediction?.();
   stopMainPrediction = null;
-
   stopPlayerBlockedInfo?.();
   stopPlayerBlockedInfo = null;
-
   stopPlayerWin?.();
   stopPlayerWin = null;
 
@@ -159,21 +158,29 @@ export function startGame(room: RoomEntry) {
       setupPlayerColors(roomState, currentPlayerId);
     }
 
-    const myIndex = roomState.players.findIndex((p) => p.id === currentPlayerId);
+    const myIndex: number = roomState.players.findIndex(
+      (p) => p.id === currentPlayerId
+    );
+    const hasIndex = myIndex >= 0;
+    const mySideByIndex: Side | null = hasIndex ? (myIndex === 0 ? "left" : "right") : null;
+
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = prev?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
     const isLeader = myIndex === 0;
 
-    if (myIndex !== -1) {
-      currentPlayerSide = myIndex === 0 ? "left" : "right";
+    if (hasIndex) {
+      currentPlayerSide = mySideByIndex as Side;
       const mySide = currentPlayerSide;
       const oppSide: Side = mySide === "left" ? "right" : "left";
       document.body.dataset.mySide = mySide;
-      document.body.setAttribute("data-turn-side", mySide);
+      document.body.setAttribute("data-my-side", mySide);
       document.body.setAttribute("data-opponent-side", oppSide);
-      document.body.classList.remove("side-left", "side-right");
-      document.body.classList.add(`side-${mySide}`);
+    }
+
+    document.body.classList.remove("side-left", "side-right");
+    if (currentPlayerSide) {
+      document.body.classList.add(`side-${currentPlayerSide}`);
     }
 
     if (roomState.players.length >= 1 && !leftPlayerIsConnected) {
@@ -192,12 +199,26 @@ export function startGame(room: RoomEntry) {
     const legacyPrevShown = prev?.coinShown;
     const legacyNowShown = current.coinShown;
 
+    let effectiveTurnSide = roomState.isTurn as Side | undefined;
+
     if (becameTwo && isLeader && !current.coinInitialized) {
-      const side: Side = coinNode?.result ?? getRandomSide();
+      const decidedSide: Side = coinNode?.result ?? getRandomSide();
+      effectiveTurnSide = decidedSide;
+      document.body.setAttribute("data-turn-side", decidedSide);
+      const optimisticIsMyTurn = hasIndex && decidedSide === mySideByIndex;
+      if (optimisticIsMyTurn) {
+        mainBtn.classList.remove("disabled");
+        document.body.classList.remove("not-my-turn");
+        document.body.setAttribute("data-turn-active", "1");
+      } else {
+        mainBtn.classList.add("disabled");
+        document.body.classList.add("not-my-turn");
+        document.body.setAttribute("data-turn-active", "0");
+      }
       await safeUpdate(roomId, {
-        isTurn: side,
+        isTurn: decidedSide,
         coin: {
-          result: side,
+          result: decidedSide,
           shown: true,
           at: new Date().toISOString(),
         },
@@ -205,6 +226,10 @@ export function startGame(room: RoomEntry) {
         timerState: new Date().toISOString(),
         coinInitialized: true,
       });
+    }
+
+    if (!becameTwo || (becameTwo && current.coinInitialized)) {
+      document.body.setAttribute("data-turn-side", effectiveTurnSide || "");
     }
 
     const shouldFlipOnce =
@@ -215,7 +240,7 @@ export function startGame(room: RoomEntry) {
         (!legacyPrevShown && legacyNowShown && roomState.isTurn));
 
     if (shouldFlipOnce) {
-      const side: Side = coinNode?.result ?? (roomState.isTurn as Side);
+      const side: Side = coinNode?.result ?? (effectiveTurnSide as Side);
       declareCoinResult(side, currentPlayerSide || "left", roomState);
       flipCoin(side);
     }
@@ -240,14 +265,19 @@ export function startGame(room: RoomEntry) {
     if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
       diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
-      syncDiceHelper(roomState, currentPlayerSide || "left", roomState.lastDiceResult);
+      syncDiceHelper(
+        roomState,
+        currentPlayerSide || "left",
+        roomState.lastDiceResult
+      );
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = roomState.isTurn ? (roomState.isTurn === "left" ? 0 : 1) : -1;
+    const turnIndex =
+      effectiveTurnSide ? (effectiveTurnSide === "left" ? 0 : 1) : -1;
 
-    if (myIndex !== -1 && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
+    if (hasIndex && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
       mainBtn.classList.remove("disabled");
       document.body.classList.remove("not-my-turn");
       document.body.setAttribute("data-turn-active", "1");
@@ -257,7 +287,7 @@ export function startGame(room: RoomEntry) {
       document.body.setAttribute("data-turn-active", "0");
     }
 
-    if (myIndex !== -1) {
+    if (hasIndex) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
       const canUseSteps =
         haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
@@ -326,11 +356,16 @@ export function startGame(room: RoomEntry) {
         }
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {
-      void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, { diceStreak: [] });
+      void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, {
+        diceStreak: [],
+      });
       Steps.clear();
 
+      const nextTurn: Side =
+        previousRoomState?.isTurn === "left" ? "right" : "left";
+
       void safeUpdate(roomId, {
-        isTurn: previousRoomState?.isTurn === "left" ? "right" : "left",
+        isTurn: nextTurn,
         timerState: new Date().toISOString(),
       });
 
