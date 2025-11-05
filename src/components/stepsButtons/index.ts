@@ -1,19 +1,26 @@
 import "./steps.css";
 
 type StepsEvent = "step:select" | "step:combine" | "step:clear";
-type Listener = (payload: any) => void;
+type StepsPayloadMap = {
+  "step:select": { index: number; value: number; total: number | null };
+  "step:combine": { indices: number[]; lastIndex: number; total: number | null };
+  "step:clear": undefined;
+};
 
 class Emitter {
-  private map = new Map<StepsEvent, Set<Listener>>();
-  on(ev: StepsEvent, fn: Listener) {
+  private map = new Map<StepsEvent, Set<(payload: unknown) => void>>();
+
+  on<K extends StepsEvent>(ev: K, fn: (payload: StepsPayloadMap[K]) => void) {
     if (!this.map.has(ev)) this.map.set(ev, new Set());
-    this.map.get(ev)!.add(fn);
+    this.map.get(ev)!.add(fn as (payload: unknown) => void);
   }
-  off(ev: StepsEvent, fn: Listener) {
-    this.map.get(ev)?.delete(fn);
+
+  off<K extends StepsEvent>(ev: K, fn: (payload: StepsPayloadMap[K]) => void) {
+    this.map.get(ev)?.delete(fn as (payload: unknown) => void);
   }
-  emit(ev: StepsEvent, payload: any) {
-    this.map.get(ev)?.forEach(fn => fn(payload));
+
+  emit<K extends StepsEvent>(ev: K, payload: StepsPayloadMap[K]) {
+    this.map.get(ev)?.forEach(fn => (fn as (p: StepsPayloadMap[K]) => void)(payload));
   }
 }
 
@@ -50,7 +57,7 @@ class StepsContainer {
       if (!this.enabled) return;
       this.state.clearSelection();
       this.paint();
-      this.emitter.emit("step:clear", {});
+      this.emitter.emit("step:clear", undefined);
     });
     wrap.appendChild(combo);
     this.comboBtn = combo;
@@ -102,11 +109,11 @@ class StepsContainer {
     return this.stepsForMove;
   }
 
-  on(ev: StepsEvent, fn: Listener) {
+  on<K extends StepsEvent>(ev: K, fn: (payload: StepsPayloadMap[K]) => void) {
     this.emitter.on(ev, fn);
   }
 
-  off(ev: StepsEvent, fn: Listener) {
+  off<K extends StepsEvent>(ev: K, fn: (payload: StepsPayloadMap[K]) => void) {
     this.emitter.off(ev, fn);
   }
 
@@ -140,4 +147,4 @@ class StepsContainer {
 
 const Steps = new StepsContainer();
 export default Steps;
-export type { StepsEvent };
+export type { StepsEvent, StepsPayloadMap };

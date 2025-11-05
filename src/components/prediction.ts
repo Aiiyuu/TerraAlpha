@@ -182,29 +182,37 @@ function highlightFromEl(shipEl: HTMLElement, planned: number | null): boolean {
   return true;
 }
 
+function getComposedPath(ev: Event): EventTarget[] | null {
+  const maybe = ev as unknown as { composedPath?: () => EventTarget[] };
+  return typeof maybe.composedPath === 'function' ? maybe.composedPath() : null;
+}
+
+function asElement(t: EventTarget | null | undefined): Element | null {
+  return t instanceof Element ? t : null;
+}
+
 function pickScopeFromEvent(ev: Event): HTMLElement | null {
   const SEL = '.cell, .cell-btn, [data-ship], .ship, button.ship';
-  const path = (ev as any).composedPath?.() as EventTarget[] | undefined;
+
+  const path = getComposedPath(ev);
   if (path && path.length) {
     for (const t of path) {
-      const el = t as any;
-      if (el && typeof el.closest === 'function') {
-        const hit = el.closest(SEL) as HTMLElement | null;
+      const el = asElement(t);
+      if (el) {
+        const hit = el.closest<HTMLElement>(SEL);
         if (hit) return hit;
-      }
-      if (el && el.parentElement && typeof el.parentElement.closest === 'function') {
-        const hit = el.parentElement.closest(SEL) as HTMLElement | null;
-        if (hit) return hit;
+        const parentHit = el.parentElement?.closest<HTMLElement>(SEL) ?? null;
+        if (parentHit) return parentHit;
       }
     }
     return null;
   }
-  const nt = ev.target as any;
-  const el: Element | null =
-    nt && nt.nodeType === 1 ? nt : nt?.parentElement ?? null;
-  return el && typeof (el as any).closest === 'function'
-    ? (el as Element).closest(SEL) as HTMLElement | null
-    : null;
+
+  const nt = asElement(ev.target as EventTarget | null);
+  if (!nt) return null;
+  const hit = nt.closest<HTMLElement>(SEL);
+  if (hit) return hit;
+  return nt.parentElement?.closest<HTMLElement>(SEL) ?? null;
 }
 
 export function setupPrediction() {

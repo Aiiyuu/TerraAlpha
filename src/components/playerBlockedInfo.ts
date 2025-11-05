@@ -1,10 +1,10 @@
-// src/components/playerBlockedInfo.ts
 import { listeToRoomById } from "../server/server";
 import type { Room } from "../types/room";
 import type { Side } from "../types/room";
 
 type CanMoveMap = Partial<Record<Side, boolean>>;
 type Unsubscribe = (() => void) | undefined;
+type RoomWithCan = Room & { canPlayerMoveShips?: CanMoveMap };
 
 function ensurePanel(): {
   el: HTMLDivElement;
@@ -20,7 +20,6 @@ function ensurePanel(): {
     el.setAttribute("role", "alertdialog");
     el.setAttribute("aria-live", "assertive");
 
-    // збільшений розмір панелі
     el.style.position = "fixed";
     el.style.left = "50%";
     el.style.bottom = "40px";
@@ -72,8 +71,14 @@ function ensurePanel(): {
     closeBtn.style.borderRadius = "10px";
     closeBtn.style.cursor = "pointer";
 
-    okBtn.addEventListener("click", () => (el!.style.display = "none"));
-    closeBtn.addEventListener("click", () => (el!.style.display = "none"));
+    const finalEl = el; 
+
+    okBtn.addEventListener("click", () => {
+      finalEl.style.display = "none";
+    });
+    closeBtn.addEventListener("click", () => {
+      finalEl.style.display = "none";
+    });
 
     btnWrap.append(okBtn, closeBtn);
     wrap.append(text, btnWrap);
@@ -81,20 +86,21 @@ function ensurePanel(): {
     document.body.append(el);
   }
 
+  const finalEl = el as HTMLDivElement;
   const textEl = document.getElementById("player-blocked-info-text") as HTMLElement;
 
   return {
-    el,
+    el: finalEl,
     textEl,
     show(msg: string) {
       textEl.textContent = msg;
-      el!.style.display = "block";
+      finalEl.style.display = "block";
     },
     hide() {
-      el!.style.display = "none";
+      finalEl.style.display = "none";
     },
     destroy() {
-      el?.remove();
+      finalEl.remove();
     },
   };
 }
@@ -104,51 +110,46 @@ export function initPlayerBlockedInfo(roomId: Room["id"]): () => void {
   let prevTurn: Side | undefined;
   let prevShownKey: string | null = null;
 
-  const off = listeToRoomById(
-    roomId,
-    (room: Room | undefined) => {
-      if (!room) return;
+  const off = listeToRoomById(roomId, (room: Room | undefined) => {
+    if (!room) return;
 
-      const turn = room.isTurn as Side | undefined;
-      if (!turn) {
-        panel.hide();
-        prevTurn = undefined;
-        prevShownKey = null;
-        return;
-      }
-
-      if (prevTurn && prevTurn !== turn) {
-        panel.hide();
-        prevShownKey = null;
-      }
-      prevTurn = turn;
-
-      const canMap = (room as any).canPlayerMoveShips as CanMoveMap | undefined;
-      const can = canMap?.[turn];
-
-      if (can == null) {
-        panel.hide();
-        prevShownKey = null;
-        return;
-      }
-
-      const key = `${turn}:${can}`;
-      if (prevShownKey === key) return;
-      prevShownKey = key;
-
-      if (can === false) {
-        const sideLabel = turn === "left" ? "Гравець Left заблокований" : "Гравець Right заблокований";
-        panel.show(sideLabel);
-      } else {
-        panel.hide();
-      }
+    const turn = room.isTurn as Side | undefined;
+    if (!turn) {
+      panel.hide();
+      prevTurn = undefined;
+      prevShownKey = null;
+      return;
     }
-  ) as unknown as Unsubscribe;
+
+    if (prevTurn && prevTurn !== turn) {
+      panel.hide();
+      prevShownKey = null;
+    }
+    prevTurn = turn;
+
+    const canMap = (room as RoomWithCan).canPlayerMoveShips;
+    const can = canMap?.[turn];
+
+    if (can == null) {
+      panel.hide();
+      prevShownKey = null;
+      return;
+    }
+
+    const key = `${turn}:${can}`;
+    if (prevShownKey === key) return;
+    prevShownKey = key;
+
+    if (can === false) {
+      const sideLabel = turn === "left" ? "Гравець Left заблокований" : "Гравець Right заблокований";
+      panel.show(sideLabel);
+    } else {
+      panel.hide();
+    }
+  }) as Unsubscribe;
 
   return () => {
-    try {
-      if (typeof off === "function") off();
-    } catch {}
+    off?.();  
     panel.destroy();
   };
 }

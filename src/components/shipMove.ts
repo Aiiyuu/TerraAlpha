@@ -3,6 +3,15 @@ import { animateShipFinalize } from '../utility/shipsFinalAnimation';
 import { runShipReplace } from '../utility/shipReplace';
 import { flyShip } from '../components/ShipFly';
 
+type Side = 'left' | 'right';
+type MoveKind = 'replaceOwn' | 'overMother' | 'move' | 'finalize';
+
+interface StepsApi {
+  getStepsForMove?: () => number | null | undefined;
+  consumeCurrent?: () => void;
+  consumeStep?: (n: number) => void;
+}
+
 function parseCellIndex(cell: HTMLElement): number | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
   const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)|final-(\d+)/);
@@ -11,8 +20,8 @@ function parseCellIndex(cell: HTMLElement): number | null {
   return Number(m[1]);
 }
 
-function getShipSide(el: HTMLElement): 'left' | 'right' | null {
-  const ds = el.getAttribute('data-side') || (el as any).dataset?.side || '';
+function getShipSide(el: HTMLElement): Side | null {
+  const ds = el.getAttribute('data-side') || el.dataset?.side || '';
   if (ds === 'left' || ds === 'right') return ds;
   const qa = el.getAttribute('data-qa') || '';
   const pref = qa.match(/^(p[12])-/)?.[1];
@@ -36,11 +45,12 @@ function isMotherShip(el: HTMLElement): boolean {
   return false;
 }
 
-function getCellOccupant(cell: HTMLElement | null): { el: HTMLElement; side: 'left' | 'right' | null; isMother: boolean } | null {
+function getCellOccupant(cell: HTMLElement | null): { el: HTMLElement; side: Side | null; isMother: boolean } | null {
   if (!cell) return null;
-  const occ = cell.querySelector<HTMLElement>('.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]') || null;
+  const occ =
+    cell.querySelector<HTMLElement>('.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]') || null;
   if (!occ) return null;
-  ensureDataSide(occ as HTMLElement);
+  ensureDataSide(occ);
   return { el: occ, side: getShipSide(occ), isMother: isMotherShip(occ) };
 }
 
@@ -54,9 +64,13 @@ function getPredictedCell(): HTMLElement | null {
 }
 
 function getReplaceOwnTargetCell(): HTMLElement | null {
-  const bumped = document.querySelector<HTMLElement>('.board .cell-btn.ta-bump') || document.querySelector<HTMLElement>('.board .ta-bump');
+  const bumped =
+    document.querySelector<HTMLElement>('.board .cell-btn.ta-bump') ||
+    document.querySelector<HTMLElement>('.board .ta-bump');
   if (!bumped) return null;
-  return bumped.closest<HTMLElement>('.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]');
+  return bumped.closest<HTMLElement>(
+    '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
+  );
 }
 
 function clearPrediction() {
@@ -64,14 +78,18 @@ function clearPrediction() {
   document.querySelectorAll('.board .ta-bump').forEach((el) => el.closest('.cell-btn')?.classList.remove('ta-bump'));
 }
 
+function hasDisabledProp(el: HTMLElement): el is HTMLButtonElement {
+  return el instanceof HTMLButtonElement;
+}
+
 function disableShipTemporarily(el: HTMLElement, reason: string) {
-  (el as any).disabled = true;
+  if (hasDisabledProp(el)) el.disabled = true;
   el.classList.add('is-disabled');
   el.setAttribute('data-disabled-reason', reason);
   el.setAttribute('aria-disabled', 'true');
   (el as HTMLElement).style.pointerEvents = 'none';
   setTimeout(() => {
-    (el as any).disabled = false;
+    if (hasDisabledProp(el)) el.disabled = false;
     el.classList.remove('is-disabled');
     el.removeAttribute('data-disabled-reason');
     el.removeAttribute('aria-disabled');
@@ -86,16 +104,16 @@ function emitDone(detail: {
   usedStep: number;
   finalizedQa?: string | null;
   finalizedToIndex?: string | null;
-  moveKind?: 'replaceOwn' | 'overMother' | 'move' | 'finalize';
+  moveKind?: MoveKind;
 }) {
   document.dispatchEvent(new CustomEvent('shipmove:done', { detail }));
 }
 
 function consumeUsedStep(usedStep: number) {
-  const ev = new CustomEvent('steps:consume-current', { detail: { value: usedStep } });
-  document.dispatchEvent(ev);
-  (Steps as any).consumeCurrent?.();
-  (Steps as any).consumeStep?.(usedStep);
+  document.dispatchEvent(new CustomEvent('steps:consume-current', { detail: { value: usedStep } }));
+  const api = Steps as unknown as StepsApi;
+  api.consumeCurrent?.();
+  api.consumeStep?.(usedStep);
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -106,7 +124,7 @@ function waitForAnimation(el: Element, timeout: number) {
     const onEnd = () => {
       if (done) return;
       done = true;
-      (el as HTMLElement).removeEventListener('animationend', onEnd);
+      el.removeEventListener('animationend', onEnd);
       resolve();
     };
     el.addEventListener('animationend', onEnd, { once: true });
@@ -157,8 +175,9 @@ export function setupShipMove() {
 
       ensureDataSide(shipEl);
 
-      const planned = ((Steps as any).getStepsForMove?.() as number) ?? (Steps as any).getStepsForMove?.();
-      if (!Number.isFinite(planned) || planned <= 0) return;
+      const api = Steps as unknown as StepsApi;
+      const planned = api.getStepsForMove?.() ?? null;
+      if (!Number.isFinite(planned) || (planned as number) <= 0) return;
 
       const predictedNormal = getPredictedCell();
       const predictedReplace = getReplaceOwnTargetCell();
@@ -168,7 +187,9 @@ export function setupShipMove() {
         return;
       }
 
-      const fromCell = shipEl.closest<HTMLElement>('.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]');
+      const fromCell = shipEl.closest<HTMLElement>(
+        '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
+      );
       const fromIndex = fromCell ? parseCellIndex(fromCell) : null;
 
       const activeSide = getShipSide(shipEl);
@@ -194,10 +215,10 @@ export function setupShipMove() {
             shipQa,
             fromIndex,
             toIndex,
-            usedStep: planned,
+            usedStep: planned as number,
             finalizedQa: outBtn.getAttribute('data-qa') || null,
             finalizedToIndex: 'final-0',
-            moveKind: 'replaceOwn'
+            moveKind: 'replaceOwn',
           });
 
           await sleep(120);
@@ -207,14 +228,14 @@ export function setupShipMove() {
             outBtn,
             motherBtn: shipEl,
             spinMs: 500,
-            popMs: 180
+            popMs: 180,
           });
 
           if (predicted.getAttribute('data-qa') === 'final-0') {
             animateShipFinalize(shipEl, shipQa);
           }
 
-          consumeUsedStep(planned);
+          consumeUsedStep(planned as number);
           return;
         }
 
@@ -235,17 +256,17 @@ export function setupShipMove() {
             shipQa,
             fromIndex,
             toIndex: toQa,
-            usedStep: planned,
+            usedStep: planned as number,
             finalizedQa: shipQa,
             finalizedToIndex: 'final-0',
-            moveKind: 'overMother'
+            moveKind: 'overMother',
           });
 
           await sleep(120);
 
           await runSimpleOverMother(predicted, shipEl);
 
-          consumeUsedStep(planned);
+          consumeUsedStep(planned as number);
           return;
         }
 
@@ -269,16 +290,16 @@ export function setupShipMove() {
         shipQa,
         fromIndex,
         toIndex,
-        usedStep: planned,
-        moveKind: toIndex === 'final-0' ? 'finalize' : 'move'
+        usedStep: planned as number,
+        moveKind: toIndex === 'final-0' ? 'finalize' : 'move',
       });
 
       if (predicted.getAttribute('data-qa') === 'final-0') {
         animateShipFinalize(shipEl, shipQa);
       }
 
-      consumeUsedStep(planned);
+      consumeUsedStep(planned as number);
     },
-    true
+    true,
   );
 }

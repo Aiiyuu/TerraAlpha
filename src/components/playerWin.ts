@@ -1,9 +1,12 @@
-// src/components/playerWin.ts
 import { listeToRoomById } from "../server/server";
 import type { Room } from "../types/room";
-import type { Side } from "../types/room";
+import type { Side, ShipPos } from "../types/room";
 
 type Unsubscribe = (() => void) | undefined;
+
+type RoomWithShips = Room & {
+  ships?: Partial<Record<Side, Record<string, ShipPos>>>;
+};
 
 function ensureWinPanel() {
   let el = document.getElementById("player-win-panel") as HTMLDivElement | null;
@@ -63,8 +66,14 @@ function ensureWinPanel() {
     closeBtn.style.borderRadius = "10px";
     closeBtn.style.cursor = "pointer";
 
-    okBtn.addEventListener("click", () => (el!.style.display = "none"));
-    closeBtn.addEventListener("click", () => (el!.style.display = "none"));
+    const finalEl = el;
+
+    okBtn.addEventListener("click", () => {
+      finalEl.style.display = "none";
+    });
+    closeBtn.addEventListener("click", () => {
+      finalEl.style.display = "none";
+    });
 
     btnWrap.append(okBtn, closeBtn);
     wrap.append(text, btnWrap);
@@ -72,72 +81,72 @@ function ensureWinPanel() {
     document.body.append(el);
   }
 
+  const finalEl = el as HTMLDivElement;
   const textEl = document.getElementById("player-win-panel-text") as HTMLElement;
 
   return {
-    el,
+    el: finalEl,
     textEl,
     show(msg: string) {
       textEl.textContent = msg;
-      el!.style.display = "block";
+      finalEl.style.display = "block";
     },
     hide() {
-      el!.style.display = "none";
+      finalEl.style.display = "none";
     },
     destroy() {
-      el?.remove();
+      finalEl.remove();
     },
   };
 }
 
-function allShipsIn_Final_0(room: Room, side: Side): boolean {
-  const group = (room as any)?.ships?.[side] as Record<string, unknown> | undefined;
+function allShipsInFinal0(room: RoomWithShips, side: Side): boolean {
+  const group = room.ships?.[side];
   if (!group) return false;
+
   const prefix = side === "left" ? "p1" : "p2";
   const re = new RegExp(`^${prefix}-cell-\\d+$`);
+
   const values = Object.entries(group)
     .filter(([k, v]) => re.test(k) && v != null)
     .map(([, v]) => String(v).trim());
+
   if (values.length !== 8) return false;
-  return values.every(v => v === "final-0");
+  return values.every((v) => v === "final-0");
 }
 
 export function initPlayerWin(roomId: Room["id"]): () => void {
   const panel = ensureWinPanel();
   let prevWinner: Side | null = null;
 
-  const off = listeToRoomById(
-    roomId,
-    (room: Room | undefined) => {
-      if (!room) {
-        panel.hide();
-        prevWinner = null;
-        return;
-      }
-
-      const leftWon = allShipsIn_Final_0(room, "left");
-      const rightWon = allShipsIn_Final_0(room, "right");
-
-      let winner: Side | null = null;
-      if (leftWon) winner = "left";
-      else if (rightWon) winner = "right";
-
-      if (winner && prevWinner !== winner) {
-        panel.show(`Winner Player ${winner}`);
-        prevWinner = winner;
-      }
-
-      if (!winner) {
-        panel.hide();
-        prevWinner = null;
-      }
+  const off = listeToRoomById(roomId, (room: Room | undefined) => {
+    if (!room) {
+      panel.hide();
+      prevWinner = null;
+      return;
     }
-  ) as unknown as Unsubscribe;
+
+    const r = room as RoomWithShips;
+    const leftWon = allShipsInFinal0(r, "left");
+    const rightWon = allShipsInFinal0(r, "right");
+
+    let winner: Side | null = null;
+    if (leftWon) winner = "left";
+    else if (rightWon) winner = "right";
+
+    if (winner && prevWinner !== winner) {
+      panel.show(`Winner Player ${winner}`);
+      prevWinner = winner;
+    }
+
+    if (!winner) {
+      panel.hide();
+      prevWinner = null;
+    }
+  }) as Unsubscribe;
 
   return () => {
-    try {
-      if (typeof off === "function") off();
-    } catch {}
+    off?.();   
     panel.destroy();
   };
 }

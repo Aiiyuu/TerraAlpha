@@ -1,7 +1,11 @@
-// src/components/MainPrediction.ts
 import { listeToRoomById, updateRoom } from "../server/server";
 import type { Room } from "../types/room";
 import type { Side, ShipPos } from "../types/room";
+
+type PosKey = string;
+type ShipStatus = "canMove" | "blocked";
+type FirebasePatch = Record<string, unknown>;
+type RoomWithLastDice = Room & { lastDiceResult?: number };
 
 const SHIP_IDS: Record<Side, string[]> = {
   left: Array.from({ length: 8 }, (_, i) => `p1-cell-${i + 1}`),
@@ -19,8 +23,8 @@ type Snapshot = {
   canMove: boolean;
 };
 
-type PosKey = string;
-type ShipStatus = "canMove" | "blocked";
+const safeUpdate = (id: Room["id"], patch: FirebasePatch): Promise<void> =>
+  updateRoom(id, patch).then(() => undefined).catch(() => undefined);
 
 function calcAvailableSteps(strike: number[]): number[] {
   const nums = strike.filter((n) => Number.isFinite(n) && n > 0);
@@ -223,52 +227,42 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
     const h = hashSnapshot(snap);
 
     if (prevTurnSide !== snap.turnSide && prevTurnSide !== undefined) {
-      try {
-        await updateRoom(roomId, {
-          "shipsState/left": null,
-          "shipsState/right": null,
-          "currentStepsStrike/left": [],
-          "currentStepsStrike/right": [],
-          "canPlayerMoveShips/left": null,
-          "canPlayerMoveShips/right": null,
-        } as any);
-      } catch {}
+      await safeUpdate(roomId, {
+        "shipsState/left": null,
+        "shipsState/right": null,
+        "currentStepsStrike/left": [],
+        "currentStepsStrike/right": [],
+        "canPlayerMoveShips/left": null,
+        "canPlayerMoveShips/right": null,
+      });
       prevStatuses = null;
     }
     prevTurnSide = snap.turnSide;
 
     const nowJson = JSON.stringify(snap.stepsStrike);
     if (!lastSentSteps || lastSentSteps.side !== turnSide || lastSentSteps.json !== nowJson) {
-      try {
-        await updateRoom(roomId, { [`currentStepsStrike/${turnSide}`]: snap.stepsStrike } as any);
-        lastSentSteps = { side: turnSide, json: nowJson };
-      } catch {}
+      await safeUpdate(roomId, { [`currentStepsStrike/${turnSide}`]: snap.stepsStrike } as FirebasePatch);
+      lastSentSteps = { side: turnSide, json: nowJson };
     }
 
-    const last = (room as any).lastDiceResult as number | undefined;
+    const last = (room as RoomWithLastDice).lastDiceResult;
     const finalized = last !== 6;
 
     if (finalized && snap.stepsStrike.length > 0) {
       const statuses = buildShipStatuses(snap.shipsMine, snap.shipsOpp, snap.availableSteps);
-      const patch: Record<string, any> = {};
+      const patch: FirebasePatch = {};
       for (const [shipId, status] of Object.entries(statuses)) {
         if (!prevStatuses || prevStatuses[shipId] !== status) {
-          patch[`shipsState/${turnSide}/${shipId}`] = status;
+          (patch as Record<string, ShipStatus>)[`shipsState/${turnSide}/${shipId}`] = status;
         }
       }
       if (Object.keys(patch).length) {
-        try {
-          await updateRoom(roomId, patch as any);
-          prevStatuses = statuses;
-        } catch {}
+        await safeUpdate(roomId, patch);
+        prevStatuses = statuses;
       }
 
       const can = Object.values(statuses).some((s) => s === "canMove");
-      try {
-        await updateRoom(roomId, { [`canPlayerMoveShips/${turnSide}`]: can } as any);
-      } catch {}
-
-      console.log(turnSide === "left" ? "left:" : "right:", can);
+      await safeUpdate(roomId, { [`canPlayerMoveShips/${turnSide}`]: can } as FirebasePatch);
     }
 
     if (prevHash !== h) prevHash = h;

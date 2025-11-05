@@ -1,6 +1,5 @@
 import {
   addActionToRoom,
-  clearOutdatedActions,
   getCurrentPlayerId,
   getCurrentPlayerName,
   listeToRoomById,
@@ -22,7 +21,7 @@ import Steps from "../components/stepsButtons";
 import { setupPrediction } from "../components/prediction";
 import { setupShipMove } from "../components/shipMove";
 import { initShipSync } from "../components/ShipSync";
-import { initMainPrediction } from "../components/MainPrediction";
+import { initMainPrediction } from "./MainPrediction";
 import { initPlayerBlockedInfo } from "../components/playerBlockedInfo";
 import { initPlayerWin } from "../components/playerWin";
 import bgMusicSrc from "../assets/sounds/background-music.mp3";
@@ -39,6 +38,16 @@ import {
 import { ActionTypes } from "../types/action";
 import { getEndDate } from "../utility/getEndDate";
 
+type Side = "left" | "right";
+type FirebasePatch = Record<string, unknown>;
+
+type RoomWithCoin = Room & {
+  coin?: { result?: Side; shown?: boolean; at?: string };
+  coinShown?: boolean;
+  coinInitialized?: boolean;
+  lastResetOffer?: unknown;
+};
+
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
 let previousRoomState: Room | undefined;
@@ -47,7 +56,7 @@ let rightPlayerisConnected = false;
 const shownPhrases: Phrase["id"][] = [];
 let diceIsRolling = false;
 let currentPlayerId: number | undefined;
-let currentPlayerSide: "left" | "right" | undefined;
+let currentPlayerSide: Side | undefined;
 let stopShipSync: (() => void) | null = null;
 let stopMainPrediction: (() => void) | null = null;
 let stopPlayerBlockedInfo: (() => void) | null = null;
@@ -61,7 +70,13 @@ const { startSound: startBgMusic } = createSound({
   infinite: true,
 });
 
-export function getCurrentTurnSide(): "left" | "right" {
+const safeUpdate = (id: Room["id"], patch: FirebasePatch) =>
+  updateRoom(id, patch).catch(() => undefined);
+
+const safeUpdatePlayer = (id: Room["id"], side: Side, patch: Record<string, unknown>) =>
+  updatePlayer(id, side, patch).catch(() => undefined);
+
+export function getCurrentTurnSide(): Side {
   return currentPlayerSide ?? "left";
 }
 
@@ -74,33 +89,18 @@ export function startGame(room: RoomEntry) {
     type: HelperTypes.HELPER_HINT,
   });
 
-  if (stopShipSync) {
-    try {
-      stopShipSync();
-    } catch {}
-    stopShipSync = null;
-  }
+  // знімаємо попередні підписки без try/catch
+  stopShipSync?.();
+  stopShipSync = null;
 
-  if (stopMainPrediction) {
-    try {
-      stopMainPrediction();
-    } catch {}
-    stopMainPrediction = null;
-  }
+  stopMainPrediction?.();
+  stopMainPrediction = null;
 
-  if (stopPlayerBlockedInfo) {
-    try {
-      stopPlayerBlockedInfo();
-    } catch {}
-    stopPlayerBlockedInfo = null;
-  }
+  stopPlayerBlockedInfo?.();
+  stopPlayerBlockedInfo = null;
 
-  if (stopPlayerWin) {
-    try {
-      stopPlayerWin();
-    } catch {}
-    stopPlayerWin = null;
-  }
+  stopPlayerWin?.();
+  stopPlayerWin = null;
 
   if (mainBtnHandler) {
     mainBtn.removeEventListener("click", mainBtnHandler);
@@ -119,9 +119,7 @@ export function startGame(room: RoomEntry) {
     window.addEventListener(
       "beforeunload",
       () => {
-        try {
-          stopShipSync?.();
-        } catch {}
+        stopShipSync?.();
       },
       { once: true }
     );
@@ -134,15 +132,9 @@ export function startGame(room: RoomEntry) {
   window.addEventListener(
     "beforeunload",
     () => {
-      try {
-        stopMainPrediction?.();
-      } catch {}
-      try {
-        stopPlayerBlockedInfo?.();
-      } catch {}
-      try {
-        stopPlayerWin?.();
-      } catch {}
+      stopMainPrediction?.();
+      stopPlayerBlockedInfo?.();
+      stopPlayerWin?.();
     },
     { once: true }
   );
@@ -150,12 +142,12 @@ export function startGame(room: RoomEntry) {
   listeToRoomById(roomId, async (roomState) => {
     if (!roomState) return;
 
-    const prev = previousRoomState;
+    const prev = previousRoomState as RoomWithCoin | undefined;
+    const current = roomState as RoomWithCoin;
     previousRoomState = roomState;
 
     syncActions(roomState.actions || []);
-    syncResetBtn(roomState.lastResetOffer);
-    clearOutdatedActions(roomId);
+    syncResetBtn(current.lastResetOffer);
     detectTimerChanges(
       prev?.timerState,
       roomState.timerState!,
@@ -167,9 +159,7 @@ export function startGame(room: RoomEntry) {
       setupPlayerColors(roomState, currentPlayerId);
     }
 
-    const myIndex = roomState.players.findIndex(
-      (p) => p.id === currentPlayerId
-    );
+    const myIndex = roomState.players.findIndex((p) => p.id === currentPlayerId);
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = prev?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
@@ -178,7 +168,7 @@ export function startGame(room: RoomEntry) {
     if (myIndex !== -1) {
       currentPlayerSide = myIndex === 0 ? "left" : "right";
       const mySide = currentPlayerSide;
-      const oppSide = mySide === "left" ? "right" : "left";
+      const oppSide: Side = mySide === "left" ? "right" : "left";
       document.body.dataset.mySide = mySide;
       document.body.setAttribute("data-turn-side", mySide);
       document.body.setAttribute("data-opponent-side", oppSide);
@@ -197,25 +187,24 @@ export function startGame(room: RoomEntry) {
       rightPlayerisConnected = true;
     }
 
-    const coinNode = (roomState as any).coin;
-    const prevCoinNode = (prev as any)?.coin;
-    const legacyPrevShown = (prev as any)?.coinShown;
-    const legacyNowShown = (roomState as any)?.coinShown;
+    const coinNode = current.coin;
+    const prevCoinNode = prev?.coin;
+    const legacyPrevShown = prev?.coinShown;
+    const legacyNowShown = current.coinShown;
 
-    if (becameTwo && isLeader && !(roomState as any).coinInitialized) {
-      const side: "left" | "right" =
-        (coinNode?.result as "left" | "right" | undefined) ?? getRandomSide();
-      await updateRoom(roomId, {
+    if (becameTwo && isLeader && !current.coinInitialized) {
+      const side: Side = coinNode?.result ?? getRandomSide();
+      await safeUpdate(roomId, {
         isTurn: side,
         coin: {
           result: side,
           shown: true,
           at: new Date().toISOString(),
-        } as any,
+        },
         coinShown: true,
         timerState: new Date().toISOString(),
-        coinInitialized: true as any,
-      } as any);
+        coinInitialized: true,
+      });
     }
 
     const shouldFlipOnce =
@@ -226,14 +215,13 @@ export function startGame(room: RoomEntry) {
         (!legacyPrevShown && legacyNowShown && roomState.isTurn));
 
     if (shouldFlipOnce) {
-      const side =
-        (coinNode?.result as "left" | "right" | undefined) ?? roomState.isTurn!;
+      const side: Side = coinNode?.result ?? (roomState.isTurn as Side);
       declareCoinResult(side, currentPlayerSide || "left", roomState);
       flipCoin(side);
     }
 
-    if (roomState && roomState.phrases) {
-      if (roomState?.phrases?.length !== prev?.phrases?.length) {
+    if (roomState.phrases) {
+      if (roomState.phrases.length !== (prev?.phrases?.length ?? 0)) {
         roomState.phrases.forEach((phrase) => {
           if (!shownPhrases.includes(phrase.id)) {
             showPhrase(phrase);
@@ -249,34 +237,17 @@ export function startGame(room: RoomEntry) {
       document.body.classList.remove("steps-hidden");
     }
 
-    if (
-      !diceIsRolling &&
-      roomState?.lastDiceResult &&
-      roomState?.isDiceRolling
-    ) {
+    if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
       diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
-      syncDiceHelper(
-        roomState,
-        currentPlayerSide || "left",
-        roomState.lastDiceResult
-      );
+      syncDiceHelper(roomState, currentPlayerSide || "left", roomState.lastDiceResult);
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = roomState.isTurn
-      ? roomState.isTurn === "left"
-        ? 0
-        : 1
-      : -1;
+    const turnIndex = roomState.isTurn ? (roomState.isTurn === "left" ? 0 : 1) : -1;
 
-    if (
-      myIndex !== -1 &&
-      haveTwoPlayers &&
-      turnIndex !== -1 &&
-      myIndex === turnIndex
-    ) {
+    if (myIndex !== -1 && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
       mainBtn.classList.remove("disabled");
       document.body.classList.remove("not-my-turn");
       document.body.setAttribute("data-turn-active", "1");
@@ -289,17 +260,14 @@ export function startGame(room: RoomEntry) {
     if (myIndex !== -1) {
       const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
       const canUseSteps =
-        haveTwoPlayers &&
-        turnIndex !== -1 &&
-        myIndex === turnIndex &&
-        !roomState.isDiceRolling;
+        haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
       Steps.render(myStreak, canUseSteps);
     } else {
       Steps.clear();
     }
   });
 
-  updateRoom(roomId, {
+  void safeUpdate(roomId, {
     gameStarted: true,
     isDiceRolling: false,
     lastDiceResult: -1,
@@ -331,13 +299,13 @@ export function startGame(room: RoomEntry) {
 
       document.body.classList.add("steps-hidden");
 
-      updateRoom(roomId, {
+      void safeUpdate(roomId, {
         isDiceRolling: true,
         lastDiceResult: randomNum,
       });
 
       if (turnIndex !== -1) {
-        updatePlayer(roomId, previousRoomState!.isTurn!, {
+        void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, {
           diceHistory: [
             ...(previousRoomState!.players[turnIndex].diceHistory ?? []),
             randomNum,
@@ -350,7 +318,7 @@ export function startGame(room: RoomEntry) {
       }
 
       setTimeout(() => {
-        updateRoom(roomId, { isDiceRolling: false });
+        void safeUpdate(roomId, { isDiceRolling: false });
 
         if (randomNum !== 6) {
           mainBtn.innerText = "Закінчити хід";
@@ -358,10 +326,10 @@ export function startGame(room: RoomEntry) {
         }
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {
-      updatePlayer(roomId, previousRoomState!.isTurn!, { diceStreak: [] });
+      void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, { diceStreak: [] });
       Steps.clear();
 
-      updateRoom(roomId, {
+      void safeUpdate(roomId, {
         isTurn: previousRoomState?.isTurn === "left" ? "right" : "left",
         timerState: new Date().toISOString(),
       });
@@ -369,7 +337,7 @@ export function startGame(room: RoomEntry) {
       mainBtn.innerText = "";
       mainBtn.setAttribute("data-type", "dice");
 
-      addActionToRoom(roomId, {
+      void addActionToRoom(roomId, {
         type: ActionTypes.HINT,
         endsAt: getEndDate(HELPER_END_TURN_DURATION),
         duration: HELPER_END_TURN_DURATION,

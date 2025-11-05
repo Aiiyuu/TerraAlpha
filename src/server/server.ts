@@ -212,7 +212,7 @@ export async function setShipPosition(
   shipId: string,
   pos: ShipPos,
 ): Promise<void> {
-  await update(shipRef(roomId, side, shipId), pos as any);
+  await set(shipRef(roomId, side, shipId), pos);
 }
 
 export async function patchShips(
