@@ -77,12 +77,7 @@ export async function addActionToRoom(roomId: Room["id"], action: Partial<Action
 }
 
 export async function updateRoom(roomId: Room["id"], updates: Partial<Room>): Promise<void> {
-  try {
-    await update(roomRef(roomId), updates);
-  } catch (error) {
-    alert(`Error updating room: ${error}`);
-    throw error;
-  }
+  await update(roomRef(roomId), updates);
 }
 
 export async function updatePlayer(
