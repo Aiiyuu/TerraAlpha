@@ -150,11 +150,14 @@ export function startGame(room: RoomEntry) {
   listeToRoomById(roomId, async (roomState) => {
     if (!roomState) return;
 
+    const prev = previousRoomState;
+    previousRoomState = roomState;
+
     syncActions(roomState.actions || []);
     syncResetBtn(roomState.lastResetOffer);
     clearOutdatedActions(roomId);
     detectTimerChanges(
-      previousRoomState?.timerState,
+      prev?.timerState,
       roomState.timerState!,
       currentPlayerSide === roomState.isTurn
     );
@@ -168,7 +171,7 @@ export function startGame(room: RoomEntry) {
       (p) => p.id === currentPlayerId
     );
     const haveTwoPlayers = roomState.players.length === 2;
-    const prevPlayersCount = previousRoomState?.players?.length ?? 0;
+    const prevPlayersCount = prev?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
     const isLeader = myIndex === 0;
 
@@ -195,11 +198,11 @@ export function startGame(room: RoomEntry) {
     }
 
     const coinNode = (roomState as any).coin;
-    const prevCoinNode = (previousRoomState as any)?.coin;
-    const legacyPrevShown = (previousRoomState as any)?.coinShown;
+    const prevCoinNode = (prev as any)?.coin;
+    const legacyPrevShown = (prev as any)?.coinShown;
     const legacyNowShown = (roomState as any)?.coinShown;
 
-    if (becameTwo && isLeader) {
+    if (becameTwo && isLeader && !(roomState as any).coinInitialized) {
       const side: "left" | "right" =
         (coinNode?.result as "left" | "right" | undefined) ?? getRandomSide();
       await updateRoom(roomId, {
@@ -211,6 +214,7 @@ export function startGame(room: RoomEntry) {
         } as any,
         coinShown: true,
         timerState: new Date().toISOString(),
+        coinInitialized: true as any,
       } as any);
     }
 
@@ -224,13 +228,12 @@ export function startGame(room: RoomEntry) {
     if (shouldFlipOnce) {
       const side =
         (coinNode?.result as "left" | "right" | undefined) ?? roomState.isTurn!;
-
       declareCoinResult(side, currentPlayerSide || "left", roomState);
       flipCoin(side);
     }
 
     if (roomState && roomState.phrases) {
-      if (roomState?.phrases?.length !== previousRoomState?.phrases?.length) {
+      if (roomState?.phrases?.length !== prev?.phrases?.length) {
         roomState.phrases.forEach((phrase) => {
           if (!shownPhrases.includes(phrase.id)) {
             showPhrase(phrase);
@@ -252,7 +255,6 @@ export function startGame(room: RoomEntry) {
       roomState?.isDiceRolling
     ) {
       diceIsRolling = true;
-
       throwDice(roomState.lastDiceResult);
       syncDiceHelper(
         roomState,
@@ -295,8 +297,6 @@ export function startGame(room: RoomEntry) {
     } else {
       Steps.clear();
     }
-
-    previousRoomState = roomState;
   });
 
   updateRoom(roomId, {
