@@ -54,8 +54,19 @@ export function initShipSync(roomId: string) {
         const side: Side = d.shipQa?.startsWith('p1-') ? 'left' : 'right';
         const from =
           d.fromIndex === null ? null : d.fromIndex === 27 ? 'final-0' : `field-${d.fromIndex}`;
-        const to =
-          d.toIndex === '0' ? 'final-0' : /^\d+$/.test(d.toIndex) ? `field-${d.toIndex}` : d.toIndex;
+
+        const toRaw =
+          d.toIndex === '0'
+            ? 'final-0'
+            : /^\d+$/.test(d.toIndex)
+            ? `field-${d.toIndex}`
+            : d.toIndex;
+
+        const normTo =
+          toRaw === 'field-25' ? 'final-2' :
+          toRaw === 'field-26' ? 'final-1' :
+          toRaw;
+
         const shipId = d.shipQa || '';
 
         const shipsPathMover = `rooms/${roomId}/ships/${side}/${shipId}`;
@@ -68,7 +79,7 @@ export function initShipSync(roomId: string) {
             side,
             shipId,
             from,
-            to,
+            to: normTo,
             usedStep: d.usedStep,
             ts: serverTimestamp(),
             ttl: 120000,
@@ -79,14 +90,14 @@ export function initShipSync(roomId: string) {
         if (type === 'overMother') {
           (patch as Record<string, unknown>)[shipsPathMover] = 'final-0';
         } else if (type === 'replaceOwn') {
-          (patch as Record<string, unknown>)[shipsPathMover] = to;
+          (patch as Record<string, unknown>)[shipsPathMover] = normTo;
           if (d.finalizedQa) {
             const finSide: Side = d.finalizedQa.startsWith('p1-') ? 'left' : 'right';
             (patch as Record<string, unknown>)[`rooms/${roomId}/ships/${finSide}/${d.finalizedQa}`] =
               'final-0';
           }
         } else {
-          (patch as Record<string, unknown>)[shipsPathMover] = to;
+          (patch as Record<string, unknown>)[shipsPathMover] = normTo;
         }
 
         await update(ref(database), patch);
@@ -132,11 +143,36 @@ export function initShipSync(roomId: string) {
 }
 
 function pickCell(pos: string): HTMLElement | null {
-  if (pos === 'final-0') return document.querySelector('.board [data-qa="final-0"]');
+  if (/^final-(0|1|2)$/.test(pos)) {
+    return (
+      document.querySelector<HTMLElement>(`.board [data-qa="${pos}"]`) ||
+      document.getElementById(pos)
+    );
+  }
+
   const id = pos.replace(/^field-/, '');
+
+  if (id === '25') {
+    return (
+      document.querySelector<HTMLElement>('.board [data-qa="final-2"]') ||
+      document.getElementById('final-2')
+    );
+  }
+
+  if (id === '26') {
+    return (
+      document.querySelector<HTMLElement>('.board [data-qa="final-1"]') ||
+      document.getElementById('final-1')
+    );
+  }
+
   return (
     document.querySelector<HTMLElement>(`.board [data-qa="field-${id}"]`) ||
-    document.querySelector<HTMLElement>(`.board [data-qa="cell-${id}"]`)
+    document.querySelector<HTMLElement>(`.board [data-qa="cell-${id}"]`) ||
+    document.querySelector<HTMLElement>(`.board [data-qa="${id}"]`) ||
+    document.querySelector<HTMLElement>(`.board .cell[data-index="${id}"]`) ||
+    document.getElementById(`field-${id}`) ||
+    document.getElementById(`cell-${id}`)
   );
 }
 
