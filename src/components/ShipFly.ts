@@ -39,33 +39,16 @@ function getCellCenter(el: HTMLElement): Point {
 }
 
 function getCellByIndex(index: number): HTMLElement | null {
-  if (index >= FINAL_0) {
-    return (
-      document.querySelector<HTMLElement>('.board [data-qa="final-0"]') ||
-      document.querySelector<HTMLElement>('.board [data-qa^="final-"]')
-    );
+  if (index === FINAL_2) {
+    return document.querySelector<HTMLElement>('.board [data-qa="final-2"]');
   }
   if (index === FINAL_1) {
-    return (
-      document.querySelector<HTMLElement>('.board [data-qa="final-1"]') ||
-      document.querySelector<HTMLElement>('.board [data-qa="cell-26"]') ||
-      document.querySelector<HTMLElement>('.board [data-qa="field-26"]') ||
-      document.querySelector<HTMLElement>('.board .cell[data-index="26"]')
-    );
+    return document.querySelector<HTMLElement>('.board [data-qa="final-1"]');
   }
-  if (index === FINAL_2) {
-    return (
-      document.querySelector<HTMLElement>('.board [data-qa="final-2"]') ||
-      document.querySelector<HTMLElement>('.board [data-qa="cell-25"]') ||
-      document.querySelector<HTMLElement>('.board [data-qa="field-25"]') ||
-      document.querySelector<HTMLElement>('.board .cell[data-index="25"]')
-    );
+  if (index >= FINAL_0) {
+    return document.querySelector<HTMLElement>('.board [data-qa="final-0"]');
   }
-  return (
-    document.querySelector<HTMLElement>(`.board [data-qa="field-${index}"]`) ||
-    document.querySelector<HTMLElement>(`.board [data-qa="cell-${index}"]`) ||
-    document.querySelector<HTMLElement>(`.board .cell[data-index="${index}"]`)
-  );
+  return document.querySelector<HTMLElement>(`.board [data-qa="field-${index}"]`);
 }
 
 function buildPath(fromIndex: number | null, toIndex: number): { nodes: HTMLElement[]; indices: number[] } {
@@ -83,14 +66,23 @@ function buildPath(fromIndex: number | null, toIndex: number): { nodes: HTMLElem
   };
 
   const limit = Math.min(endStep, FINAL_2 - 1);
-  for (let i = startStep; i <= limit; i++) {
-    push(i);
+  for (let i = startStep; i <= limit; i++) push(i);
+
+  if (endStep === FINAL_2) {
+    if (startStep <= FINAL_2) push(FINAL_2);
+    return { nodes, indices };
   }
 
-  if (endStep >= FINAL_2) {
+  if (endStep === FINAL_1) {
     if (startStep <= FINAL_2) push(FINAL_2);
-    if (endStep >= FINAL_1 && startStep <= FINAL_1) push(FINAL_1);
-    if (endStep >= FINAL_0) push(FINAL_0);
+    if (startStep <= FINAL_1) push(FINAL_1);
+    return { nodes, indices };
+  }
+
+  if (endStep >= FINAL_0) {
+    if (startStep <= FINAL_2) push(FINAL_2);
+    if (startStep <= FINAL_1) push(FINAL_1);
+    push(FINAL_0);
   }
 
   return { nodes, indices };
@@ -137,14 +129,26 @@ function stepDelay(base: number, idx: number) {
   return SPECIAL_CELLS.has(idx) ? base + SPECIAL_EXTRA_MS : base;
 }
 
+function posToIndex(to: number | string): number {
+  if (typeof to === 'number') return to;
+  if (to === 'final-2') return FINAL_2;
+  if (to === 'final-1') return FINAL_1;
+  if (to === 'final-0') return FINAL_0;
+  const m = to.match(/(?:field|cell)-(\d+)/);
+  return m ? Number(m[1]) : NaN;
+}
+
 export async function flyShip(options: {
   shipEl: HTMLElement;
   fromIndex: number | null;
-  toIndex: number;
+  to: number | string;
   stepMs?: number;
   hideOriginal?: boolean;
 }) {
-  const { shipEl, fromIndex, toIndex, stepMs = STEP_BASE_MS, hideOriginal = true } = options;
+  const { shipEl, fromIndex, to, stepMs = STEP_BASE_MS, hideOriginal = true } = options;
+
+  const toIndex = posToIndex(to);
+  if (!Number.isFinite(toIndex)) return;
 
   const layer = ensureFlyLayer();
   const { nodes: path, indices } = buildPath(fromIndex, toIndex);

@@ -16,7 +16,11 @@ function parseCellIndex(cell: HTMLElement): number | null {
   const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
   const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)|final-(\d+)/);
   if (!m) return null;
-  if (m[2] !== undefined) return 27;
+  if (m[2] !== undefined) {
+    if (m[2] === '2') return 25;
+    if (m[2] === '1') return 26;
+    return 27;
+  }
   return Number(m[1]);
 }
 
@@ -145,12 +149,22 @@ async function runSimpleOverMother(cellEl: HTMLElement, simpleBtn: HTMLElement) 
 
 function parseTargetIndex(predicted: HTMLElement): number {
   const qa = predicted.getAttribute('data-qa') || '';
-  if (qa.startsWith('final-')) return 27;
+  if (qa === 'final-2') return 25;
+  if (qa === 'final-1') return 26;
+  if (qa === 'final-0') return 27;
   const m = qa.match(/\d+/)?.[0];
   if (m) return Number(m);
   const di = predicted.getAttribute('data-index');
   if (di && /^\d+$/.test(di)) return Number(di);
   return NaN;
+}
+
+function posToIndex(pos: string): number {
+  if (pos === 'final-2') return 25;
+  if (pos === 'final-1') return 26;
+  if (pos === 'final-0') return 27;
+  const m = pos.match(/(?:field|cell)-(\d+)/);
+  return m ? Number(m[1]) : NaN;
 }
 
 function prevIndex(idx: number): number {
@@ -244,12 +258,11 @@ export function setupShipMove() {
 
           const shipQa = shipEl.getAttribute('data-qa') || null;
           const toQa = predicted.getAttribute('data-qa') || predicted.getAttribute('data-index') || '';
-          let toIndexNum = toQa.match(/\d+/)?.[0] ? Number(toQa.match(/\d+/)![0]) : 27;
-          if (/^final-/.test(toQa)) toIndexNum = 27;
+          const toIndexNum = posToIndex(toQa);
           const prevIdx = prevIndex(toIndexNum);
 
           if (fromIndex == null || prevIdx > fromIndex) {
-            await flyShip({ shipEl, fromIndex, toIndex: prevIdx, stepMs: 160, hideOriginal: false });
+            await flyShip({ shipEl, fromIndex, to: prevIdx, stepMs: 160, hideOriginal: false });
           }
 
           emitDone({
@@ -279,7 +292,7 @@ export function setupShipMove() {
 
       const toIndexNum = parseTargetIndex(predicted);
 
-      await flyShip({ shipEl, fromIndex, toIndex: toIndexNum, stepMs: 160 });
+      await flyShip({ shipEl, fromIndex, to: toIndexNum, stepMs: 160 });
 
       predicted.appendChild(shipEl);
 
