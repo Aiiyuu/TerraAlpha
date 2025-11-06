@@ -16,6 +16,8 @@ type HelperArgs = {
   type: HelperTypes;
   onAccept?: () => void;
   onReject?: () => void;
+  priority?: number;
+  dedupeKey?: string;
 };
 
 export enum HelperTypes {
@@ -33,9 +35,9 @@ const helperFaceTypes: Record<HelperTypes, HelperRobotType> = {
 };
 
 const DEFAULT_DURATION = 3000;
-const INTERFAL_BETWEEN_HELPER = 500;
+const INTERVAL_BETWEEN = 500;
 const WORD_PRINT_INTERVAL = 20;
-const queue: HelperArgs[] = [];
+const DEDUPE_TTL = 3000;
 
 const { startSound, stopSound } = createSound({
   src: helperSoundSrc,
@@ -43,129 +45,142 @@ const { startSound, stopSound } = createSound({
   infinite: true,
 });
 
+const queue: HelperArgs[] = [];
+let visible = false;
+let current: {
+  timeoutId: ReturnType<typeof setTimeout> | null;
+  onAccept?: () => void;
+  onReject?: () => void;
+  args: HelperArgs;
+} | null = null;
+
+const dedupeMap = new Map<string, number>();
+
 export function setUpHelperBtn() {
   const isOff = getIsDisabled();
   const helperBtn = document.getElementById("helper-btn") as HTMLElement;
-
   if (isOff) helperBtn.classList.add("is-off");
-
   helperBtn.addEventListener("click", () => {
     const isDisabled = getIsDisabled();
     localStorage.setItem("helperIsDisabled", String(!isDisabled));
-
-    if (!isDisabled) {
-      helperBtn.classList.add("is-off");
-    } else {
-      helperBtn.classList.remove("is-off");
-    }
+    if (!isDisabled) helperBtn.classList.add("is-off");
+    else helperBtn.classList.remove("is-off");
   });
 }
 
-export function triggerHelper({
-  duration = DEFAULT_DURATION,
-  text,
-  type,
-  onAccept,
-  onReject,
-}: HelperArgs) {
-  // Skip hint if disabled
-  if (getIsDisabled() && type === HelperTypes.HELPER_HINT) return;
+export function triggerHelper(rawArgs: HelperArgs) {
+  const args: HelperArgs = {
+    duration: rawArgs.duration ?? DEFAULT_DURATION,
+    text: rawArgs.text,
+    type: rawArgs.type,
+    onAccept: rawArgs.onAccept,
+    onReject: rawArgs.onReject,
+    priority: rawArgs.priority ?? 0,
+    dedupeKey: rawArgs.dedupeKey,
+  };
 
-  // Queue if another helper is already visible
-  if (helper.classList.contains("visible")) {
-    queue.push({ duration, text, type, onAccept, onReject });
+  if (getIsDisabled() && args.type === HelperTypes.HELPER_HINT) return;
+
+  if (args.dedupeKey) {
+    const now = Date.now();
+    const last = dedupeMap.get(args.dedupeKey) ?? 0;
+    if (now - last < DEDUPE_TTL) return;
+    dedupeMap.set(args.dedupeKey, now);
+  }
+
+  if (!visible) {
+    showNow(args);
     return;
   }
 
-  let timeOutId: ReturnType<typeof setTimeout> | null = null;
+  const isPenaltyIncoming = args.priority! > (current?.args.priority ?? 0);
+  if (isPenaltyIncoming) {
+    preemptAndShow(args);
+    return;
+  }
 
-  const cleanupChoiceListeners = () => {
-    acceptBtn.removeEventListener("click", onAcceptClick);
-    rejectBtn.removeEventListener("click", onRejectClick);
-  };
+  queue.push(args);
+  queue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+}
 
-  const triggerNextHelper = () => {
-    if (queue.length > 0) {
-      const next = queue.shift()!;
-      setTimeout(() => triggerHelper(next), INTERFAL_BETWEEN_HELPER);
-    }
-  };
+function preemptAndShow(args: HelperArgs) {
+  if (current?.timeoutId) clearTimeout(current.timeoutId);
+  cleanupChoiceListeners(current?.onAccept, current?.onReject);
+  hideImmediate();
+  setTimeout(() => showNow(args), 0);
+}
 
-  const hideAndContinue = () => {
-    hideHelper();
-    cleanupChoiceListeners();
-    if (timeOutId) clearTimeout(timeOutId);
-    triggerNextHelper();
-  };
+function showNow(args: HelperArgs) {
+  visible = true;
+  startSound();
+  setHelperState(helperFaceTypes[args.type]);
+  helper.classList.add("visible");
+  helperText.innerText = "";
+  helperBar.style.animation = "none";
+  void helperBar.offsetWidth;
+  helperBar.style.animation = `helper-bar ${args.duration}ms linear`;
+
+  if (args.type === HelperTypes.HELPER_OFFER) {
+    helperBtns.classList.add("visible");
+  } else {
+    helperBtns.classList.remove("visible");
+  }
+
+  let i = 0;
+  const text = args.text;
+  const printer = setInterval(() => {
+    helperText.innerText = text.slice(0, i + 1);
+    i++;
+    if (i >= text.length) clearInterval(printer);
+  }, WORD_PRINT_INTERVAL);
 
   const onAcceptClick = () => {
-    hideAndContinue();
-    if (onAccept) onAccept();
+    hideAndNext();
+    args.onAccept?.();
   };
-
   const onRejectClick = () => {
-    hideAndContinue();
-    if (onReject) onReject();
+    hideAndNext();
+    args.onReject?.();
   };
 
-  if (type === HelperTypes.HELPER_OFFER) {
+  if (args.type === HelperTypes.HELPER_OFFER) {
     acceptBtn.addEventListener("click", onAcceptClick);
     rejectBtn.addEventListener("click", onRejectClick);
   }
 
-  displayHelper(text, type, duration);
+  const timeoutId = setTimeout(() => {
+    hideAndNext();
+  }, args.duration);
 
-  // Schedule auto-hide if no user interaction
-  timeOutId = setTimeout(() => {
-    hideHelper();
-    cleanupChoiceListeners();
-    triggerNextHelper();
-  }, duration);
+  current = { timeoutId, onAccept: onAcceptClick, onReject: onRejectClick, args };
 }
 
-function setHelperState(type: HelperRobotType) {
-  Object.values(HelperRobotType).forEach((value) => {
-    helperIcon.classList.remove(value);
-  });
-
-  helperIcon.classList.add(type);
-  helperIcon.innerHTML = helperSVG(type);
+function hideAndNext() {
+  cleanupChoiceListeners(current?.onAccept, current?.onReject);
+  hideImmediate();
+  setTimeout(() => {
+    const next = queue.shift();
+    if (next) showNow(next);
+  }, INTERVAL_BETWEEN);
 }
 
-function displayHelper(
-  text: HelperArgs["text"],
-  type: HelperTypes,
-  duration: HelperArgs["duration"]
-) {
-  startSound();
-  setHelperState(helperFaceTypes[type]);
-
-  helper.classList.add("visible");
-  helperText.innerText = "";
-
-  helperBar.style.animation = "none";
-  void helperBar.offsetWidth; // Restart CSS animation
-  helperBar.style.animation = `helper-bar ${duration}ms linear`;
-
-  if (type === HelperTypes.HELPER_OFFER) {
-    helperBtns.classList.add("visible");
-  }
-
-  let i = 0;
-  const interval = setInterval(() => {
-    helperText.innerText = text.slice(0, i + 1);
-    i++;
-
-    if (i >= text.length) {
-      clearInterval(interval);
-    }
-  }, WORD_PRINT_INTERVAL);
-}
-
-function hideHelper() {
+function hideImmediate() {
   stopSound();
   helper.classList.remove("visible");
   helperBtns.classList.remove("visible");
+  visible = false;
+  current = null;
+}
+
+function cleanupChoiceListeners(onAccept?: () => void, onReject?: () => void) {
+  if (onAccept) acceptBtn.removeEventListener("click", onAccept);
+  if (onReject) rejectBtn.removeEventListener("click", onReject);
+}
+
+function setHelperState(type: HelperRobotType) {
+  Object.values(HelperRobotType).forEach((value) => helperIcon.classList.remove(value));
+  helperIcon.classList.add(type);
+  helperIcon.innerHTML = helperSVG(type);
 }
 
 function getIsDisabled(): boolean {

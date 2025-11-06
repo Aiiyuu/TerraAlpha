@@ -22,7 +22,7 @@ import { setupPrediction } from "../components/prediction";
 import { setupShipMove } from "../components/shipMove";
 import { initShipSync } from "../components/ShipSync";
 import { initMainPrediction } from "./MainPrediction";
-import { initPlayerBlockedInfo } from "../components/playerBlockedInfo";
+import { initPlayerBlockedInfo } from "./playersPenalty";
 import { initPlayerWin } from "../components/playerWin";
 import bgMusicSrc from "../assets/sounds/background-music.mp3";
 import { createSound } from "./sound";

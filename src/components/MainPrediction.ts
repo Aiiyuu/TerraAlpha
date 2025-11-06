@@ -101,16 +101,13 @@ function isAllowedOwnStack(target: PosKey, moverId: string, mineByPos: Map<PosKe
 function computeTarget(from: ShipPos, step: number): PosKey | null {
   if (!Number.isFinite(step) || step <= 0) return null;
   const { base, sub } = parsePos(from);
-
   if (base === null) {
     const proj = step;
     if (proj >= 27) return "final-0";
     if (proj === 24) return null;
     return chooseLandingFromBase(proj);
   }
-
   if (base === 24) return null;
-
   if (base === 6 || base === 12 || base === 18) {
     if (sub === "1") {
       if (step <= 1) return null;
@@ -127,15 +124,33 @@ function computeTarget(from: ShipPos, step: number): PosKey | null {
       return chooseLandingFromBase(proj);
     }
   }
-
   if (base === 23 && step >= 4) return "final-0";
   if (base === 25 && step >= 2) return "final-0";
   if (base === 26 && step >= 1) return "final-0";
-
   const proj = base + step;
   if (proj === 24) return null;
   if (proj >= 27) return "final-0";
   return chooseLandingFromBase(proj);
+}
+
+function isGatewayKey(k: PosKey) {
+  return /^field-(6|12|18)$/.test(k);
+}
+
+function resolveGateway(
+  baseKey: PosKey,
+  moverId: string,
+  mineByPos: Map<PosKey, string[]>,
+  oppByPos: Map<PosKey, string[]>,
+): PosKey | null {
+  const options: PosKey[] = [`${baseKey}-1`, `${baseKey}-2`];
+  for (const key of options) {
+    const hasOpp = (oppByPos.get(key)?.length || 0) > 0;
+    if (hasOpp) continue;
+    if (!isAllowedOwnStack(key, moverId, mineByPos)) continue;
+    return key;
+  }
+  return null;
 }
 
 function canShipMove(
@@ -150,9 +165,14 @@ function canShipMove(
   const mineByPos = makePosIndexMap(mine);
   const oppByPos = makePosIndexMap(opp);
   for (const s of steps) {
-    const target = computeTarget(from, s);
+    let target = computeTarget(from, s);
     if (!target) continue;
     if (target === "final-0") return true;
+    if (isGatewayKey(target)) {
+      const resolved = resolveGateway(target, id, mineByPos, oppByPos);
+      if (!resolved) continue;
+      target = resolved;
+    }
     if (isOccupiedByOpponent(target, oppByPos)) continue;
     if (!isAllowedOwnStack(target, id, mineByPos)) continue;
     return true;
@@ -219,13 +239,10 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
 
   const unsub = listeToRoomById(roomId, async (room: Room | undefined) => {
     if (!room) return;
-
     const turnSide = room.isTurn as Side | undefined;
     if (!turnSide) return;
-
     const snap = buildSnapshot(room, turnSide);
     const h = hashSnapshot(snap);
-
     if (prevTurnSide !== snap.turnSide && prevTurnSide !== undefined) {
       await safeUpdate(roomId, {
         "shipsState/left": null,
@@ -238,16 +255,13 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
       prevStatuses = null;
     }
     prevTurnSide = snap.turnSide;
-
     const nowJson = JSON.stringify(snap.stepsStrike);
     if (!lastSentSteps || lastSentSteps.side !== turnSide || lastSentSteps.json !== nowJson) {
       await safeUpdate(roomId, { [`currentStepsStrike/${turnSide}`]: snap.stepsStrike } as FirebasePatch);
       lastSentSteps = { side: turnSide, json: nowJson };
     }
-
     const last = (room as RoomWithLastDice).lastDiceResult;
     const finalized = last !== 6;
-
     if (finalized && snap.stepsStrike.length > 0) {
       const statuses = buildShipStatuses(snap.shipsMine, snap.shipsOpp, snap.availableSteps);
       const patch: FirebasePatch = {};
@@ -260,11 +274,9 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
         await safeUpdate(roomId, patch);
         prevStatuses = statuses;
       }
-
       const can = Object.values(statuses).some((s) => s === "canMove");
       await safeUpdate(roomId, { [`canPlayerMoveShips/${turnSide}`]: can } as FirebasePatch);
     }
-
     if (prevHash !== h) prevHash = h;
   });
 
