@@ -288,10 +288,15 @@ export function startGame(room: RoomEntry) {
     }
 
     if (hasIndex) {
-      const myStreak = roomState.players[myIndex]?.diceStreak ?? [];
+      const raw = roomState.currentStepsStrike?.[mySideByIndex || "left"];
+      const strike = raw ? Object.values(raw) : [];
       const canUseSteps =
-        haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex && !roomState.isDiceRolling;
-      Steps.render(myStreak, canUseSteps);
+        haveTwoPlayers &&
+        turnIndex !== -1 &&
+        myIndex === turnIndex &&
+        !roomState.isDiceRolling &&
+        !!raw;
+      Steps.render(strike, canUseSteps);
     } else {
       Steps.clear();
     }
@@ -359,6 +364,7 @@ export function startGame(room: RoomEntry) {
       void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, {
         diceStreak: [],
       });
+      void updateRoom(roomId, { currentStepsStrike: { left: {}, right: {} } });
       Steps.clear();
 
       const nextTurn: Side =

@@ -7,6 +7,8 @@ type OnStepClick = (value: number, index: number) => void;
 let container: HTMLDivElement | null = null;
 let lastButtons: HTMLButtonElement[] = [];
 let isInitialized = false;
+let selectedIndex: number | null = null;
+let selectedValue: number | null = null;
 
 export function initStepsUI() {
   if (isInitialized) return;
@@ -28,6 +30,32 @@ export function clearStepsButtons() {
   if (!container) return;
   lastButtons.forEach(b => b.remove());
   lastButtons = [];
+  selectedIndex = null;
+  selectedValue = null;
+}
+
+function clearSelection() {
+  lastButtons.forEach(b => b.classList.remove("is-active"));
+  selectedIndex = null;
+  selectedValue = null;
+}
+
+export function getStepsForMove(): number | null {
+  return selectedValue;
+}
+
+export function consumeCurrent() {
+  if (selectedIndex == null) return;
+  consumeStepAt(selectedIndex);
+  clearSelection();
+}
+
+export function consumeStep(n: number) {
+  const i = lastButtons.findIndex(b => Number(b.dataset.value) === n);
+  if (i >= 0) {
+    consumeStepAt(i);
+    if (selectedIndex === i) clearSelection();
+  }
 }
 
 export function renderStepsButtons(streak: number[], enabled: boolean, onClick: OnStepClick) {
@@ -48,9 +76,16 @@ export function renderStepsButtons(streak: number[], enabled: boolean, onClick: 
     btn.className = "steps-btn";
     btn.classList.add(`steps-btn--${side}`);
     btn.textContent = String(value);
+    btn.dataset.value = String(value);
+    btn.dataset.index = String(index);
     btn.disabled = !enabled;
 
     btn.addEventListener("click", () => {
+      if (btn.disabled) return;
+      lastButtons.forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      selectedIndex = index;
+      selectedValue = value;
       onClick(value, index);
     });
 

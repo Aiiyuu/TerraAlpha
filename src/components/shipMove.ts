@@ -2,12 +2,14 @@ import Steps from '../components/stepsButtons';
 import { animateShipFinalize } from '../utility/shipsFinalAnimation';
 import { runShipReplace } from '../utility/shipReplace';
 import { flyShip } from '../components/ShipFly';
+import { consumeSteps, getCurrentRoomId } from '../server/server';
 
 type Side = 'left' | 'right';
 type MoveKind = 'replaceOwn' | 'overMother' | 'move' | 'finalize';
 
 interface StepsApi {
   getStepsForMove?: () => number | null | undefined;
+  getSelectedIndices?: () => number[];
   consumeCurrent?: () => void;
   consumeStep?: (n: number) => void;
 }
@@ -113,40 +115,6 @@ function emitDone(detail: {
   document.dispatchEvent(new CustomEvent('shipmove:done', { detail }));
 }
 
-function consumeUsedStep(usedStep: number) {
-  document.dispatchEvent(new CustomEvent('steps:consume-current', { detail: { value: usedStep } }));
-  const api = Steps as unknown as StepsApi;
-  api.consumeCurrent?.();
-  api.consumeStep?.(usedStep);
-}
-
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-function waitForAnimation(el: Element, timeout: number) {
-  return new Promise<void>((resolve) => {
-    let done = false;
-    const onEnd = () => {
-      if (done) return;
-      done = true;
-      el.removeEventListener('animationend', onEnd);
-      resolve();
-    };
-    el.addEventListener('animationend', onEnd, { once: true });
-    setTimeout(onEnd, timeout + 50);
-  });
-}
-
-async function runSimpleOverMother(cellEl: HTMLElement, simpleBtn: HTMLElement) {
-  ensureDataSide(simpleBtn);
-  const motherBtn = cellEl.querySelector<HTMLElement>('.cell-btn');
-  motherBtn?.classList.remove('ta-bump');
-  simpleBtn.classList.add('is-overlay', 'over-spin');
-  ensureDataSide(motherBtn || simpleBtn);
-  cellEl.appendChild(simpleBtn);
-  await waitForAnimation(simpleBtn, 300);
-  simpleBtn.remove();
-}
-
 function parseTargetIndex(predicted: HTMLElement): number {
   const qa = predicted.getAttribute('data-qa') || '';
   if (qa === 'final-2') return 25;
@@ -191,7 +159,8 @@ export function setupShipMove() {
 
       const api = Steps as unknown as StepsApi;
       const planned = api.getStepsForMove?.() ?? null;
-      if (!Number.isFinite(planned) || (planned as number) <= 0) return;
+      const selectedIdx = api.getSelectedIndices?.() ?? [];
+      if (!Number.isFinite(planned) || (planned as number) <= 0 || selectedIdx.length === 0) return;
 
       const predictedNormal = getPredictedCell();
       const predictedReplace = getReplaceOwnTargetCell();
@@ -209,6 +178,13 @@ export function setupShipMove() {
       const activeSide = getShipSide(shipEl);
       const activeIsMother = isMotherShip(shipEl);
       const occ = getCellOccupant(predicted);
+
+      try {
+        await consumeSteps(getCurrentRoomId(), selectedIdx);
+        api.consumeCurrent?.();
+      } catch {
+        return;
+      }
 
       if (occ) {
         if (!activeSide || !occ.side || occ.side !== activeSide) {
@@ -235,8 +211,6 @@ export function setupShipMove() {
             moveKind: 'replaceOwn',
           });
 
-          await sleep(120);
-
           await runShipReplace({
             cellEl: predicted,
             outBtn,
@@ -249,7 +223,6 @@ export function setupShipMove() {
             animateShipFinalize(shipEl, shipQa);
           }
 
-          consumeUsedStep(planned as number);
           return;
         }
 
@@ -275,11 +248,27 @@ export function setupShipMove() {
             moveKind: 'overMother',
           });
 
-          await sleep(120);
+          await (async function runSimpleOverMother(cellEl: HTMLElement, simpleBtn: HTMLElement) {
+            ensureDataSide(simpleBtn);
+            const motherBtn = cellEl.querySelector<HTMLElement>('.cell-btn');
+            motherBtn?.classList.remove('ta-bump');
+            simpleBtn.classList.add('is-overlay', 'over-spin');
+            ensureDataSide(motherBtn || simpleBtn);
+            cellEl.appendChild(simpleBtn);
+            await new Promise<void>((resolve) => {
+              let done = false;
+              const onEnd = () => {
+                if (done) return;
+                done = true;
+                simpleBtn.removeEventListener('animationend', onEnd);
+                resolve();
+              };
+              simpleBtn.addEventListener('animationend', onEnd, { once: true });
+              setTimeout(onEnd, 350);
+            });
+            simpleBtn.remove();
+          })(predicted, shipEl);
 
-          await runSimpleOverMother(predicted, shipEl);
-
-          consumeUsedStep(planned as number);
           return;
         }
 
@@ -310,8 +299,6 @@ export function setupShipMove() {
       if (predicted.getAttribute('data-qa') === 'final-0') {
         animateShipFinalize(shipEl, shipQa);
       }
-
-      consumeUsedStep(planned as number);
     },
     true,
   );

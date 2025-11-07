@@ -2,8 +2,8 @@ import type { Action } from "./action.ts";
 import type { Phrase } from "./phrase.ts";
 import type { Player } from "./player.ts";
 
-/* [ADDED] Типи для сторін і кораблів */
 export type Side = "left" | "right";
+
 export type ShipPos =
   | "hand"
   | `field-${
@@ -61,6 +61,16 @@ export interface RoomShips {
   right: PlayerShipsRight;
 }
 
+export interface StepsStrike {
+  values: number[];
+  side: Side;
+  total?: number;
+  updatedAt?: number;
+}
+
+/** Формат, який зараз зберігається у Firebase */
+export type CurrentStepsStrike = Record<Side, Record<number, number>>;
+
 export interface Room {
   id: number;
   authorId: number;
@@ -80,6 +90,9 @@ export interface Room {
   coinShown?: boolean;
   ships?: RoomShips;
   events?: unknown;
+
+  stepsStrike?: StepsStrike;
+  currentStepsStrike?: CurrentStepsStrike;
 }
 
 export interface RoomEntry {

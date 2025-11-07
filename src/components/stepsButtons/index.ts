@@ -9,16 +9,13 @@ type StepsPayloadMap = {
 
 class Emitter {
   private map = new Map<StepsEvent, Set<(payload: unknown) => void>>();
-
   on<K extends StepsEvent>(ev: K, fn: (payload: StepsPayloadMap[K]) => void) {
     if (!this.map.has(ev)) this.map.set(ev, new Set());
     this.map.get(ev)!.add(fn as (payload: unknown) => void);
   }
-
   off<K extends StepsEvent>(ev: K, fn: (payload: StepsPayloadMap[K]) => void) {
     this.map.get(ev)?.delete(fn as (payload: unknown) => void);
   }
-
   emit<K extends StepsEvent>(ev: K, payload: StepsPayloadMap[K]) {
     this.map.get(ev)?.forEach(fn => (fn as (p: StepsPayloadMap[K]) => void)(payload));
   }
@@ -36,6 +33,7 @@ class StepsContainer {
   private comboBtn: HTMLButtonElement | null = null;
   private buttons: StepsButton[] = [];
   private enabled = false;
+  private pending = false;
   private stepsForMove: number | null = null;
 
   mountBefore(el: HTMLElement) {
@@ -54,7 +52,7 @@ class StepsContainer {
     combo.className = "steps-btn";
     combo.style.display = "none";
     combo.addEventListener("click", () => {
-      if (!this.enabled) return;
+      if (!this.enabled || this.pending) return;
       this.state.clearSelection();
       this.paint();
       this.emitter.emit("step:clear", undefined);
@@ -72,8 +70,8 @@ class StepsContainer {
     if (streakChanged) {
       this.buttons.forEach(b => b.destroy());
       this.buttons = streak.map((v, i) => {
-        const btn = new StepsButton(v, () => {
-          if (!this.enabled) return;
+        const btn = new StepsButton(v, i, () => {
+          if (!this.enabled || this.pending) return;
           const before = this.state.getSelectedIndices().length;
           const { total, indices } = this.state.selectIndex(i);
           this.paint();
@@ -105,8 +103,23 @@ class StepsContainer {
     return this.state.getSelectedIndices().length;
   }
 
+  getSelectedIndices(): number[] {
+    return this.state.getSelectedIndices();
+  }
+
   getStepsForMove(): number | null {
     return this.stepsForMove;
+  }
+
+  consumeCurrent() {
+    this.state.clearSelection();
+    this.paint();
+    this.emitter.emit("step:clear", undefined);
+  }
+
+  setPending(p: boolean) {
+    this.pending = p;
+    this.paint();
   }
 
   on<K extends StepsEvent>(ev: K, fn: (payload: StepsPayloadMap[K]) => void) {
@@ -126,7 +139,7 @@ class StepsContainer {
     this.stepsForMove = total;
 
     this.buttons.forEach((btn, idx) => {
-      btn.setEnabled(this.enabled);
+      btn.setEnabled(this.enabled && !this.pending);
       const isChosen = selected.has(idx);
       btn.setHidden(isChosen);
       btn.setDimmed(total !== null && !isChosen);
@@ -134,7 +147,7 @@ class StepsContainer {
 
     if (total !== null && selected.size > 0) {
       this.comboBtn.style.display = "";
-      this.comboBtn.disabled = !this.enabled;
+      this.comboBtn.disabled = !this.enabled || this.pending;
       this.comboBtn.textContent = String(total);
       this.comboBtn.classList.remove("steps-btn--left", "steps-btn--right");
       const side = getCurrentTurnSide();

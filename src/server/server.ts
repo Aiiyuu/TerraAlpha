@@ -17,6 +17,10 @@ const shipsSideRef = (roomId: Room["id"], side: Side) => child(roomRef(roomId), 
 const shipRef = (roomId: Room["id"], side: Side, shipId: string) =>
   child(roomRef(roomId), `ships/${side}/${shipId}`);
 
+const currentStepsStrikeRef = (roomId: Room["id"]) => child(roomRef(roomId), "currentStepsStrike");
+const currentStepsStrikeSideRef = (roomId: Room["id"], side: Side) =>
+  child(roomRef(roomId), `currentStepsStrike/${side}`);
+
 function toPlayer(entry: PlayerEntry): Player {
   return {
     ...entry,
@@ -61,19 +65,17 @@ export function listeToRoomById(
 }
 
 export async function addActionToRoom(roomId: Room["id"], action: Partial<Action>): Promise<void> {
-  const ref = roomRef(roomId);
-  const snap = await get(ref);
+  const r = roomRef(roomId);
+  const snap = await get(r);
 
   if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
 
   const roomData = snap.val() as Room;
   const actions: Action[] = roomData.actions || [];
-  
   action.id = getRandomId();
-
   actions.push(action as Action);
 
-  await update(ref, { actions });
+  await update(r, { actions });
 }
 
 export async function updateRoom(roomId: Room["id"], updates: Partial<Room>): Promise<void> {
@@ -103,10 +105,9 @@ export async function addPhraseToRoom(roomId: Room["id"], newPhrase: Phrase): Pr
   const rRef = roomRef(roomId);
   const snap = await get(rRef);
   if (!snap.exists()) throw new Error("Room does not exist");
-  
+
   const roomData = snap.val() as Room;
   const phrases: Phrase[] = roomData.phrases || [];
-
 
   const exists = phrases.some(p => p.id === newPhrase.id);
   if (!exists) {
@@ -173,8 +174,8 @@ export async function clearOutdatedRooms(): Promise<void> {
 }
 
 export async function clearOutdatedActions(roomId: Room['id']): Promise<void> {
-  const ref = roomRef(roomId);
-  const snap = await get(ref);
+  const r = roomRef(roomId);
+  const snap = await get(r);
 
   if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
 
@@ -188,7 +189,7 @@ export async function clearOutdatedActions(roomId: Room['id']): Promise<void> {
   });
 
   if (validActions.length !== actions.length) {
-    await update(ref, { actions: validActions });
+    await update(r, { actions: validActions });
   }
 }
 
@@ -221,4 +222,29 @@ export async function patchShips(
   patch: Record<string, ShipPos>,
 ): Promise<void> {
   await update(shipsSideRef(roomId, side), patch);
+}
+
+export async function getStepsStrike(roomId: Room["id"], side?: Side) {
+  const snap = await get(currentStepsStrikeRef(roomId));
+  if (!snap.exists()) return undefined;
+  const data = snap.val();
+  return side ? data?.[side] : data;
+}
+
+export async function consumeSteps(roomId: Room["id"], usedIndices: number[]): Promise<void> {
+  const roomSnap = await get(roomRef(roomId));
+  if (!roomSnap.exists()) return;
+
+  const room = roomSnap.val() as Room;
+  const side = room.isTurn as Side | undefined;
+  if (!side) return;
+
+  const strikeSnap = await get(currentStepsStrikeSideRef(roomId, side));
+  if (!strikeSnap.exists()) return;
+
+  const arr = strikeSnap.val();
+  if (!Array.isArray(arr)) return;
+
+  const remaining = arr.filter((_: unknown, i: number) => !usedIndices.includes(i));
+  await set(currentStepsStrikeSideRef(roomId, side), remaining);
 }
