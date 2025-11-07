@@ -21,8 +21,8 @@
       "acceptRestart": "✅ Data confirmed: {name} approved your game restart proposal 🔄. Reboot starting 🚀!",
       "rejectRestart": "⚠️ Alarm! {name} rejected your game restart proposal ❌. System continues in current mode 🛸!",
       "coinWinner": {
-        "current": "🤖 Beep-beep! You won the coin toss 🪙! It’s your turn now 🎲. Don’t delay!",
-        "other": "🛰️ Signal from {name}: won the coin toss 🪙. Their turn now!"
+        "current": "🤖 Beep-beep! You won the coin toss ☘️! It’s your turn now 🎲. Don’t delay!",
+        "other": "🛰️ Signal from {name}: won the coin toss ☘️. Their turn now!"
       },
       "diceStreak": {
         "current": "🎲 Bingo! You rolled a 6️⃣! Roll again 🤖",
@@ -67,7 +67,7 @@
       "rejectRestart": "⚠️ Аларм! {name} відхилив(ла) вашу пропозицію перезапустити гру ❌. Система продовжує роботу в поточному режимі 🛸!",
       "coinWinner": {
         "current": "🤖 Біп-біп! Ти виграв у монетку ☘️! Твій хід зараз 🎲. Не зволікай!",
-        "other": "🛰️ Сигнал від {name}: виграв у монетку 🪙. Черга за ним!"
+        "other": "🛰️ Сигнал від {name}: виграв у монетку ☘️. Черга за ним!"
       },
       "diceStreak": {
         "current": "🎲 Бінго! Тобі випало 6️⃣! Знову твоя черга кидати кубик 🤖",

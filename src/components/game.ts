@@ -70,6 +70,9 @@ const { startSound: startBgMusic } = createSound({
   infinite: true,
 });
 
+const coinStart = () => window.dispatchEvent(new Event("coin:start"));
+const coinEnd = () => window.dispatchEvent(new Event("coin:end"));
+
 const safeUpdate = (id: Room["id"], patch: FirebasePatch) =>
   updateRoom(id, patch).catch(() => undefined);
 
@@ -241,8 +244,10 @@ export function startGame(room: RoomEntry) {
 
     if (shouldFlipOnce) {
       const side: Side = coinNode?.result ?? (effectiveTurnSide as Side);
+      coinStart();
       declareCoinResult(side, currentPlayerSide || "left", roomState);
       flipCoin(side);
+      setTimeout(() => coinEnd(), HIDE_DICE_DELAY);
     }
 
     if (roomState.phrases) {
