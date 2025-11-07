@@ -65,6 +65,7 @@ let stopPlayerWin: (() => void) | null = null;
 let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null =
   null;
 let autoProbe: ReturnType<typeof initAutoEndTurnProbe> | null = null;
+let autoDiceDuplicated = false;
 
 const { startSound: startBgMusic } = createSound({
   src: bgMusicSrc,
@@ -174,13 +175,32 @@ export function startGame(room: RoomEntry) {
       autoProbe?.reset();
     }
 
+    if (prev?.timerState !== roomState.timerState) {
+      autoDiceDuplicated = false;
+    }
+
     syncActions(roomState.actions || []);
     syncResetBtn(current.lastResetOffer);
     detectTimerChanges(
       prev?.timerState,
       roomState.timerState!,
       currentPlayerSide === roomState.isTurn,
-      { onTick: (sec) => autoProbe?.onTick(sec) }
+      {
+        onTick: (sec) => autoProbe?.onTick(sec),
+        thresholdSeconds: 45,
+        onThreshold: () => {
+          if (autoDiceDuplicated) return;
+          if (!currentPlayerSide) return;
+          if (currentPlayerSide !== roomState.isTurn) return;
+          if (!mainBtn) return;
+          if (mainBtn.classList.contains("disabled")) return;
+          if (roomState.isDiceRolling) return;
+          const btnType = mainBtn.getAttribute("data-type");
+          if (btnType !== "dice") return;
+          autoDiceDuplicated = true;
+          mainBtn.click();
+        },
+      }
     );
 
     if (!currentPlayerId) {
