@@ -3,57 +3,42 @@ import { HelperTypes, triggerHelper } from "./helper";
 
 const timer: HTMLElement | null = document.getElementById("timer");
 let timerSpanList: HTMLElement[] = [];
-
 const SPAN_HEIGHT = 38;
+if (!timer) throw new Error("Timer is not found");
 
-if (!timer) {
-  throw new Error("Timer is not found");
-}
-
-/**
- * This function sets up the timer by creating its HTML markup.
- */
 export function setupTimer() {
-  const timerTextWrapper: HTMLDivElement = document.createElement("div");
+  const timerTextWrapper = document.createElement("div");
   timerTextWrapper.classList.add("timer-text");
 
-  const timerSubWrapper1: HTMLDivElement = document.createElement("div");
+  const timerSubWrapper1 = document.createElement("div");
   timerSubWrapper1.classList.add("timer-text-list");
 
-  const timerSubWrapper2: HTMLDivElement = document.createElement("div");
+  const timerSubWrapper2 = document.createElement("div");
   timerSubWrapper2.classList.add("timer-text-list");
 
   for (let i = 9; i >= 0; i--) {
-    const span: HTMLSpanElement = document.createElement("span");
+    const span = document.createElement("span");
     span.innerText = String(i);
-
     timerSubWrapper1.appendChild(span.cloneNode(true));
     timerSubWrapper2.appendChild(span);
   }
 
-  const anotherWrapper1: HTMLDivElement = document.createElement("div");
+  const anotherWrapper1 = document.createElement("div");
   anotherWrapper1.appendChild(timerSubWrapper1);
 
-  const anotherWrapper2: HTMLDivElement = document.createElement("div");
+  const anotherWrapper2 = document.createElement("div");
   anotherWrapper2.appendChild(timerSubWrapper2);
 
   timerTextWrapper.appendChild(anotherWrapper1);
   timerTextWrapper.appendChild(anotherWrapper2);
 
-  timer?.appendChild(timerTextWrapper);
+  timer!.appendChild(timerTextWrapper);
   updateTimerLook(60);
 }
 
-/**
- * This function updates the appearance of the timer and its state every second.
- * It also finds the `timerSpanList` if it has not been found yet.
- * @param time
- */
 function updateTimerLook(time: number) {
   if (!timerSpanList.length) {
-    timerSpanList = [
-      ...document.querySelectorAll(".timer-text-list"),
-    ] as HTMLElement[];
+    timerSpanList = [...document.querySelectorAll(".timer-text-list")] as HTMLElement[];
   }
 
   timerSpanList.forEach((list, index) => {
@@ -65,25 +50,29 @@ function updateTimerLook(time: number) {
     } else {
       num = Number(String(time).at(index));
     }
-
     list.style.top = `-${(9 - num) * SPAN_HEIGHT}px`;
   });
 }
 
-/**
- * Creates a timer that triggers a callback after a specified amount of time.
- */
+type TimerCallbacks = {
+  onExpire?: () => void;
+  onThreshold?: () => void;
+  onTick?: (remainingSec: number) => void;
+  thresholdSeconds?: number;
+};
+
 export function createTimer(
   startTimePoint: string,
-  timeDuration: number,
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  callback: Function,
-  isCurrentPlayer: boolean
+  timeDurationSec: number,
+  isCurrentPlayer: boolean,
+  callbacks?: TimerCallbacks
 ): () => void {
-  if (timer?.classList.contains("timer--isActive")) return () => false;
+  if (timer!.classList.contains("timer--isActive")) return () => false;
 
   const startDate = new Date(startTimePoint);
-  const endDate = new Date(startDate.getTime() + timeDuration * 1000);
+  const endDate = new Date(startDate.getTime() + timeDurationSec * 1000);
+  const threshold = Math.max(0, callbacks?.thresholdSeconds ?? 20);
+  let thresholdFired = false;
 
   const interval = setInterval(() => {
     const delay = Math.ceil((endDate.getTime() - Date.now()) / 1000);
@@ -91,16 +80,22 @@ export function createTimer(
     if (isCurrentPlayer && delay === HELPER_TIMER_WARNING_THRESHOLD / 1000) {
       triggerHelper({
         duration: HELPER_TIMER_WARNING_THRESHOLD,
-        text: helper('helper.timerWarning'),
+        text: helper("helper.timerWarning"),
         type: HelperTypes.HELPER_WARNING,
       });
     }
 
-    updateTimerLook(delay);
+    if (!thresholdFired && delay <= threshold) {
+      thresholdFired = true;
+      callbacks?.onThreshold?.();
+    }
+
+    callbacks?.onTick?.(Math.max(0, delay));
+    updateTimerLook(Math.max(0, delay));
 
     if (delay <= 0) {
       clearInterval(interval);
-      callback();
+      callbacks?.onExpire?.();
     }
   }, 1000);
 
@@ -109,16 +104,14 @@ export function createTimer(
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-let prevTimerInterval: Function | null = null;
-
+let prevTimerInterval: (() => void) | null = null;
 const CURRENT_ROUND_DURATION = 60;
 
-/* Manage timer detection */
 export function detectTimerChanges(
   prevTimer: undefined | string,
   currTimer: string,
-  isCurrentPlayer: boolean
+  isCurrentPlayer: boolean,
+  options?: TimerCallbacks
 ) {
   if (prevTimer === currTimer) return;
 
@@ -130,9 +123,7 @@ export function detectTimerChanges(
   prevTimerInterval = createTimer(
     currTimer,
     CURRENT_ROUND_DURATION,
-    () => {
-      alert("Time is up after rolling dice");
-    },
-    isCurrentPlayer
+    isCurrentPlayer,
+    options
   );
 }

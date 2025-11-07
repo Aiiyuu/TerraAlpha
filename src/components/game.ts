@@ -37,6 +37,7 @@ import {
 } from "../config";
 import { ActionTypes } from "../types/action";
 import { getEndDate } from "../utility/getEndDate";
+import { initAutoEndTurnProbe } from "../utility/autoEndTurn";
 
 type Side = "left" | "right";
 type FirebasePatch = Record<string, unknown>;
@@ -63,6 +64,7 @@ let stopPlayerBlockedInfo: (() => void) | null = null;
 let stopPlayerWin: (() => void) | null = null;
 let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null =
   null;
+let autoProbe: ReturnType<typeof initAutoEndTurnProbe> | null = null;
 
 const { startSound: startBgMusic } = createSound({
   src: bgMusicSrc,
@@ -137,9 +139,29 @@ export function startGame(room: RoomEntry) {
       stopMainPrediction?.();
       stopPlayerBlockedInfo?.();
       stopPlayerWin?.();
+      autoProbe?.destroy();
+      autoProbe = null;
     },
     { once: true }
   );
+
+  if (!autoProbe) {
+    autoProbe = initAutoEndTurnProbe({
+      mainBtn,
+      thresholdSec: 20,
+      getIsMyTurn: () => {
+        if (!previousRoomState || !currentPlayerSide) return false;
+        return previousRoomState.isTurn === currentPlayerSide;
+      },
+      getIsStrikeEmpty: () => {
+        const side = previousRoomState?.isTurn as Side | undefined;
+        if (!previousRoomState || !side) return false;
+        const raw = previousRoomState.currentStepsStrike?.[side];
+        if (!raw) return true;
+        return Object.keys(raw).length === 0;
+      },
+    });
+  }
 
   listeToRoomById(roomId, async (roomState) => {
     if (!roomState) return;
@@ -148,12 +170,17 @@ export function startGame(room: RoomEntry) {
     const current = roomState as RoomWithCoin;
     previousRoomState = roomState;
 
+    if (prev?.isTurn !== roomState.isTurn) {
+      autoProbe?.reset();
+    }
+
     syncActions(roomState.actions || []);
     syncResetBtn(current.lastResetOffer);
     detectTimerChanges(
       prev?.timerState,
       roomState.timerState!,
-      currentPlayerSide === roomState.isTurn
+      currentPlayerSide === roomState.isTurn,
+      { onTick: (sec) => autoProbe?.onTick(sec) }
     );
 
     if (!currentPlayerId) {
@@ -304,6 +331,13 @@ export function startGame(room: RoomEntry) {
       Steps.render(strike, canUseSteps);
     } else {
       Steps.clear();
+    }
+
+    const strikeSide = roomState.isTurn as Side | undefined;
+    if (strikeSide) {
+      const rawStrike = roomState.currentStepsStrike?.[strikeSide];
+      const isEmpty = !rawStrike || Object.keys(rawStrike).length === 0;
+      if (isEmpty) autoProbe?.notifyStrikeChanged();
     }
   });
 
