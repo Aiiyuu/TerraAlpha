@@ -19,7 +19,7 @@ import {
 import { detectTimerChanges } from "./timer";
 import Steps from "../components/stepsButtons";
 import { setupPrediction } from "../components/prediction";
-import { setupShipMove } from "../components/shipMove";
+import { setupShipMove } from "./shipMove";
 import { initShipSync } from "../components/ShipSync";
 import { initMainPrediction } from "./MainPrediction";
 import { initPlayerBlockedInfo } from "./playersPenalty";
@@ -159,7 +159,7 @@ export function startGame(room: RoomEntry) {
         if (!previousRoomState || !side) return false;
         const raw = previousRoomState.currentStepsStrike?.[side];
         if (!raw) return true;
-        return Object.keys(raw).length === 0;
+        return Array.isArray(raw) ? raw.length === 0 : Object.keys(raw).length === 0;
       },
     });
   }
@@ -341,13 +341,13 @@ export function startGame(room: RoomEntry) {
 
     if (hasIndex) {
       const raw = roomState.currentStepsStrike?.[mySideByIndex || "left"];
-      const strike = raw ? Object.values(raw) : [];
+      const strike = Array.isArray(raw) ? raw : raw ? Object.values(raw) : [];
       const canUseSteps =
         haveTwoPlayers &&
         turnIndex !== -1 &&
         myIndex === turnIndex &&
         !roomState.isDiceRolling &&
-        !!raw;
+        (!!raw && (Array.isArray(raw) ? raw.length > 0 : Object.keys(raw).length > 0));
       Steps.render(strike, canUseSteps);
     } else {
       Steps.clear();
@@ -356,7 +356,11 @@ export function startGame(room: RoomEntry) {
     const strikeSide = roomState.isTurn as Side | undefined;
     if (strikeSide) {
       const rawStrike = roomState.currentStepsStrike?.[strikeSide];
-      const isEmpty = !rawStrike || Object.keys(rawStrike).length === 0;
+      const isEmpty = !rawStrike
+        ? true
+        : Array.isArray(rawStrike)
+        ? rawStrike.length === 0
+        : Object.keys(rawStrike).length === 0;
       if (isEmpty) autoProbe?.notifyStrikeChanged();
     }
   });
@@ -423,7 +427,7 @@ export function startGame(room: RoomEntry) {
       void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, {
         diceStreak: [],
       });
-      void updateRoom(roomId, { currentStepsStrike: { left: {}, right: {} } });
+      void updateRoom(roomId, { currentStepsStrike: { left: [], right: [] } });
       Steps.clear();
 
       const nextTurn: Side =

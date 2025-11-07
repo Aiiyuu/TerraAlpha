@@ -1,4 +1,4 @@
-import { listeToRoomById } from "../server/server";
+import { listeToRoomById, clearCurrentStepsStrikeForTurn } from "../server/server";
 import type { Room } from "../types/room";
 import type { Side } from "../types/room";
 import { HelperTypes, triggerHelper } from "./helper";
@@ -80,6 +80,10 @@ export function initPlayerBlockedInfo(roomId: Room["id"]): () => void {
         type === "PENALTY"
           ? `${sideLabel} — PENALTY (min field: ${minField})`
           : `${sideLabel} — SIMPLE`;
+
+      if (type === "SIMPLE") {
+        void clearCurrentStepsStrikeForTurn(roomId);
+      }
 
       triggerHelper({
         duration: HELPER_NOT_YOUR_TURN_DURATION,

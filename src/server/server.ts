@@ -248,3 +248,14 @@ export async function consumeSteps(roomId: Room["id"], usedIndices: number[]): P
   const remaining = arr.filter((_: unknown, i: number) => !usedIndices.includes(i));
   await set(currentStepsStrikeSideRef(roomId, side), remaining);
 }
+
+export async function clearCurrentStepsStrikeForTurn(roomId: Room["id"]): Promise<void> {
+  const rSnap = await get(roomRef(roomId));
+  if (!rSnap.exists()) return;
+
+  const room = rSnap.val() as Room;
+  const side = room.isTurn as Side | undefined;
+  if (!side) return;
+
+  await set(currentStepsStrikeSideRef(roomId, side), []);
+}
