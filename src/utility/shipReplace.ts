@@ -54,7 +54,7 @@ export async function runShipReplace({
   const nearIndex = prevIndex(toIndex);
 
   if (fromIndex == null || nearIndex > fromIndex) {
-    await flyShip({ shipEl: motherBtn, fromIndex, toIndex: nearIndex, stepMs, hideOriginal: false });
+    await flyShip({ shipEl: motherBtn, fromIndex, to: nearIndex, stepMs, hideOriginal: false });
   }
 
   outBtn.classList.remove('ta-bump');

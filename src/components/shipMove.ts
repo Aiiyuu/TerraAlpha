@@ -14,16 +14,48 @@ interface StepsApi {
   consumeStep?: (n: number) => void;
 }
 
-function parseCellIndex(cell: HTMLElement): number | null {
-  const qa = cell.getAttribute('data-qa') || cell.id || cell.getAttribute('data-index') || '';
-  const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)|final-(\d+)/);
-  if (!m) return null;
-  if (m[2] !== undefined) {
-    if (m[2] === '2') return 25;
-    if (m[2] === '1') return 26;
-    return 27;
-  }
-  return Number(m[1]);
+type ShipMoveDetail = {
+  shipQa: string | null;
+  fromIndex: number | null;
+  toIndex: string;
+  usedStep: number;
+  finalizedQa?: string | null;
+  finalizedToIndex?: string | null;
+  moveKind?: MoveKind;
+};
+
+const SELECTORS = {
+  boardCellAny: '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
+  shipAny: '.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]',
+  predicted:
+    '.board [data-qa^="field-"].is-predicted, .board [data-qa^="cell-"].is-predicted, .board [data-qa^="final-"].is-predicted, .board .cell.is-predicted',
+  bump: '.board .cell-btn.ta-bump, .board .ta-bump',
+};
+
+const FINAL_IDX: Record<string, number> = { 'final-2': 25, 'final-1': 26, 'final-0': 27 };
+const ANIM = { stepMs: 160, replaceSpinMs: 500, replacePopMs: 180 };
+
+function parseIndexFromQa(qa: string | null): number | null {
+  if (!qa) return null;
+  if (qa in FINAL_IDX) return FINAL_IDX[qa];
+  const m = qa.match(/(?:^|\s)(?:field|cell)-(\d+)/)?.[1] || qa.match(/\d+/)?.[0];
+  return m ? Number(m) : null;
+}
+
+function parseIndexFromEl(cell: HTMLElement | null): number | null {
+  if (!cell) return null;
+  const qa = cell.getAttribute('data-qa') || cell.getAttribute('data-index') || '';
+  const byQa = parseIndexFromQa(qa);
+  if (byQa != null) return byQa;
+  const di = cell.getAttribute('data-index');
+  return di && /^\d+$/.test(di) ? Number(di) : null;
+}
+
+function prevIndex(idx: number): number {
+  if (idx >= 27) return 26;
+  if (idx === 26) return 25;
+  if (idx === 25) return 24;
+  return Math.max(1, idx - 1);
 }
 
 function getShipSide(el: HTMLElement): Side | null {
@@ -47,36 +79,25 @@ function isMotherShip(el: HTMLElement): boolean {
   if (!el) return false;
   if (el.matches('[data-role="mother"],[data-ship="mother"],[data-mother="1"],.mother-ship')) return true;
   const qa = el.getAttribute('data-qa') || '';
-  if (/-cell-8$/.test(qa)) return true;
-  return false;
+  return /-cell-8$/.test(qa);
 }
 
-function getCellOccupant(cell: HTMLElement | null): { el: HTMLElement; side: Side | null; isMother: boolean } | null {
+function getCellOccupant(cell: HTMLElement | null) {
   if (!cell) return null;
-  const occ =
-    cell.querySelector<HTMLElement>('.ship, [data-role="ship"], button.ship, .cell-btn, [data-ship]') || null;
+  const occ = cell.querySelector<HTMLElement>(SELECTORS.shipAny);
   if (!occ) return null;
   ensureDataSide(occ);
   return { el: occ, side: getShipSide(occ), isMother: isMotherShip(occ) };
 }
 
 function getPredictedCell(): HTMLElement | null {
-  return (
-    document.querySelector<HTMLElement>('.board [data-qa^="field-"].is-predicted') ||
-    document.querySelector<HTMLElement>('.board [data-qa^="cell-"].is-predicted') ||
-    document.querySelector<HTMLElement>('.board [data-qa^="final-"].is-predicted') ||
-    document.querySelector<HTMLElement>('.board .cell.is-predicted')
-  );
+  return document.querySelector<HTMLElement>(SELECTORS.predicted);
 }
 
 function getReplaceOwnTargetCell(): HTMLElement | null {
-  const bumped =
-    document.querySelector<HTMLElement>('.board .cell-btn.ta-bump') ||
-    document.querySelector<HTMLElement>('.board .ta-bump');
+  const bumped = document.querySelector<HTMLElement>(SELECTORS.bump);
   if (!bumped) return null;
-  return bumped.closest<HTMLElement>(
-    '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
-  );
+  return bumped.closest<HTMLElement>(SELECTORS.boardCellAny);
 }
 
 function clearPrediction() {
@@ -84,67 +105,30 @@ function clearPrediction() {
   document.querySelectorAll('.board .ta-bump').forEach((el) => el.closest('.cell-btn')?.classList.remove('ta-bump'));
 }
 
-function hasDisabledProp(el: HTMLElement): el is HTMLButtonElement {
-  return el instanceof HTMLButtonElement;
+function setDisabled(el: HTMLElement, v: boolean, reason?: string) {
+  if (el instanceof HTMLButtonElement) el.disabled = v;
+  el.classList.toggle('is-disabled', v);
+  if (v && reason) el.setAttribute('data-disabled-reason', reason);
+  else el.removeAttribute('data-disabled-reason');
+  el.setAttribute('aria-disabled', String(v));
 }
 
 function disableShipTemporarily(el: HTMLElement, reason: string) {
-  if (hasDisabledProp(el)) el.disabled = true;
-  el.classList.add('is-disabled');
-  el.setAttribute('data-disabled-reason', reason);
-  el.setAttribute('aria-disabled', 'true');
-  (el as HTMLElement).style.pointerEvents = 'none';
-  setTimeout(() => {
-    if (hasDisabledProp(el)) el.disabled = false;
-    el.classList.remove('is-disabled');
-    el.removeAttribute('data-disabled-reason');
-    el.removeAttribute('aria-disabled');
-    (el as HTMLElement).style.pointerEvents = '';
-  }, 400);
+  setDisabled(el, true, reason);
+  setTimeout(() => setDisabled(el, false), 400);
 }
 
-function emitDone(detail: {
-  shipQa: string | null;
-  fromIndex: number | null;
-  toIndex: string;
-  usedStep: number;
-  finalizedQa?: string | null;
-  finalizedToIndex?: string | null;
-  moveKind?: MoveKind;
-}) {
+function emitDone(detail: ShipMoveDetail) {
   document.dispatchEvent(new CustomEvent('shipmove:done', { detail }));
 }
 
-function parseTargetIndex(predicted: HTMLElement): number {
-  const qa = predicted.getAttribute('data-qa') || '';
-  if (qa === 'final-2') return 25;
-  if (qa === 'final-1') return 26;
-  if (qa === 'final-0') return 27;
-  const m = qa.match(/\d+/)?.[0];
-  if (m) return Number(m);
-  const di = predicted.getAttribute('data-index');
-  if (di && /^\d+$/.test(di)) return Number(di);
-  return NaN;
-}
-
-function posToIndex(pos: string): number {
-  if (pos === 'final-2') return 25;
-  if (pos === 'final-1') return 26;
-  if (pos === 'final-0') return 27;
-  const m = pos.match(/(?:field|cell)-(\d+)/);
-  return m ? Number(m[1]) : NaN;
-}
-
-function prevIndex(idx: number): number {
-  if (idx >= 27) return 26;
-  if (idx === 26) return 25;
-  if (idx === 25) return 24;
-  return Math.max(1, idx - 1);
-}
-
 let clickGate = 0;
+let installed = false;
 
 export function setupShipMove() {
+  if (installed) return;
+  installed = true;
+
   document.addEventListener(
     'click',
     async (ev) => {
@@ -170,21 +154,11 @@ export function setupShipMove() {
         return;
       }
 
-      const fromCell = shipEl.closest<HTMLElement>(
-        '.board [data-qa^="field-"], .board [data-qa^="cell-"], .board [data-qa^="final-"], .board .cell[data-index]',
-      );
-      const fromIndex = fromCell ? parseCellIndex(fromCell) : null;
-
+      const fromCell = shipEl.closest<HTMLElement>(SELECTORS.boardCellAny);
+      const fromIndex = parseIndexFromEl(fromCell);
       const activeSide = getShipSide(shipEl);
       const activeIsMother = isMotherShip(shipEl);
       const occ = getCellOccupant(predicted);
-
-      try {
-        await consumeSteps(getCurrentRoomId(), selectedIdx);
-        api.consumeCurrent?.();
-      } catch {
-        return;
-      }
 
       if (occ) {
         if (!activeSide || !occ.side || occ.side !== activeSide) {
@@ -193,6 +167,13 @@ export function setupShipMove() {
         }
 
         if (activeIsMother && !occ.isMother) {
+          try {
+            await consumeSteps(getCurrentRoomId(), selectedIdx);
+            api.consumeCurrent?.();
+          } catch {
+            return;
+          }
+
           clearPrediction();
           const outBtn = (occ.el.closest('.cell-btn') || occ.el) as HTMLElement;
           ensureDataSide(outBtn);
@@ -215,8 +196,8 @@ export function setupShipMove() {
             cellEl: predicted,
             outBtn,
             motherBtn: shipEl,
-            spinMs: 500,
-            popMs: 180,
+            spinMs: ANIM.replaceSpinMs,
+            popMs: ANIM.replacePopMs,
           });
 
           if (predicted.getAttribute('data-qa') === 'final-0') {
@@ -227,16 +208,29 @@ export function setupShipMove() {
         }
 
         if (!activeIsMother && occ.isMother) {
-          clearPrediction();
-
-          const shipQa = shipEl.getAttribute('data-qa') || null;
           const toQa = predicted.getAttribute('data-qa') || predicted.getAttribute('data-index') || '';
-          const toIndexNum = posToIndex(toQa);
+          const toIndexNum = parseIndexFromQa(toQa) ?? NaN;
           const prevIdx = prevIndex(toIndexNum);
 
           if (fromIndex == null || prevIdx > fromIndex) {
-            await flyShip({ shipEl, fromIndex, to: prevIdx, stepMs: 160, hideOriginal: false });
+            try {
+              await consumeSteps(getCurrentRoomId(), selectedIdx);
+              api.consumeCurrent?.();
+            } catch {
+              return;
+            }
+
+            await flyShip({ shipEl, fromIndex, to: prevIdx, stepMs: ANIM.stepMs, hideOriginal: false });
+          } else {
+            try {
+              await consumeSteps(getCurrentRoomId(), selectedIdx);
+              api.consumeCurrent?.();
+            } catch {
+              return;
+            }
           }
+
+          const shipQa = shipEl.getAttribute('data-qa') || null;
 
           emitDone({
             shipQa,
@@ -269,6 +263,7 @@ export function setupShipMove() {
             simpleBtn.remove();
           })(predicted, shipEl);
 
+          clearPrediction();
           return;
         }
 
@@ -276,12 +271,18 @@ export function setupShipMove() {
         return;
       }
 
+      try {
+        await consumeSteps(getCurrentRoomId(), selectedIdx);
+        api.consumeCurrent?.();
+      } catch {
+        return;
+      }
+
       clearPrediction();
       ensureDataSide(shipEl);
 
-      const toIndexNum = parseTargetIndex(predicted);
-
-      await flyShip({ shipEl, fromIndex, to: toIndexNum, stepMs: 160 });
+      const toIndexNum = parseIndexFromEl(predicted) ?? NaN;
+      await flyShip({ shipEl, fromIndex, to: toIndexNum, stepMs: ANIM.stepMs });
 
       predicted.appendChild(shipEl);
 
