@@ -110,12 +110,18 @@ export function syncDiceHelper(
         duration: HEPER_WARNING_DURATION,
         text: helper(`helper.diceStreak.${current}`),
         type: HelperTypes.HELPER_HINT,
+        priority: 2,
+        dedupeKey: `dice:streak:${current}`,
+        delayBeforeShow: 0,
       });
     } else {
       triggerHelper({
         duration: HEPER_WARNING_DURATION,
         text: helper(`helper.diceRes.${current}`, { res: diceRes }),
         type: HelperTypes.HELPER_HINT,
+        priority: 2,
+        dedupeKey: `dice:${diceRes}:${current}`,
+        delayBeforeShow: 0,
       });
     }
   }, HIDE_DICE_DELAY);

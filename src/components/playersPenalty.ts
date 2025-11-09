@@ -3,6 +3,7 @@ import type { Room } from "../types/room";
 import type { Side } from "../types/room";
 import { HelperTypes, triggerHelper } from "./helper";
 import { HELPER_NOT_YOUR_TURN_DURATION } from "../config";
+import { HIDE_DICE_DELAY } from "./dice";
 
 type CanMoveMap = Partial<Record<Side, boolean>>;
 type Unsubscribe = (() => void) | undefined;
@@ -34,8 +35,7 @@ export function initPlayerBlockedInfo(roomId: Room["id"]): () => void {
     }
 
     if (can === false && !wasShown) {
-      const sideLabel =
-        turn === "left" ? "Гравець Left заблокований" : "Гравець Right заблокований";
+      const sideLabel = turn === "left" ? "Гравець Left заблокований" : "Гравець Right заблокований";
 
       void clearCurrentStepsStrikeForTurn(roomId);
 
@@ -43,6 +43,9 @@ export function initPlayerBlockedInfo(roomId: Room["id"]): () => void {
         duration: HELPER_NOT_YOUR_TURN_DURATION,
         text: `${sideLabel} — SIMPLE`,
         type: HelperTypes.HELPER_WARNING,
+        delayBeforeShow: room.isDiceRolling ? HIDE_DICE_DELAY + 300 : 300,
+        priority: 0,
+        dedupeKey: `blocked:${turn}`,
       });
 
       wasShown = true;

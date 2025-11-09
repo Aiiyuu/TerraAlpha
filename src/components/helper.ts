@@ -18,6 +18,7 @@ type HelperArgs = {
   onReject?: () => void;
   priority?: number;
   dedupeKey?: string;
+  delayBeforeShow?: number;
 };
 
 export enum HelperTypes {
@@ -77,6 +78,7 @@ export function triggerHelper(rawArgs: HelperArgs) {
     onReject: rawArgs.onReject,
     priority: rawArgs.priority ?? 0,
     dedupeKey: rawArgs.dedupeKey,
+    delayBeforeShow: rawArgs.delayBeforeShow ?? 0,
   };
 
   if (getIsDisabled() && args.type === HelperTypes.HELPER_HINT) return;
@@ -88,26 +90,30 @@ export function triggerHelper(rawArgs: HelperArgs) {
     dedupeMap.set(args.dedupeKey, now);
   }
 
-  if (!visible) {
-    showNow(args);
-    return;
-  }
+  const schedule = () => {
+    if (!visible) {
+      setTimeout(() => showNow(args), args.delayBeforeShow);
+      return;
+    }
 
-  const isPenaltyIncoming = args.priority! > (current?.args.priority ?? 0);
-  if (isPenaltyIncoming) {
-    preemptAndShow(args);
-    return;
-  }
+    const isHigherPriority = args.priority! > (current?.args.priority ?? 0);
+    if (isHigherPriority) {
+      preemptAndShow(args);
+      return;
+    }
 
-  queue.push(args);
-  queue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+    queue.push(args);
+    queue.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+  };
+
+  schedule();
 }
 
 function preemptAndShow(args: HelperArgs) {
   if (current?.timeoutId) clearTimeout(current.timeoutId);
   cleanupChoiceListeners(current?.onAccept, current?.onReject);
   hideImmediate();
-  setTimeout(() => showNow(args), 0);
+  setTimeout(() => showNow(args), args.delayBeforeShow);
 }
 
 function showNow(args: HelperArgs) {

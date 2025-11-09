@@ -77,7 +77,10 @@ export function declareCoinResult(
     triggerHelper({
       duration: COIN_RESULT_DURATION,
       text: helper(`helper.coinWinner.${current}`, { name }),
-      type: HelperTypes.HELPER_HINT,
+      type: HelperTypes.HELPER_INFORM,
+      priority: 1,
+      dedupeKey: `coin:${side}`,
+      delayBeforeShow: 0,
     });
   }, COIN_ANIMATION_DURATION);
 }

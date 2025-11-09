@@ -8,7 +8,7 @@ import {
 } from "../server/server";
 import type { Phrase } from "../types/phrase";
 import type { Room, RoomEntry } from "../types/room";
-import { declareCoinResult, flipCoin, getRandomSide, initCoin } from "./coin";
+import { declareCoinResult, flipCoin, getRandomSide, initCoin, COIN_ANIMATION_DURATION } from "./coin";
 import { showPhrase } from "./dialog";
 import { HIDE_DICE_DELAY, syncDiceHelper, throwDice } from "./dice";
 import {
@@ -96,6 +96,9 @@ export function startGame(room: RoomEntry) {
     duration: HELPER_WELCOME_DURATION,
     text: helper("helper.welcome"),
     type: HelperTypes.HELPER_HINT,
+    priority: -2,
+    dedupeKey: "welcome",
+    delayBeforeShow: 0,
   });
 
   stopShipSync?.();
@@ -294,7 +297,7 @@ export function startGame(room: RoomEntry) {
       coinStart();
       declareCoinResult(side, currentPlayerSide || "left", roomState);
       flipCoin(side);
-      setTimeout(() => coinEnd(), HIDE_DICE_DELAY);
+      setTimeout(() => coinEnd(), COIN_ANIMATION_DURATION);
     }
 
     if (roomState.phrases) {
@@ -381,6 +384,9 @@ export function startGame(room: RoomEntry) {
         duration: HELPER_NOT_YOUR_TURN_DURATION,
         text: helper("helper.notYourTurn"),
         type: HelperTypes.HELPER_WARNING,
+        priority: -1,
+        dedupeKey: "not-your-turn",
+        delayBeforeShow: 0,
       });
       return;
     }
