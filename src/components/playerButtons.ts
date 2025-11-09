@@ -18,6 +18,22 @@ const navigationBtns = `
     </button>
     <button id="mute-btn" class="btn btn--purple"></button>
   </div>
+
+  <div class="game-menu is-hidden" role="dialog" aria-label="Game Menu" aria-hidden="true">
+    <div class="gm-header">
+      <span class="gm-title">Game Menu</span>
+      <button class="gm-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="gm-actions">
+      <button class="gm-btn gm-exit">Exit</button>
+      <button class="gm-btn gm-restart">Restart</button>
+      <button class="gm-btn gm-yes is-hidden">Yes</button>
+      <button class="gm-btn gm-no is-hidden">No</button>
+    </div>
+
+    <div class="gm-timer is-hidden">10</div>
+  </div>
 `;
 
 const dialogBtn = `

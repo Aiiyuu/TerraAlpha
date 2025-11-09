@@ -93,6 +93,10 @@ export interface Room {
 
   stepsStrike?: StepsStrike;
   currentStepsStrike?: CurrentStepsStrike;
+
+  /** --- нові поля для синхронізації пропозиції рестарту --- */
+  suggestRestartSide?: Side | "";
+  timeWhenSuggestRestart?: string | "";
 }
 
 export interface RoomEntry {

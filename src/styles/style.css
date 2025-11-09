@@ -18,6 +18,7 @@
 @import url('./components/colorPalette.css');
 @import url('./components/helper.css');
 @import url('./components/helperRobot.css');
+@import url('./components/gameMenu.css');
 
 body {
   position: fixed;

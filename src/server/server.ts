@@ -259,3 +259,17 @@ export async function clearCurrentStepsStrikeForTurn(roomId: Room["id"]): Promis
 
   await set(currentStepsStrikeSideRef(roomId, side), []);
 }
+
+export async function setSuggestRestart(roomId: Room["id"], side: Side): Promise<void> {
+  await update(roomRef(roomId), {
+    suggestRestartSide: side,
+    timeWhenSuggestRestart: new Date().toISOString(),
+  });
+}
+
+export async function clearSuggestRestart(roomId: Room["id"]): Promise<void> {
+  await update(roomRef(roomId), {
+    suggestRestartSide: "",
+    timeWhenSuggestRestart: "",
+  });
+}
