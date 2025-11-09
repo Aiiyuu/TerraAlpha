@@ -61,7 +61,7 @@ export function setUpPlayerBtns(currentPlayerSide?: Side) {
 
   setupLanguage();
   setUpHelperBtn();
-  setupResetBtn();
+  setupResetBtn(currentPlayerSide);
   setupDialog();
   setupMuteBtn();
 }

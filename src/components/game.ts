@@ -181,19 +181,6 @@ export function startGame(room: RoomEntry) {
     syncActions(roomState.actions || []);
     syncResetBtn(current.lastResetOffer);
 
-    if (roomState.suggestRestartSide && roomState.timeWhenSuggestRestart) {
-      const startedAt = new Date(roomState.timeWhenSuggestRestart).getTime();
-      const isInitiator = roomState.suggestRestartSide === currentPlayerSide;
-      const myPanel = document.querySelector(`[data-my-side="${currentPlayerSide}"] .game-menu`) as HTMLElement | null;
-      if (myPanel) {
-        showMenu(myPanel);
-        startTimer(myPanel, startedAt, 10000, !isInitiator);
-      }
-    } else {
-      const panels = document.querySelectorAll(".game-menu");
-      panels.forEach((p) => hideMenu(p as HTMLElement));
-    }
-
     detectTimerChanges(
       prev?.timerState,
       roomState.timerState!,
@@ -236,6 +223,23 @@ export function startGame(room: RoomEntry) {
       document.body.dataset.mySide = mySide;
       document.body.setAttribute("data-my-side", mySide);
       document.body.setAttribute("data-opponent-side", oppSide);
+    }
+
+    if (roomState.suggestRestartSide && roomState.timeWhenSuggestRestart && currentPlayerSide) {
+      const startedAt = new Date(roomState.timeWhenSuggestRestart).getTime();
+      const isInitiator = roomState.suggestRestartSide === currentPlayerSide;
+      const myPanel = document.querySelector(
+        `[data-my-side="${currentPlayerSide}"] .game-menu`
+      ) as HTMLElement | null;
+      if (myPanel) {
+        const timerEl = myPanel.querySelector(".gm-timer") as HTMLElement | null;
+        const isRunning = !!timerEl && !timerEl.classList.contains("is-hidden");
+        showMenu(myPanel);
+        if (!isRunning) startTimer(myPanel, startedAt, 10000, !isInitiator);
+      }
+    } else {
+      const panels = document.querySelectorAll(".game-menu");
+      panels.forEach((p) => hideMenu(p as HTMLElement));
     }
 
     document.body.classList.remove("side-left", "side-right");

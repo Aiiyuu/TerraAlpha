@@ -38,6 +38,10 @@ export function writeRoomData({ id, name }: RoomEntry, author: PlayerEntry) {
     players: [toPlayer(author)],
     date: new Date().toISOString(),
     ships: { left: {}, right: {} },
+    suggestRestartSide: null,
+    timeWhenSuggestRestart: null,
+    restartConfirmedAt: null,
+    restartBy: null,
   });
 }
 
@@ -67,7 +71,6 @@ export function listeToRoomById(
 export async function addActionToRoom(roomId: Room["id"], action: Partial<Action>): Promise<void> {
   const r = roomRef(roomId);
   const snap = await get(r);
-
   if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
 
   const roomData = snap.val() as Room;
@@ -176,7 +179,6 @@ export async function clearOutdatedRooms(): Promise<void> {
 export async function clearOutdatedActions(roomId: Room['id']): Promise<void> {
   const r = roomRef(roomId);
   const snap = await get(r);
-
   if (!snap.exists()) throw new Error(`Room ${roomId} does not exist.`);
 
   const roomData = snap.val() as Room;
@@ -269,7 +271,21 @@ export async function setSuggestRestart(roomId: Room["id"], side: Side): Promise
 
 export async function clearSuggestRestart(roomId: Room["id"]): Promise<void> {
   await update(roomRef(roomId), {
-    suggestRestartSide: "",
-    timeWhenSuggestRestart: "",
+    suggestRestartSide: null,
+    timeWhenSuggestRestart: null,
+  });
+}
+
+export async function confirmRestart(roomId: Room["id"], by: Side): Promise<void> {
+  await update(roomRef(roomId), {
+    restartConfirmedAt: new Date().toISOString(),
+    restartBy: by,
+  });
+}
+
+export async function clearRestartConfirmation(roomId: Room["id"]): Promise<void> {
+  await update(roomRef(roomId), {
+    restartConfirmedAt: null,
+    restartBy: null,
   });
 }

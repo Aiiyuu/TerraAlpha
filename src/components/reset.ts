@@ -42,7 +42,12 @@ export function resetRestartState(panel: HTMLElement) {
   timerEl?.classList.add("is-hidden");
 }
 
-export function startTimer(panel: HTMLElement, startedAt: number, duration: number, isResponder = false) {
+export function startTimer(
+  panel: HTMLElement,
+  startedAt: number,
+  duration: number,
+  isResponder = false,
+) {
   const timerEl = panel.querySelector(".gm-timer") as HTMLElement | null;
   const yesBtn = panel.querySelector(".gm-yes") as HTMLButtonElement | null;
   const noBtn = panel.querySelector(".gm-no") as HTMLButtonElement | null;
@@ -57,6 +62,8 @@ export function startTimer(panel: HTMLElement, startedAt: number, duration: numb
   } else {
     restartBtn?.classList.add("is-hidden");
     exitBtn?.classList.add("is-hidden");
+    yesBtn?.classList.add("is-hidden");
+    noBtn?.classList.add("is-hidden");
   }
 
   if (!timerEl) return;
@@ -82,6 +89,11 @@ export function startTimer(panel: HTMLElement, startedAt: number, duration: numb
 export function setupResetBtn(currentPlayerSide?: Side) {
   resetBtn = document.getElementById("reset-btn") as HTMLElement;
   if (!resetBtn) return;
+
+  const mySide =
+    currentPlayerSide ||
+    (document.body.getAttribute("data-my-side") as Side | null) ||
+    "left";
 
   const container = resetBtn.closest(".player-navigation") as HTMLElement | null;
   const panel = container?.querySelector(".game-menu") as HTMLElement | null;
@@ -115,8 +127,9 @@ export function setupResetBtn(currentPlayerSide?: Side) {
   });
 
   restartBtn?.addEventListener("click", async () => {
+    showMenu(panel);
     startTimer(panel, Date.now(), 10000, false);
-    await setSuggestRestart(getCurrentRoomId(), currentPlayerSide || "left");
+    await setSuggestRestart(getCurrentRoomId(), mySide as Side);
   });
 
   yesBtn?.addEventListener("click", async () => {
