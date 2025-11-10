@@ -8,13 +8,24 @@ import {
 import { avatars, colors } from "../config.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
 
-/**
- * Crates a player object using values from dom
- */
+function isValidPlayer(player: PlayerEntry): player is PlayerEntry {
+  return (
+    player &&
+    typeof player.id === "number" &&
+    !isNaN(player.id) &&
+    typeof player.name === "string" &&
+    player.name.trim() !== "" &&
+    typeof player.color === "string" &&
+    player.color.trim() !== "" &&
+    typeof player.avatar === "number" &&
+    !isNaN(player.avatar)
+  );
+}
+
 export function createNewPlayer(): PlayerEntry {
   const currentPlayer = getCurrentPlayerInfo();
 
-  if (!currentPlayer) {
+  if (!isValidPlayer(currentPlayer)) {
     const newPlayer: PlayerEntry = {
       id: getRandomId(),
       name: `Player-${getRandomId()}`,
