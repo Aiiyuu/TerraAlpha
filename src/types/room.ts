@@ -6,16 +6,52 @@ export type Side = "left" | "right";
 
 export type ShipPos =
   | "hand"
-  | `field-${1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24}`
+  | `field-${
+      | 1
+      | 2
+      | 3
+      | 4
+      | 5
+      | 6
+      | 7
+      | 8
+      | 9
+      | 10
+      | 11
+      | 12
+      | 13
+      | 14
+      | 15
+      | 16
+      | 17
+      | 18
+      | 19
+      | 20
+      | 21
+      | 22
+      | 23
+      | 24}`
   | "final";
 
 export type LeftShipId =
-  | "leftShip1" | "leftShip2" | "leftShip3" | "leftShip4"
-  | "leftShip5" | "leftShip6" | "leftShip7" | "leftMainShip";
+  | "leftShip1"
+  | "leftShip2"
+  | "leftShip3"
+  | "leftShip4"
+  | "leftShip5"
+  | "leftShip6"
+  | "leftShip7"
+  | "leftMainShip";
 
 export type RightShipId =
-  | "rightShip1" | "rightShip2" | "rightShip3" | "rightShip4"
-  | "rightShip5" | "rightShip6" | "rightShip7" | "rightMainShip";
+  | "rightShip1"
+  | "rightShip2"
+  | "rightShip3"
+  | "rightShip4"
+  | "rightShip5"
+  | "rightShip6"
+  | "rightShip7"
+  | "rightMainShip";
 
 export type PlayerShipsLeft = Record<LeftShipId, ShipPos>;
 export type PlayerShipsRight = Record<RightShipId, ShipPos>;
@@ -62,6 +98,7 @@ export interface Room {
 
   restartConfirmedAt?: string | null;
   restartBy?: Side | null;
+  restartRoomId?: Room["id"];
 }
 
 export interface RoomEntry {

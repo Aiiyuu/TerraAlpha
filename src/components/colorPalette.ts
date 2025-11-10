@@ -1,4 +1,5 @@
 import { colors } from "../config";
+import { getCurrentPlayerInfo, setCurrentPlayerInfo } from "../server/server";
 
 const colorPalette = document.querySelector("#color-palette") as HTMLElement;
 let colorItems: HTMLElement[] | undefined;
@@ -7,6 +8,8 @@ let colorItems: HTMLElement[] | undefined;
  * Creates a block of color items, with the first color selected by default.
  */
 export function setupColorPalette() {
+  const currentPlayerInfo = getCurrentPlayerInfo();
+
   colors.forEach((color) => {
     const span: HTMLSpanElement = document.createElement("span");
     span.classList.add("color-item");
@@ -14,6 +17,14 @@ export function setupColorPalette() {
     span.style.backgroundColor = `${color}`;
 
     colorPalette.append(span);
+
+    if (
+      currentPlayerInfo &&
+      currentPlayerInfo.color &&
+      currentPlayerInfo.color === color
+    ) {
+      span.classList.add("is-selected");
+    }
 
     span.addEventListener("click", selectColor);
   });
@@ -35,4 +46,10 @@ function selectColor(event: MouseEvent) {
 
   const target = event.target as HTMLElement;
   target.classList.add("is-selected");
+
+  const currentPlayer = getCurrentPlayerInfo();
+  setCurrentPlayerInfo({
+    ...currentPlayer,
+    color: target.getAttribute("data-color"),
+  });
 }
