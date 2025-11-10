@@ -152,25 +152,49 @@ export async function addNewPlayerToRoom(
 ): Promise<void> {
   const db = getDatabase();
   const rRef = ref(db, `rooms/${roomId}`);
+  const desiredSide = getCurrentPlayerSide();
 
   try {
     await runTransaction(rRef, (roomData) => {
       if (roomData === null) {
         throw new Error(`Room ${roomId} does not exist.`);
       }
-
-      if (roomData.players && roomData.players.length >= 2) {
-        throw new Error("The room is already full");
-      }
-
-      const players = roomData.players || [];
-      if (players.some((p: { color: string }) => p?.color === newUser.color)) {
+      const players = roomData.players || [null, null];
+      if (
+        players.some((p: PlayerEntry | null) => p && p.color === newUser.color)
+      ) {
         throw new Error("Your color is already taken");
       }
 
-      players.push(toPlayer(newUser));
+      let sideToUse = desiredSide;
+
+      const leftIndex = 0;
+      const rightIndex = 1;
+      const isLeftFree = !players[leftIndex];
+      const isRightFree = !players[rightIndex];
+
+      if (desiredSide === "left") {
+        if (!isLeftFree && isRightFree) {
+          sideToUse = "right";
+        }
+      } else if (desiredSide === "right") {
+        if (!isRightFree && isLeftFree) {
+          sideToUse = "left";
+        }
+      }
+
+      if (!isLeftFree && !isRightFree) {
+        throw new Error("The room is already full");
+      }
+      if (sideToUse === "left") {
+        players[leftIndex] = toPlayer(newUser);
+      } else {
+        players[rightIndex] = toPlayer(newUser);
+      }
 
       roomData.players = players;
+
+      setCurrentPlayerSide(sideToUse as Side);
 
       return roomData;
     });
@@ -210,6 +234,13 @@ export function setCurrentPlayerName(userName: Player["name"]) {
 }
 export function getCurrentPlayerName(): Player["name"] {
   return localStorage.getItem("currentPlayerName") || "Невідомий гравець";
+}
+
+export function setCurrentPlayerSide(side: Side) {
+  localStorage.setItem("side", side);
+}
+export function getCurrentPlayerSide() {
+  return localStorage.getItem("side") || "left";
 }
 
 export function setCurrentPlayerId(id: Player["id"]) {
