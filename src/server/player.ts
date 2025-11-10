@@ -5,23 +5,38 @@ import {
   setCurrentPlayerInfo,
   setCurrentPlayerName,
 } from "./server.ts";
-import { colors } from "../config.ts";
+import { avatars, colors } from "../config.ts";
+import { getRandomId } from "../utility/getRandomId.ts";
 
 /**
  * Crates a player object using values from dom
  */
-export function createNewPlayer() {
-  const newPlayer: PlayerEntry = getCurrentPlayerInfo();
+export function createNewPlayer(): PlayerEntry {
+  const currentPlayer = getCurrentPlayerInfo();
 
-  // Write user data to the database
-  setCurrentPlayerName(newPlayer.name);
-  setCurrentPlayerId(newPlayer.id);
-  setCurrentPlayerInfo(newPlayer);
+  if (!currentPlayer) {
+    const newPlayer: PlayerEntry = {
+      id: getRandomId(),
+      name: `Player-${getRandomId()}`,
+      color: getRandomColor(),
+      avatar: getRandomAvatar(),
+    };
 
-  return newPlayer;
+    setCurrentPlayerName(newPlayer.name);
+    setCurrentPlayerId(newPlayer.id);
+    setCurrentPlayerInfo(newPlayer);
+
+    return newPlayer;
+  }
+
+  return currentPlayer;
 }
 
 export function getRandomColor(): string {
   const randomIndex = Math.floor(Math.random() * colors.length);
   return colors[randomIndex];
+}
+
+export function getRandomAvatar(): number {
+  return Math.floor(Math.random() * avatars.length);
 }
