@@ -14,6 +14,7 @@ import { translatePage } from "./components/language.ts";
 import { setUpPlayerBtns } from "./components/playerButtons.ts";
 import { setupPlayerNameField } from "./components/nameField.ts";
 import { setupRestartRedirect } from "./components/reset.ts";
+import { initGlobalChat } from "./components/globalChat.ts";
 
 window.addEventListener("load", () => {
   setupRestartRedirect();
@@ -31,4 +32,5 @@ window.addEventListener("load", () => {
   setupShipImages();
   loadImages();
   clearOutdatedRooms();
+    initGlobalChat();
 });

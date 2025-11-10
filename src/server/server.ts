@@ -11,11 +11,25 @@ import {
   child,
   getDatabase,
   runTransaction,
+  push,
+  query,
+  orderByChild,
+  limitToLast,
+  serverTimestamp,
 } from "firebase/database";
 import type { Phrase } from "../types/phrase.ts";
 import type { Side, ShipPos } from "../types/room.ts";
 import type { Action } from "../types/action.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
+
+export type GlobalChatMessage = {
+  id?: string;
+  ts: number | null;
+  name: string;
+  text: string;
+};
+
+const GLOBAL_CHAT_LIMIT = 20;
 
 const SHIP_IDS: Record<Side, string[]> = {
   left: Array.from({ length: 8 }, (_, i) => `p1-cell-${i + 1}`),
@@ -32,6 +46,9 @@ const currentStepsStrikeRef = (roomId: Room["id"]) =>
   child(roomRef(roomId), "currentStepsStrike");
 const currentStepsStrikeSideRef = (roomId: Room["id"], side: Side) =>
   child(roomRef(roomId), `currentStepsStrike/${side}`);
+
+const globalChatRef = ref(database, "globalChat");
+const globalChatMessagesRef = child(globalChatRef, "messages");
 
 function toPlayer(entry: PlayerEntry): Player {
   return {
@@ -420,4 +437,53 @@ export async function clearRestartConfirmation(
     restartConfirmedAt: null,
     restartBy: null,
   });
+}
+
+export async function sendGlobalMessage(name: string, text: string): Promise<string> {
+  const cleanName = name.trim().slice(0, 14);
+  const cleanText = text.trim().slice(0, 200);
+  if (!cleanName || cleanName.length < 3) throw new Error("Invalid name");
+  if (!cleanText) throw new Error("Empty message");
+
+  const newRef = await push(globalChatMessagesRef, {
+    ts: serverTimestamp(),
+    name: cleanName,
+    text: cleanText,
+  });
+
+  await pruneGlobalChat(GLOBAL_CHAT_LIMIT);
+  return newRef.key as string;
+}
+
+export async function pruneGlobalChat(limit = GLOBAL_CHAT_LIMIT): Promise<void> {
+  const snap = await get(globalChatMessagesRef);
+  if (!snap.exists()) return;
+
+  const entries = Object.entries(snap.val() as Record<string, GlobalChatMessage>);
+  entries.sort((a, b) => (a[1].ts ?? 0) - (b[1].ts ?? 0));
+  const extra = entries.length - limit;
+  if (extra <= 0) return;
+
+  const toRemove = entries.slice(0, extra).map(([key]) => remove(child(globalChatMessagesRef, key)));
+  await Promise.all(toRemove);
+}
+
+export function listenGlobalChat(
+  callback: (messages: GlobalChatMessage[]) => void
+): () => void {
+  const q = query(globalChatMessagesRef, orderByChild("ts"), limitToLast(GLOBAL_CHAT_LIMIT));
+  const unsub = onValue(q, (snap) => {
+    if (!snap.exists()) {
+      callback([]);
+      return;
+    }
+    const list: GlobalChatMessage[] = [];
+    snap.forEach((childSnap) => {
+      const v = childSnap.val() as Omit<GlobalChatMessage, "id">;
+      list.push({ id: childSnap.key || undefined, ...v });
+    });
+    list.sort((a, b) => (a.ts ?? 0) - (b.ts ?? 0));
+    callback(list);
+  });
+  return () => unsub();
 }
