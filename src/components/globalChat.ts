@@ -1,4 +1,3 @@
-// src/components/GlobalChat.ts
 import { listenGlobalChat, sendGlobalMessage, getCurrentPlayerName } from "../server/server";
 
 function $(s: string) {
@@ -43,6 +42,7 @@ export function initGlobalChat() {
   const input = $("#gchat-message") as HTMLInputElement;
   const btn = $("#gchat-send") as HTMLButtonElement;
   const list = $("#gchat-log-list") as HTMLUListElement;
+  const logPanel = $("#gchat-log") as HTMLElement;
 
   const updateBtn = () => {
     const text = input.value.trim();
@@ -57,13 +57,13 @@ export function initGlobalChat() {
     }
     list.innerHTML = "";
     list.appendChild(frag);
+
+    logPanel.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   input.addEventListener("input", updateBtn);
-  input.addEventListener("keydown", async (e) => {
-    if (e.key === "Enter" && !btn.disabled) {
-      btn.click();
-    }
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !btn.disabled) btn.click();
   });
 
   btn.addEventListener("click", async () => {
@@ -73,9 +73,11 @@ export function initGlobalChat() {
     try {
       await sendGlobalMessage(getName(), text);
       input.value = "";
+      input.focus();
+
+      logPanel.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       updateBtn();
-      input.focus();
     }
   });
 
