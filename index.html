@@ -1,300 +1,363 @@
 <!DOCTYPE html>
 <html lang="uk">
-<head>
-  <meta charset="utf-8"/>
-  <title>Terra Alpha</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <head>
+    <meta charset="utf-8" />
+    <title>Terra Alpha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"/>
+    <!-- Link custom fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="/Testing_game/assets/index-axk5eMx0.js"></script>
+    <link rel="stylesheet" crossorigin href="/Testing_game/assets/index-zAuNdogV.css">
+  </head>
 
-  <!-- Link custom fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
-        rel="stylesheet">
-  <script type="module" crossorigin src="/Testing_game/assets/index-EPgEK5Rx.js"></script>
-  <link rel="stylesheet" crossorigin href="/Testing_game/assets/index-REovqLO1.css">
-</head>
+  <body>
+    <header id="home" class="header">
+      <nav class="nav">
+        <a href="#" class="nav-brand" data-lng="logo"></a>
+      </nav>
 
-<body>
-<header id="home" class="header">
-  <nav class="nav">
-    <a href="#" class="nav-brand">Якийсь <span>Логотип</span></a>
+      <div class="header-wrapper">
+        <h1 class="header-title">
+          Terra <br />
+          Alpha
+        </h1>
 
-    <ul class="nav-list">
-      <li class="nav-item">
-        <a class="nav-link" href="#">lorem</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">lorem</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">lorem</a>
-      </li>
-    </ul>
+        <div class="header-quick-actions">
+          <button id="header-lng-btn"  class="btn btn--purple btn--icon" aria-label="Language"></button>
+        </div>
 
-    <button class="nav-menu-btn">
-      <div class="nav-lines"></div>
-    </button>
-  </nav>
+        <div class="form-field form-field--floating">
+          <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
+          <input
+            type="text"
+            id="player-name"
+            class="form-field-input"
+            placeholder=" "
+          />
+          <label
+            for="player-name"
+            class="form-field-label"
+            data-lng="playerNameInput"
+          ></label>
+        </div>
 
-  <div class="header-wrapper">
-    <h1 class="header-title">Terra <br> Alpha</h1>
+        <div class="form-field form-field-color">
+          <h4 class="form-field-label" data-lng="playerColorInput"></h4>
+          <div id="color-palette"></div>
+        </div>
 
-    <div class="header-dots">
-      <span></span><span></span><span></span>
+        <div id="avatars" class="avatars">
+          <h4 class="form-field-label" data-lng="playerAvatarInput"></h4>
+          <div id="avatar-menu"></div>
+        </div>
+
+        <div class="header-button-group">
+          <button
+            id="navigation-fast-game-btn"
+            class="btn btn--purple"
+            data-lng="fastGameBtn"
+          ></button>
+          <button
+            id="navigation-select-room-btn"
+            class="btn btn--purple"
+            data-lng="selectRoomBtn"
+          ></button>
+          <button
+            id="navigation-create-room-btn"
+            class="btn btn--purple"
+            data-lng="createRoomBtn"
+          ></button>
+        </div>
+      </div>
+
+      <div class="astronaut"></div>
+      <div class="planet-1"></div>
+      <div class="comet"></div>
+    </header>
+
+    <main>
+      <section id="form-section" class="form-section is-hidden">
+        <div class="decorations">
+          <div class="rocket"></div>
+          <div class="star"></div>
+        </div>
+
+        <form id="form" class="form-wrapper">
+          <div class="form">
+            <a href="#" class="form-brand" data-lng="logo"></a>
+
+            <div class="form-field-group">
+              <div id="room-field" class="form-field form-field--floating">
+                <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
+                <input
+                  type="text"
+                  id="room-name"
+                  class="form-field-input"
+                  placeholder=" "
+                />
+                <label
+                  for="room-name"
+                  class="form-field-label"
+                  data-lng="roomNameInput"
+                ></label>
+              </div>
+            </div>
+
+            <div id="table"></div>
+          </div>
+
+          <button
+            type="submit"
+            id="create-room-btn"
+            class="btn btn--purple"
+            data-lng="createRoomBtn"
+          ></button>
+
+          <button
+            type="button"
+            id="back-to-home"
+            class="btn btn--purple"
+            data-lng="backToHomePageBtn"
+          ></button>
+        </form>
+      </section>
+
+      <div id="game" class="is-hidden">
+        <!-- PLAYER 1 -->
+        <section id="player1" class="player-section">
+          <div class="player-info">
+            <h2 class="player-name">PLAYER 1</h2>
+          </div>
+
+          <div class="player-navigation">
+            <div class="btn-group">
+              <button id="lng-btn" class="btn btn--purple"></button>
+              <button id="helper-btn" class="btn btn--purple"></button>
+              <button id="reset-btn" class="btn btn--purple">
+                <img src="data:image/png;base64,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" alt="reset" />
+                <div id="reset-cooldown" class="reset-cooldown"></div>
+              </button>
+              <button id="mute-btn" class="btn btn--purple"></button>
+            </div>
+          </div>
+
+          <div class="hand-grid mx-auto" data-qa="p1-hand">
+            <button class="cell-btn" data-qa="p1-cell-1"></button>
+            <button class="cell-btn" data-qa="p1-cell-2"></button>
+            <button class="cell-btn" data-qa="p1-cell-3"></button>
+            <button class="cell-btn" data-qa="p1-cell-4"></button>
+            <button class="cell-btn" data-qa="p1-cell-5"></button>
+            <button class="cell-btn" data-qa="p1-cell-6"></button>
+            <button class="cell-btn" data-qa="p1-cell-7"></button>
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p1-cell-8"
+              data-ship="mother"
+            ></button>
+          </div>
+        </section>
+
+        <!-- BOARD -->
+        <section class="middle-section">
+          <div class="game-header">
+            <div class="timer" id="timer">
+              <svg
+                width="206"
+                height="70"
+                viewBox="0 0 206 70"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div class="board" data-qa="board">
+            <div class="cell" data-qa="field-15">
+              <span>15</span>
+            </div>
+            <div class="cell" data-qa="field-14">
+              <span>14</span>
+            </div>
+            <div class="cell" data-qa="field-13">
+              <span>13</span>
+            </div>
+            <div class="cell cell--red cell--arrow" data-qa="field-12-0"></div>
+            <div class="cell" data-qa="field-11">
+              <span>11</span>
+            </div>
+            <div class="cell" data-qa="field-10">
+              <span>10</span>
+            </div>
+            <div class="cell" data-qa="field-9">
+              <span>9</span>
+            </div>
+            <div class="cell" data-qa="field-16">
+              <span>16</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r2c2"></div>
+            <div class="cell cell--empty" data-qa="r2c3"></div>
+            <div class="cell cell--arrow" data-qa="field-12-1"></div>
+            <div class="cell cell--empty" data-qa="r2c5"></div>
+            <div class="cell cell--empty" data-qa="r2c6"></div>
+
+            <div class="cell" data-qa="field-8">
+              <span>8</span>
+            </div>
+            <div class="cell" data-qa="field-17">
+              <span>17</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r3c2"></div>
+            <div class="cell cell--empty" data-qa="r3c3"></div>
+            <div class="cell cell--double-arrow" data-qa="field-12-2"></div>
+            <div class="cell cell--empty" data-qa="r3c5"></div>
+            <div class="cell cell--empty" data-qa="r3c6"></div>
+
+            <div class="cell" data-qa="field-7">
+              <span>7</span>
+            </div>
+
+            <div class="cell cell--red cell--arrow" data-qa="field-18-0"></div>
+            <div class="cell cell--arrow" data-qa="field-18-1"></div>
+            <div class="cell cell--double-arrow" data-qa="field-18-2"></div>
+            <div class="cell cell--final" data-qa="final-0"></div>
+            <div class="cell cell--double-arrow" data-qa="field-6-2"></div>
+            <div class="cell cell--arrow" data-qa="field-6-1"></div>
+            <div class="cell cell--red cell--arrow" data-qa="field-6-0"></div>
+
+            <div class="cell" data-qa="field-19">
+              <span>19</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r5c2"></div>
+            <div class="cell cell--empty" data-qa="r5c3"></div>
+            <div class="cell cell--final cell--final-1" data-qa="final-1"></div>
+            <div class="cell cell--empty" data-qa="r5c5"></div>
+            <div class="cell cell--empty" data-qa="r5c6"></div>
+
+            <div class="cell" data-qa="field-5">
+              <span>5</span>
+            </div>
+            <div class="cell" data-qa="field-20">
+              <span>20</span>
+            </div>
+
+            <div class="cell cell--empty" data-qa="r6c2"></div>
+            <div class="cell cell--empty" data-qa="r6c3"></div>
+            <div class="cell cell--final cell--final-2" data-qa="final-2"></div>
+            <div class="cell cell--empty" data-qa="r6c5"></div>
+            <div class="cell cell--empty" data-qa="r6c6"></div>
+
+            <div class="cell" data-qa="field-4">
+              <span>4</span>
+            </div>
+            <div class="cell" data-qa="field-21">
+              <span>21</span>
+            </div>
+            <div class="cell" data-qa="field-22">
+              <span>22</span>
+            </div>
+            <div class="cell" data-qa="field-23">
+              <span>23</span>
+            </div>
+            <div
+              class="cell cell--arrow cell--white"
+              data-qa="field-24-0"
+            ></div>
+            <div class="cell cell--start" data-qa="field-1">
+              <span>1</span>
+            </div>
+            <div class="cell" data-qa="field-2">
+              <span>2</span>
+            </div>
+            <div class="cell" data-qa="field-3">
+              <span>3</span>
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button id="main-btn" class="btn" data-type="dice"></button>
+          </div>
+        </section>
+
+        <!-- PLAYER 2 -->
+        <section id="player2" class="player-section">
+          <div class="player-info">
+            <h2 class="player-name">PLAYER 2</h2>
+          </div>
+
+          <div class="player-navigation">
+            <div class="dialog">
+              <div class="btn dialog-button">Вибрати фразу</div>
+              <ul class="dialog-list"></ul>
+            </div>
+          </div>
+
+          <div class="hand-grid mx-auto" data-qa="p2-hand">
+            <button class="cell-btn" data-qa="p2-cell-1"></button>
+            <button class="cell-btn" data-qa="p2-cell-2"></button>
+            <button class="cell-btn" data-qa="p2-cell-3"></button>
+            <button class="cell-btn" data-qa="p2-cell-4"></button>
+            <button class="cell-btn" data-qa="p2-cell-5"></button>
+            <button class="cell-btn" data-qa="p2-cell-6"></button>
+            <button class="cell-btn" data-qa="p2-cell-7"></button>
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p2-cell-8"
+              data-ship="mother"
+            ></button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div class="dice-container"></div>
+
+    <div class="coin-container">
+      <div class="coin">
+        <div class="coin-face">
+          <img src="data:image/png;base64,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" alt="" />
+        </div>
+        <div class="coin-back">
+          <img src="data:image/png;base64,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" alt="" />
+        </div>
+      </div>
     </div>
 
-    <p class="header-text">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-      magna aliqua. Ut enim ad minim veniam.
-    </p>
+    <div id="dialog-container" class="dialog-container"></div>
 
-    <div class="header-button-group">
-      <button id="navigation-fast-game-btn" class="btn btn--purple">Швидка гра</button>
-      <button id="navigation-select-room-btn" class="btn btn--purple">Вибрати кімнату</button>
-      <button id="navigation-create-room-btn" class="btn btn--purple">Створити кімнату</button>
+    <div id="helper-container" class="helper">
+      <div id="helper-icon" class="helper-icon"></div>
+
+      <div class="helper-wrapper">
+        <p id="helper-text" class="helper-text"></p>
+
+        <div id="helper-btns" class="helper-btn-group">
+          <button id="helper-accept-btn" class="btn btn--green btn-sm">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAABA1JREFUeJzt3T2LHVUAxvHnGDEmkoVYJFiIpWSxUAtBG0lhTCEYIn4N/QDm05gilhZBiIQExZfGiCCRWGgVkKRZkJB9af4Wcy8s5u4yZ+a8zMx5fk0g7OSemeeZOXdmZyaSmZmZmZmZmZmZmZmZmZmZmZmZmZmZzVuoPQB7FnBK0kVJb0rakrQj6Z6k70MIBzXHZhkBJ4FrwA6bPQI+A07UHqslBpwDfjwi+P/7BtiqPWZLZBX+7z3DX/sFOFt77DbSwPBdgiUYGb5LMGfAeeD+yPDXfgJO114n6ylx+Gs3aq+X9UCaw/5RPqi9fnYM8uz5h92KHZOvBBYCnJd0R9J2xo/Zl/RyCOFp3wWeyzgYWwHOSbqtvOFL0klJr8Ys8HymgdhKoT3/sFMxP+wjQEYVwpekf2J+2AXIpOBh/7AHIYRHMQt4Csig0p4vSddjF/BZQGIVw38o6UII4UnMQp4CEqoY/q6kq7HhW0LkvcJ3nD3go9rr3zSH3zCH3zCH3zCH3zCH3zCH3zCH3zCH3zCH3zCH3zCH3zCH37CWwk9+PwDwgqT3Jb0t6aykfyX9JuluCGE39eelRr1f6e5JuhJCiL61exKAE8DnwOMj2r0DfLEqyCSR/779o+wCH9Ze/8GALbpn1vv4ge5+uUnB4Q9DF/7PkSv9AHil9tjXaGjOT4ph4a9NogQ4/GEYF/5a1RLg8IcBTtM9k57Cfbpv3qXXwXP+UMBXiTdK0RLg8IcDLmfaOEWmA3zYHwf4NuNGynokwHv+OMBLwH7mjZWlBDj8jWKfDHpNUu4reduSviPhdECdBzWl7oUNn0758m5sAV7MMopnvS7pdoojwerfuCvpjdGjirMn6eMQws3CnxsltgBRz56PtC3pzpgS4F/spAf8WXgOHXR2gL/t9zLk6eAvk4/ieNHTAT7s5wOcAR5W2LN6nR3gb/v5Ae8ATyts5GNLgMMvB7hEnRJs/E5AvTl/nxnN+UkxkRLg8Ouhcglw+KMkuSmUbv77WuUuFK39sfrT5/kDJbsrGLikrgRRb6qcoQNJnyzlVC/pbeENlGBR4Ut5ngtYagkWF76U6UWRCyzBIsOXMr4pdEElWGz4UuZXxS6gBIsOXyrwruAZl2Dx4UuFXhY9wxI0Eb5U8G3hMypBM+EXR73Lxn0t4vLupNGVYLdy0Js4/FKYXgkcfmlMpwQOvxbql8Dh11axBA5/KiqUwOFPTcESOPypKlAChz91GUvg8OciQwkc/twkLIHDn6sEJXD4czeiBA5/KQaUwOEvTUQJHP5S9SiBw1864D3g7w3h/wW8W3t8c1PslrCU6P7PgcuS3lr91a+SboUQDuqNyszMzMzMzMzMzMzMzMzMzMzMzMzMzMzMrKz/ALxuraKxXis1AAAAAElFTkSuQmCC" alt="accept" />
+          </button>
+
+          <button id="helper-reject-btn" class="btn btn--red btn-sm">
+            <img src="data:image/png;base64,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" alt="reject" />
+          </button>
+        </div>
+
+        <div id="helper-progress-bar" class="helper-progress-bar"></div>
+      </div>
     </div>
-  </div>
-</header>
 
-<main>
-  <section id="form-section" class="form-section is-hidden">
-    <form id="form" class="form-wrapper">
-      <div class="form">
-        <a href="#" class="form-brand">Якийсь <span>Логотип</span></a>
-
-        <div class="form-field-group">
-          <div id="room-field" class="form-field form-field--floating">
-            <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
-            <input type="text" id="room-name" class="form-field-input" placeholder=" " required/>
-            <label for="room-name" class="form-field-label">Імʼя кімнати</label>
-          </div>
-
-          <div class="form-field form-field--floating">
-            <!-- DO NOT REMOVE EMPTY PLACEHOLDER -->
-            <input type="text" id="player-name" class="form-field-input" placeholder=" " required/>
-            <label for="player-name" class="form-field-label">Імʼя гравця</label>
-          </div>
-
-          <div class="form-field form-field-color">
-            <label for="color" class="form-field-label">Колір гравця</label>
-            <input type="color" id="color" class="form-field-input form-field-color" value="#6A0DAD"/>
-          </div>
-
-          <div id="avatar-dropdown" class="avatar-dropdown">
-            <button type="button" class="avatar-dropdown-btn">Аватарки</button>
-            <div class="avatar-dropdown-list"></div>
-          </div>
-
-          <table id="available-rooms" class="rooms-table">
-            <thead>
-            <tr>
-              <th></th>
-              <th>Назва</th>
-              <th>Автор</th>
-              <th>Дата</th>
-              <th>Ігроки</th>
-            </tr>
-            </thead>
-            <tbody id="rooms-table"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <button type="submit" id="create-room-btn" class="btn btn--purple">Створити кімнату</button>
-    </form>
-  </section>
-
-  <div id="game" class="is-hidden">
-    <!-- PLAYER 1 -->
-    <section id="player1">
-      <div class="player-info">
-        <h2 class="player-name">PLAYER 1</h2>
-      </div>
-
-      <div class="dialog dialog-red" data-userName="Player 1">
-        <div class="dialog-button">Вибрати фразу</div>
-
-        <ul class="dialog-list"></ul>
-      </div>
-
-      <div class="chat chat-red">
-        <ul class="chat-wrapper player1" data-qa="p1-chat"></ul>
-      </div>
-
-      <div class="hand-grid mx-auto" data-qa="p1-hand">
-        <button class="cell-btn" data-qa="p1-cell-1"></button>
-        <button class="cell-btn" data-qa="p1-cell-2"></button>
-        <button class="cell-btn" data-qa="p1-cell-3"></button>
-        <button class="cell-btn" data-qa="p1-cell-4"></button>
-        <button class="cell-btn" data-qa="p1-cell-5"></button>
-        <button class="cell-btn" data-qa="p1-cell-6"></button>
-        <button class="cell-btn" data-qa="p1-cell-7"></button>
-        <button class="cell-btn" data-qa="p1-cell-8"></button>
-      </div>
-    </section>
-
-    <!-- BOARD -->
-    <section class="is-narrow has-text-centered middle-section">
-      <div class="timer" id="timer">
-        <svg width="206" height="70" viewBox="0 0 206 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"/>
-        </svg>
-      </div>
-
-      <div class="board" data-qa="board">
-        <div class="cell" data-qa="field-15">
-          <span>15</span>
-        </div>
-        <div class="cell" data-qa="field-14">
-          <span>14</span>
-        </div>
-        <div class="cell" data-qa="field-13">
-          <span>13</span>
-        </div>
-        <div class="cell cell--red cell--arrow" data-qa="field-12-0"></div>
-        <div class="cell" data-qa="field-11">
-          <span>11</span>
-        </div>
-        <div class="cell" data-qa="field-10">
-          <span>10</span>
-        </div>
-        <div class="cell" data-qa="field-9">
-          <span>9</span>
-        </div>
-        <div class="cell" data-qa="field-16">
-          <span>16</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r2c2"></div>
-        <div class="cell cell--empty" data-qa="r2c3"></div>
-        <div class="cell cell--arrow" data-qa="field-12-1"></div>
-        <div class="cell cell--empty" data-qa="r2c5"></div>
-        <div class="cell cell--empty" data-qa="r2c6"></div>
-
-        <div class="cell" data-qa="field-8">
-          <span>8</span>
-        </div>
-        <div class="cell" data-qa="field-17">
-          <span>17</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r3c2"></div>
-        <div class="cell cell--empty" data-qa="r3c3"></div>
-        <div class="cell cell--double-arrow" data-qa="field-12-2"></div>
-        <div class="cell cell--empty" data-qa="r3c5"></div>
-        <div class="cell cell--empty" data-qa="r3c6"></div>
-
-        <div class="cell" data-qa="field-7">
-          <span>7</span>
-        </div>
-
-        <div class="cell cell--red cell--arrow" data-qa="field-18-0"></div>
-        <div class="cell cell--arrow" data-qa="field-18-1"></div>
-        <div class="cell cell--double-arrow" data-qa="field-18-2"></div>
-        <div class="cell cell--final" data-qa="final-0"></div>
-        <div class="cell cell--double-arrow" data-qa="field-6-2"></div>
-        <div class="cell cell--arrow" data-qa="field-6-1"></div>
-        <div class="cell cell--red cell--arrow" data-qa="field-6-0"></div>
-
-        <div class="cell" data-qa="field-19">
-          <span>19</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r5c2"></div>
-        <div class="cell cell--empty" data-qa="r5c3"></div>
-        <div class="cell cell--final cell--final-1" data-qa="final-1"></div>
-        <div class="cell cell--empty" data-qa="r5c5"></div>
-        <div class="cell cell--empty" data-qa="r5c6"></div>
-
-        <div class="cell" data-qa="field-5">
-          <span>5</span>
-        </div>
-        <div class="cell" data-qa="field-20">
-          <span>20</span>
-        </div>
-
-        <div class="cell cell--empty" data-qa="r6c2"></div>
-        <div class="cell cell--empty" data-qa="r6c3"></div>
-        <div class="cell cell--final cell--final-2" data-qa="final-2"></div>
-        <div class="cell cell--empty" data-qa="r6c5"></div>
-        <div class="cell cell--empty" data-qa="r6c6"></div>
-
-        <div class="cell" data-qa="field-4">
-          <span>4</span>
-        </div>
-        <div class="cell" data-qa="field-21">
-          <span>21</span>
-        </div>
-        <div class="cell" data-qa="field-22">
-          <span>22</span>
-        </div>
-        <div class="cell" data-qa="field-23">
-          <span>23</span>
-        </div>
-        <div class="cell cell--arrow cell--white" data-qa="field-24-0"></div>
-        <div class="cell cell--start" data-qa="field-1">
-          <span>1</span>
-        </div>
-        <div class="cell" data-qa="field-2">
-          <span>2</span>
-        </div>
-        <div class="cell" data-qa="field-3">
-          <span>3</span>
-        </div>
-      </div>
-
-      <div class="buttons is-centered mt-4">
-        <button class="player1 move-button button is-danger" data-qa="end-turn">
-          Закінчити Хід
-        </button>
-        <button class="player2 move-button button is-info" data-qa="start-turn">
-          Закінчити Хід
-        </button>
-      </div>
-
-      <div class="buttons is-centered mt-4">
-        <button class="player1 button dice-button is-danger" data-qa="end-turn">КИНУТИ</button>
-        <button class="player2 button dice-button is-info" data-qa="start-turn">КИНУТИ</button>
-      </div>
-    </section>
-
-    <!-- PLAYER 2 -->
-    <section id="player2">
-      <div class="player-info">
-        <h2 class="player-name">PLAYER 2</h2>
-      </div>
-
-      <div class="dialog dialog-blue" data-userName="Player 2">
-        <div class="dialog-button">Вибрати фразу</div>
-
-        <ul class="dialog-list"></ul>
-      </div>
-
-      <div class="chat chat-blue">
-        <ul class="chat-wrapper player2" data-qa="p2-chat"></ul>
-      </div>
-
-      <div class="hand-grid mx-auto" data-qa="p2-hand">
-        <button class="cell-btn" data-qa="p2-cell-1"></button>
-        <button class="cell-btn" data-qa="p2-cell-2"></button>
-        <button class="cell-btn" data-qa="p2-cell-3"></button>
-        <button class="cell-btn" data-qa="p2-cell-4"></button>
-        <button class="cell-btn" data-qa="p2-cell-5"></button>
-        <button class="cell-btn" data-qa="p2-cell-6"></button>
-        <button class="cell-btn" data-qa="p2-cell-7"></button>
-        <button class="cell-btn" data-qa="p2-cell-8"></button>
-      </div>
-    </section>
-  </div>
-</main>
-
-<div class="dice-container"></div>
-
-<div id="dialog-container" class="dialog-container"></div>
-
-<div id="ribbons-container" class="ribbons"></div>
-<!-- Script files -->
-</body>
+    <div id="ribbons-container" class="ribbons"></div>
+    <!-- Script files -->
+  </body>
 </html>
