@@ -1,7 +1,6 @@
 import {
   addActionToRoom,
   getCurrentPlayerId,
-  getCurrentPlayerInfo,
   getCurrentPlayerName,
   listeToRoomById,
   setRestartRoomId,
@@ -24,7 +23,7 @@ import {
   setupPlayerColors,
   setupRightPlayer,
 } from "./playersInfo";
-import { detectTimerChanges } from "./timer";
+import { detectTimerChanges, extendTimer } from "./timer";
 import Steps from "../components/stepsButtons";
 import { setupPrediction } from "../components/prediction";
 import { setupShipMove } from "./shipMove";
@@ -56,6 +55,8 @@ type RoomWithCoin = Room & {
   coinInitialized?: boolean;
   lastResetOffer?: unknown;
 };
+
+const EXTRA_TIME_WHEN_ROLLED_SIX = 15000;
 
 const mainBtn = document.getElementById("main-btn") as HTMLButtonElement;
 
@@ -99,7 +100,6 @@ export function getCurrentTurnSide(): Side {
 
 export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
-  console.log(room, getCurrentPlayerInfo());
 
   triggerHelper({
     duration: HELPER_WELCOME_DURATION,
@@ -478,6 +478,15 @@ export function startGame(room: RoomEntry) {
         if (randomNum !== 6) {
           mainBtn.innerText = "Закінчити хід";
           mainBtn.setAttribute("data-type", "end-turn");
+        } else {
+          if (previousRoomState?.timerState) {
+            updateRoom(roomId, {
+              timerState: extendTimer(
+                previousRoomState?.timerState,
+                EXTRA_TIME_WHEN_ROLLED_SIX
+              ),
+            });
+          }
         }
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {

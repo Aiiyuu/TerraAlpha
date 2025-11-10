@@ -38,7 +38,9 @@ export function setupTimer() {
 
 function updateTimerLook(time: number) {
   if (!timerSpanList.length) {
-    timerSpanList = [...document.querySelectorAll(".timer-text-list")] as HTMLElement[];
+    timerSpanList = [
+      ...document.querySelectorAll(".timer-text-list"),
+    ] as HTMLElement[];
   }
 
   timerSpanList.forEach((list, index) => {
@@ -126,4 +128,11 @@ export function detectTimerChanges(
     isCurrentPlayer,
     options
   );
+}
+
+export function extendTimer(currentTime: string, extraTime: number): string {
+  const currentEnd = new Date(currentTime);
+  const newEnd = new Date(currentEnd.getTime() + extraTime);
+  
+  return newEnd.toISOString();
 }
