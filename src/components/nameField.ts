@@ -8,7 +8,7 @@ export function setupPlayerNameField() {
   const currentPlayerInfo = getCurrentPlayerInfo();
 
   if (currentPlayerInfo) {
-    const name = currentPlayerInfo.name.trim();
+    const name = currentPlayerInfo.name?.trim() ?? "";
 
     if (name) {
       playerNameInput.value = name;
@@ -21,7 +21,7 @@ export function setupPlayerNameField() {
 
     setCurrentPlayerInfo({
       ...currentPlayer,
-      name: target.value.trim(),
+      name: target.value?.trim() ?? "",
     });
   });
 }
