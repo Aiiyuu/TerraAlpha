@@ -38,3 +38,21 @@
   outline: 2px solid #3273dc;
   outline-offset: 2px;
 }
+
+.cell-btn[data-ship="mother"][disabled] {
+  opacity: 0.55;
+  filter: grayscale(0.3);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.cell-btn[data-ship="mother"][disabled]:hover,
+.cell-btn[data-ship="mother"][disabled]:focus,
+.cell-btn[data-ship="mother"][disabled]:focus-visible,
+.cell-btn[data-ship="mother"][disabled]:active {
+  transform: none;
+  background: inherit;
+  outline: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}

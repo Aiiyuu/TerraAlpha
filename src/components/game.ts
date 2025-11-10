@@ -75,6 +75,8 @@ let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null =
   null;
 let autoProbe: ReturnType<typeof initAutoEndTurnProbe> | null = null;
 let autoDiceDuplicated = false;
+let stopWatchLeft: (() => void) | null = null;
+let stopWatchRight: (() => void) | null = null;
 
 const { startSound: startBgMusic } = createSound({
   src: bgMusicSrc,
@@ -93,6 +95,58 @@ const safeUpdatePlayer = (
   side: Side,
   patch: Record<string, unknown>
 ) => updatePlayer(id, side, patch).catch(() => undefined);
+
+function updateMotherLockByDOM(side: Side) {
+  const prefix = side === "left" ? "p1" : "p2";
+  const hand = document.querySelector(`[data-qa="${prefix}-hand"]`);
+  if (!hand) return;
+  const hasSimple =
+    !!hand.querySelector(
+      `.cell-btn:not([data-ship="mother"]) .ship, .cell-btn[data-ship="simple"], .cell-btn:not([data-ship="mother"])[data-has-ship="1"], .cell-btn:not([data-ship="mother"])[data-occupied="1"]`
+    ) ||
+    Array.from(hand.querySelectorAll<HTMLButtonElement>(".cell-btn")).some(
+      (b) =>
+        b.getAttribute("data-ship") !== "mother" &&
+        b.innerHTML.trim().length > 0
+    );
+  const motherBtn = hand.querySelector<HTMLButtonElement>(
+    `.cell-btn[data-ship="mother"]`
+  );
+  if (!motherBtn) return;
+  motherBtn.toggleAttribute("disabled", hasSimple);
+  motherBtn.setAttribute("aria-disabled", hasSimple ? "true" : "false");
+  motherBtn.setAttribute("data-locked", hasSimple ? "1" : "0");
+}
+
+function watchHand(side: Side) {
+  const prefix = side === "left" ? "p1" : "p2";
+  const hand = document.querySelector(`[data-qa="${prefix}-hand"]`);
+  if (!hand) return () => {};
+  const observer = new MutationObserver(() => updateMotherLockByDOM(side));
+  observer.observe(hand, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["data-ship", "data-has-ship", "data-occupied", "class"],
+  });
+  updateMotherLockByDOM(side);
+  return () => observer.disconnect();
+}
+
+function updateEndTurnDisabled(roomState: Room, mySide: Side | null) {
+  if (!mySide) return;
+  const raw = roomState.currentStepsStrike?.[mySide];
+  const hasSteps = Array.isArray(raw)
+    ? raw.length > 0
+    : raw
+    ? Object.keys(raw).length > 0
+    : false;
+  if (mainBtn.getAttribute("data-type") === "end-turn") {
+    mainBtn.disabled = hasSteps;
+    mainBtn.classList.toggle("disabled", hasSteps);
+    mainBtn.style.cursor = hasSteps ? "not-allowed" : "pointer";
+  }
+}
 
 export function getCurrentTurnSide(): Side {
   return currentPlayerSide ?? "left";
@@ -142,6 +196,11 @@ export function startGame(room: RoomEntry) {
     );
   }
 
+  stopWatchLeft?.();
+  stopWatchRight?.();
+  stopWatchLeft = watchHand("left");
+  stopWatchRight = watchHand("right");
+
   stopMainPrediction = initMainPrediction(roomId);
   stopPlayerBlockedInfo = initPlayerBlockedInfo(roomId);
   stopPlayerWin = initPlayerWin(roomId);
@@ -154,6 +213,8 @@ export function startGame(room: RoomEntry) {
       stopPlayerWin?.();
       autoProbe?.destroy();
       autoProbe = null;
+      stopWatchLeft?.();
+      stopWatchRight?.();
     },
     { once: true }
   );
@@ -397,6 +458,9 @@ export function startGame(room: RoomEntry) {
       document.body.setAttribute("data-turn-active", "0");
     }
 
+    updateMotherLockByDOM("left");
+    updateMotherLockByDOM("right");
+
     if (hasIndex) {
       const raw = roomState.currentStepsStrike?.[mySideByIndex || "left"];
       const strike = Array.isArray(raw) ? raw : raw ? Object.values(raw) : [];
@@ -411,6 +475,8 @@ export function startGame(room: RoomEntry) {
     } else {
       Steps.clear();
     }
+
+    updateEndTurnDisabled(roomState, mySideByIndex);
 
     const strikeSide = roomState.isTurn as Side | undefined;
     if (strikeSide) {
@@ -478,6 +544,9 @@ export function startGame(room: RoomEntry) {
         if (randomNum !== 6) {
           mainBtn.innerText = "Закінчити хід";
           mainBtn.setAttribute("data-type", "end-turn");
+          if (previousRoomState && currentPlayerSide) {
+            updateEndTurnDisabled(previousRoomState, currentPlayerSide);
+          }
         } else {
           if (previousRoomState?.timerState) {
             updateRoom(roomId, {
@@ -503,6 +572,9 @@ export function startGame(room: RoomEntry) {
       });
       mainBtn.innerText = "";
       mainBtn.setAttribute("data-type", "dice");
+      mainBtn.disabled = false;
+      mainBtn.classList.remove("disabled");
+      mainBtn.style.cursor = "pointer";
       void addActionToRoom(roomId, {
         type: ActionTypes.HINT,
         endsAt: getEndDate(HELPER_END_TURN_DURATION),
