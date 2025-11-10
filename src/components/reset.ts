@@ -1,8 +1,5 @@
-import {
-  helper,
-  INFORM_ACTION_DURATION,
-  RESET_BTN_COOLDOWN,
-} from "../config";
+import { helper, INFORM_ACTION_DURATION, RESET_BTN_COOLDOWN } from "../config";
+import { createRestartRoom } from "../server/createGameRoom";
 import {
   addActionToRoom,
   getCurrentPlayerName,
@@ -10,10 +7,17 @@ import {
   setSuggestRestart,
   clearSuggestRestart,
   updateRoom,
+  getRestartRoomId,
+  getCurrentPlayerInfo,
+  deleteRestartRoomId,
+  addNewPlayerToRoom,
+  setCurrentRoomId,
+  getRoomById,
 } from "../server/server";
 import { ActionTypes, type Action } from "../types/action";
-import type { Room, RoomShips, Side } from "../types/room";
+import type { Room, Side } from "../types/room";
 import { getEndDate } from "../utility/getEndDate";
+import { animatePageSwitching, showGame } from "./pageSwitcher";
 
 let resetBtn: HTMLElement | undefined;
 let timerInterval: number | undefined;
@@ -29,7 +33,9 @@ export function hideMenu(panel: HTMLElement) {
 }
 
 export function resetRestartState(panel: HTMLElement) {
-  const restartBtn = panel.querySelector(".gm-restart") as HTMLButtonElement | null;
+  const restartBtn = panel.querySelector(
+    ".gm-restart"
+  ) as HTMLButtonElement | null;
   const yesBtn = panel.querySelector(".gm-yes") as HTMLButtonElement | null;
   const noBtn = panel.querySelector(".gm-no") as HTMLButtonElement | null;
   const exitBtn = panel.querySelector(".gm-exit") as HTMLButtonElement | null;
@@ -46,13 +52,15 @@ export function startTimer(
   panel: HTMLElement,
   startedAt: number,
   duration: number,
-  isResponder = false,
+  isResponder = false
 ) {
   const timerEl = panel.querySelector(".gm-timer") as HTMLElement | null;
   const yesBtn = panel.querySelector(".gm-yes") as HTMLButtonElement | null;
   const noBtn = panel.querySelector(".gm-no") as HTMLButtonElement | null;
   const exitBtn = panel.querySelector(".gm-exit") as HTMLButtonElement | null;
-  const restartBtn = panel.querySelector(".gm-restart") as HTMLButtonElement | null;
+  const restartBtn = panel.querySelector(
+    ".gm-restart"
+  ) as HTMLButtonElement | null;
 
   if (isResponder) {
     exitBtn?.classList.add("is-hidden");
@@ -95,13 +103,17 @@ export function setupResetBtn(currentPlayerSide?: Side) {
     (document.body.getAttribute("data-my-side") as Side | null) ||
     "left";
 
-  const container = resetBtn.closest(".player-navigation") as HTMLElement | null;
+  const container = resetBtn.closest(
+    ".player-navigation"
+  ) as HTMLElement | null;
   const panel = container?.querySelector(".game-menu") as HTMLElement | null;
   if (!panel) return;
 
   const closeBtn = panel.querySelector(".gm-close") as HTMLButtonElement | null;
   const exitBtn = panel.querySelector(".gm-exit") as HTMLButtonElement | null;
-  const restartBtn = panel.querySelector(".gm-restart") as HTMLButtonElement | null;
+  const restartBtn = panel.querySelector(
+    ".gm-restart"
+  ) as HTMLButtonElement | null;
   const yesBtn = panel.querySelector(".gm-yes") as HTMLButtonElement | null;
   const noBtn = panel.querySelector(".gm-no") as HTMLButtonElement | null;
 
@@ -189,22 +201,48 @@ export function syncResetBtn(lastResetOffer: Room["lastResetOffer"]) {
 }
 
 function runCooldownAnimation() {
-  const cooldownProgress = document.getElementById("reset-cooldown") as HTMLElement;
+  const cooldownProgress = document.getElementById(
+    "reset-cooldown"
+  ) as HTMLElement;
   cooldownProgress.style.animation = "none";
   void cooldownProgress.offsetWidth;
   cooldownProgress.style.animation = `cooldown-progress ${RESET_BTN_COOLDOWN}ms linear forwards`;
 }
 
-function resetRoom() {
-  updateRoom(getCurrentRoomId(), {
-    coin: {},
-    ships: {} as RoomShips,
-    coinShown: false,
-    date: new Date().toISOString(),
-    isDiceRolling: false,
-    lastDiceResult: -1,
-    lastResetOffer: "",
-    timerState: "",
-    events: {},
-  });
+async function resetRoom() {
+  try {
+    const restartRoom = await createRestartRoom();
+    updateRoom(getCurrentRoomId(), { restartRoomId: restartRoom.id });
+  } catch (error) {
+    alert(`Failed creating restart room: ${error}`);
+  }
+}
+
+export function setupRestartRedirect() {
+  const restartRoomId = getRestartRoomId();
+
+  if (!restartRoomId) return;
+
+  logIntoRestartRoom();
+}
+
+async function logIntoRestartRoom() {
+  try {
+    const player = getCurrentPlayerInfo();
+    const restartRoomId = getRestartRoomId();
+    const room = await getRoomById(restartRoomId);
+
+    if (!restartRoomId || !room) {
+      throw new Error("Restart room not found or invalid room ID.");
+    }
+
+    await addNewPlayerToRoom(player, restartRoomId);
+
+    setCurrentRoomId(restartRoomId);
+    deleteRestartRoomId();
+
+    animatePageSwitching(() => showGame(room));
+  } catch (error) {
+    alert(`Failed logging into restart room: ${error}`);
+  }
 }

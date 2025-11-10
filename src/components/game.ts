@@ -1,14 +1,22 @@
 import {
   addActionToRoom,
   getCurrentPlayerId,
+  getCurrentPlayerInfo,
   getCurrentPlayerName,
   listeToRoomById,
+  setRestartRoomId,
   updatePlayer,
   updateRoom,
 } from "../server/server";
 import type { Phrase } from "../types/phrase";
 import type { Room, RoomEntry } from "../types/room";
-import { declareCoinResult, flipCoin, getRandomSide, initCoin, COIN_ANIMATION_DURATION } from "./coin";
+import {
+  declareCoinResult,
+  flipCoin,
+  getRandomSide,
+  initCoin,
+  COIN_ANIMATION_DURATION,
+} from "./coin";
 import { showPhrase } from "./dialog";
 import { HIDE_DICE_DELAY, syncDiceHelper, throwDice } from "./dice";
 import {
@@ -62,7 +70,8 @@ let stopShipSync: (() => void) | null = null;
 let stopMainPrediction: (() => void) | null = null;
 let stopPlayerBlockedInfo: (() => void) | null = null;
 let stopPlayerWin: (() => void) | null = null;
-let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null = null;
+let mainBtnHandler: ((this: HTMLButtonElement, ev: MouseEvent) => void) | null =
+  null;
 let autoProbe: ReturnType<typeof initAutoEndTurnProbe> | null = null;
 let autoDiceDuplicated = false;
 
@@ -78,8 +87,11 @@ const coinEnd = () => window.dispatchEvent(new Event("coin:end"));
 const safeUpdate = (id: Room["id"], patch: FirebasePatch) =>
   updateRoom(id, patch).catch(() => undefined);
 
-const safeUpdatePlayer = (id: Room["id"], side: Side, patch: Record<string, unknown>) =>
-  updatePlayer(id, side, patch).catch(() => undefined);
+const safeUpdatePlayer = (
+  id: Room["id"],
+  side: Side,
+  patch: Record<string, unknown>
+) => updatePlayer(id, side, patch).catch(() => undefined);
 
 export function getCurrentTurnSide(): Side {
   return currentPlayerSide ?? "left";
@@ -87,6 +99,7 @@ export function getCurrentTurnSide(): Side {
 
 export function startGame(room: RoomEntry) {
   const roomId: Room["id"] = room.id;
+  console.log(room, getCurrentPlayerInfo());
 
   triggerHelper({
     duration: HELPER_WELCOME_DURATION,
@@ -158,7 +171,9 @@ export function startGame(room: RoomEntry) {
         if (!previousRoomState || !side) return false;
         const raw = previousRoomState.currentStepsStrike?.[side];
         if (!raw) return true;
-        return Array.isArray(raw) ? raw.length === 0 : Object.keys(raw).length === 0;
+        return Array.isArray(raw)
+          ? raw.length === 0
+          : Object.keys(raw).length === 0;
       },
     });
   }
@@ -180,6 +195,11 @@ export function startGame(room: RoomEntry) {
 
     syncActions(roomState.actions || []);
     syncResetBtn(current.lastResetOffer);
+
+    if (roomState.restartRoomId) {
+      setRestartRoomId(roomState.restartRoomId);
+      window.location.reload();
+    }
 
     detectTimerChanges(
       prev?.timerState,
@@ -208,9 +228,15 @@ export function startGame(room: RoomEntry) {
       setupPlayerColors(roomState, currentPlayerId);
     }
 
-    const myIndex: number = roomState.players.findIndex((p) => p.id === currentPlayerId);
+    const myIndex: number = roomState.players.findIndex(
+      (p) => p.id === currentPlayerId
+    );
     const hasIndex = myIndex >= 0;
-    const mySideByIndex: Side | null = hasIndex ? (myIndex === 0 ? "left" : "right") : null;
+    const mySideByIndex: Side | null = hasIndex
+      ? myIndex === 0
+        ? "left"
+        : "right"
+      : null;
     const haveTwoPlayers = roomState.players.length === 2;
     const prevPlayersCount = prev?.players?.length ?? 0;
     const becameTwo = prevPlayersCount < 2 && haveTwoPlayers;
@@ -225,14 +251,20 @@ export function startGame(room: RoomEntry) {
       document.body.setAttribute("data-opponent-side", oppSide);
     }
 
-    if (roomState.suggestRestartSide && roomState.timeWhenSuggestRestart && currentPlayerSide) {
+    if (
+      roomState.suggestRestartSide &&
+      roomState.timeWhenSuggestRestart &&
+      currentPlayerSide
+    ) {
       const startedAt = new Date(roomState.timeWhenSuggestRestart).getTime();
       const isInitiator = roomState.suggestRestartSide === currentPlayerSide;
       const myPanel = document.querySelector(
         `[data-my-side="${currentPlayerSide}"] .game-menu`
       ) as HTMLElement | null;
       if (myPanel) {
-        const timerEl = myPanel.querySelector(".gm-timer") as HTMLElement | null;
+        const timerEl = myPanel.querySelector(
+          ".gm-timer"
+        ) as HTMLElement | null;
         const isRunning = !!timerEl && !timerEl.classList.contains("is-hidden");
         showMenu(myPanel);
         if (!isRunning) startTimer(myPanel, startedAt, 10000, !isInitiator);
@@ -328,17 +360,34 @@ export function startGame(room: RoomEntry) {
       document.body.classList.remove("steps-hidden");
     }
 
-    if (!diceIsRolling && roomState?.lastDiceResult && roomState?.isDiceRolling) {
+    if (
+      !diceIsRolling &&
+      roomState?.lastDiceResult &&
+      roomState?.isDiceRolling
+    ) {
       diceIsRolling = true;
       throwDice(roomState.lastDiceResult);
-      syncDiceHelper(roomState, currentPlayerSide || "left", roomState.lastDiceResult);
+      syncDiceHelper(
+        roomState,
+        currentPlayerSide || "left",
+        roomState.lastDiceResult
+      );
     } else if (diceIsRolling && !roomState?.isDiceRolling) {
       diceIsRolling = false;
     }
 
-    const turnIndex = effectiveTurnSide ? (effectiveTurnSide === "left" ? 0 : 1) : -1;
+    const turnIndex = effectiveTurnSide
+      ? effectiveTurnSide === "left"
+        ? 0
+        : 1
+      : -1;
 
-    if (hasIndex && haveTwoPlayers && turnIndex !== -1 && myIndex === turnIndex) {
+    if (
+      hasIndex &&
+      haveTwoPlayers &&
+      turnIndex !== -1 &&
+      myIndex === turnIndex
+    ) {
       mainBtn.classList.remove("disabled");
       document.body.classList.remove("not-my-turn");
       document.body.setAttribute("data-turn-active", "1");
@@ -356,7 +405,8 @@ export function startGame(room: RoomEntry) {
         turnIndex !== -1 &&
         myIndex === turnIndex &&
         !roomState.isDiceRolling &&
-        (!!raw && (Array.isArray(raw) ? raw.length > 0 : Object.keys(raw).length > 0));
+        !!raw &&
+        (Array.isArray(raw) ? raw.length > 0 : Object.keys(raw).length > 0);
       Steps.render(strike, canUseSteps);
     } else {
       Steps.clear();
@@ -431,7 +481,9 @@ export function startGame(room: RoomEntry) {
         }
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {
-      void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, { diceStreak: [] });
+      void safeUpdatePlayer(roomId, previousRoomState!.isTurn as Side, {
+        diceStreak: [],
+      });
       void updateRoom(roomId, { currentStepsStrike: { left: [], right: [] } });
       Steps.clear();
       const nextTurn: Side =

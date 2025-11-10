@@ -1,4 +1,8 @@
 import { avatars } from "../config.ts";
+import {
+  getCurrentPlayerInfo,
+  setCurrentPlayerInfo,
+} from "../server/server.ts";
 
 const avatarMenu = document.getElementById("avatar-menu") as HTMLElement;
 let avatarItems: HTMLElement[];
@@ -17,6 +21,8 @@ export function setUpdAvatars() {
  * and creates a form list from those items.
  */
 function loadListItems() {
+  const currentPlayerInfo = getCurrentPlayerInfo();
+
   avatars.forEach((avatar) => {
     const div: HTMLDivElement = document.createElement("div");
     div.classList.add("avatar-item");
@@ -24,6 +30,14 @@ function loadListItems() {
 
     const img: HTMLImageElement = document.createElement("img");
     img.src = avatar.img;
+
+    if (
+      currentPlayerInfo &&
+      currentPlayerInfo.avatar &&
+      currentPlayerInfo.avatar == avatar.id
+    ) {
+      div.classList.add("is-selected");
+    }
 
     div.appendChild(img);
 
@@ -49,6 +63,12 @@ function selectAvatar(avatar: HTMLElement) {
 
   avatarItems.forEach((item) => {
     item.classList.remove("is-selected");
+  });
+
+  const currentPlayer = getCurrentPlayerInfo();
+  setCurrentPlayerInfo({
+    ...currentPlayer,
+    avatar: avatar.getAttribute("data-id"),
   });
 
   avatar.classList.add("is-selected");

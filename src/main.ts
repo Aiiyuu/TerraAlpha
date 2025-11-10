@@ -12,8 +12,11 @@ import { setupShipImages } from "./components/shipImages.ts";
 import { clearOutdatedRooms } from "./server/server.ts";
 import { translatePage } from "./components/language.ts";
 import { setUpPlayerBtns } from "./components/playerButtons.ts";
+import { setupPlayerNameField } from "./components/nameField.ts";
+import { setupRestartRedirect } from "./components/reset.ts";
 
 window.addEventListener("load", () => {
+  setupRestartRedirect();
   translatePage();
   setUpPlayerBtns();
   setUpNavigation();
@@ -23,6 +26,7 @@ window.addEventListener("load", () => {
   setupTimer();
   setupDice();
   setupColorPalette();
+  setupPlayerNameField();
   loadCellIcons();
   setupShipImages();
   loadImages();
