@@ -4,50 +4,45 @@ import uaFlag from "../assets/icons/Ukraine.svg";
 import language from "../language.json";
 import { renderPhrases } from "./dialog";
 
-export function setupLanguage() {
-  const lngBtn = document.getElementById("lng-btn") as HTMLElement;
-  lngBtn.addEventListener("click", switchLanguage);
+let langBtns: HTMLButtonElement[] = [];
+
+export function setupLanguage(selectors: string[] = ["#lng-btn"]) {
+  langBtns = selectors
+    .map((s) => document.querySelector<HTMLButtonElement>(s))
+    .filter((b): b is HTMLButtonElement => Boolean(b));
+
+  langBtns.forEach((btn) => btn.addEventListener("click", switchLanguage));
   translatePage();
 }
 
 export function translatePage() {
   const lng = getLanguage();
-
-  updateLngBtn(lng);
+  updateLangBtns(lng);
   switchLanguageText(lng);
 }
 
 function switchLanguage() {
-  const lng = (localStorage.getItem("language") as Language) || Language.EN;
+  const lng = getLanguage();
   const nextLng = lng === Language.EN ? Language.UA : Language.EN;
-
   setLanguage(nextLng);
   translatePage();
   renderPhrases();
 }
 
-function updateLngBtn(lng: Language) {
-  const lngBtn = document.getElementById("lng-btn") as HTMLElement;
-
-  if (!lngBtn) return;
-
+function updateLangBtns(lng: Language) {
   const src = lng === Language.EN ? ukFlag : uaFlag;
-  const flagIcon = `<img src="${src}" alert="${lng}" />`;
-
-  lngBtn.innerHTML = flagIcon;
+  const html = `<img src="${src}" alt="${lng}" />`;
+  langBtns.forEach((btn) => (btn.innerHTML = html));
 }
 
 function switchLanguageText(lng: Language) {
   const text = language[lng];
-  const elements = [
-    ...document.querySelectorAll("[data-lng]"),
-  ] as HTMLElement[];
+  const elements = [...document.querySelectorAll("[data-lng]")] as HTMLElement[];
 
   elements.forEach((element) => {
     const textId = element.getAttribute("data-lng");
     const content =
       textId && textId in text ? text[textId as keyof typeof text] : "unknown";
-
     element.innerHTML = `${content}`;
   });
 }

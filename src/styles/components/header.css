@@ -20,7 +20,6 @@
   right: 22%;
   width: 261px;
   height: 277px;
-
   animation: vacillation 10s ease infinite alternate, slide-up 10s ease forwards;
 }
 
@@ -29,7 +28,6 @@
   left: 40%;
   width: 150px;
   height: 150px;
-
   animation: rotation 40s linear infinite;
 }
 
@@ -41,10 +39,8 @@
   animation: rotation 50s linear infinite;
 }
 
-
 .header-wrapper {
   overflow-y: scroll;
-
   position: relative;
   z-index: 3;
   max-width: var(--max-page-width);
@@ -67,22 +63,37 @@
   animation: slide-fade-up var(--scroll-animation-duration) forwards ease;
 }
 
-.header-dots {
+/* quick actions instead of dots */
+.header-quick-actions {
   display: flex;
   align-items: center;
-  gap: 23px;
+  gap: 12px;
 }
 
-.header-dots span {
-  display: inline-block;
+.header-quick-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 36px;
+  padding: 0;
+  border-radius: 10px;
+  opacity: 0;
+  animation: slide-fade-up var(--scroll-animation-duration) forwards ease;
+  transition: transform .15s ease;
+}
 
-  --dot-size: 7px;
+.header-quick-actions .btn:nth-child(1) { animation-delay: 100ms; }
+.header-quick-actions .btn:nth-child(2) { animation-delay: 180ms; }
 
-  width: var(--dot-size);
-  height: var(--dot-size);
+.header-quick-actions .btn:hover { transform: translateY(-1px); }
+.header-quick-actions .btn:active { transform: translateY(0); }
 
-  background-color: #E7E7E7;
-  border-radius: 50%;
+.btn.btn--icon img {
+  width: 18px;
+  height: 18px;
+  display: block;
+  pointer-events: none;
 }
 
 .header-button-group {
@@ -92,26 +103,20 @@
   gap: 5px;
 }
 
-.header-button-group .btn {
-  opacity: 0;
-}
+.header-button-group .btn { opacity: 0; }
 
 .header-button-group .btn:nth-child(1) {
   animation: slide-fade-up var(--scroll-animation-duration) 200ms forwards ease;
 }
-
 .header-button-group .btn:nth-child(2) {
   animation: slide-fade-up var(--scroll-animation-duration) 300ms forwards ease;
 }
-
 .header-button-group .btn:nth-child(3) {
   animation: slide-fade-up var(--scroll-animation-duration) 400ms forwards ease;
 }
 
 @media (min-width: 900px) {
-  .header-text {
-    width: 40%;
-  }
+  .header-text { width: 40%; }
 }
 
 @media (min-width: 500px) {
@@ -123,31 +128,21 @@
 }
 
 @keyframes vacillation {
-  from {
-    rotate: -30deg;
-  }
-
-  to {
-    rotate: 30deg;
-  }
+  from { rotate: -30deg; }
+  to   { rotate: 30deg; }
 }
 
 @keyframes slide-up {
-  from {
-    transform: translateY(100vh);
-  }
-
-  to {
-    transform: translateY(0);
-  }
+  from { transform: translateY(100vh); }
+  to   { transform: translateY(0); }
 }
 
 @keyframes rotation {
-  from {
-    rotate: 0;
-  }
+  from { rotate: 0; }
+  to   { rotate: -360deg; }
+}
 
-  to {
-    rotate: -360deg;
-  }
+@keyframes slide-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

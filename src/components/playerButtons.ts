@@ -59,9 +59,10 @@ export function setUpPlayerBtns(currentPlayerSide?: Side) {
       break;
   }
 
-  setupLanguage();
+  setupLanguage(["#lng-btn", "#header-lng-btn"]);
   setUpHelperBtn();
   setupResetBtn(currentPlayerSide);
   setupDialog();
+
   setupMuteBtn();
 }

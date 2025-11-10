@@ -1,8 +1,8 @@
-const AudioContextClass = window.AudioContext ?? window.webkitAudioContext;
+const AudioContextClass = window.AudioContext ?? (window as any).webkitAudioContext;
 
-const audioContext = new AudioContextClass();
-
+const audioContext: AudioContext = new AudioContextClass();
 const masterGain = audioContext.createGain();
+
 masterGain.gain.value = 1;
 masterGain.connect(audioContext.destination);
 
@@ -19,23 +19,24 @@ function setMuted(muted: boolean): void {
 }
 
 export function setupMuteBtn() {
-  const muteBtn = document.getElementById("mute-btn") as HTMLButtonElement;
+  const muteBtn = document.getElementById("mute-btn") as HTMLButtonElement | null;
+  if (!muteBtn) return; // 🔹 якщо кнопки немає — не виконуємо нічого
+
   let isMuted = false;
 
-  // Initialize mute state from localStorage
   const storedMuteState = localStorage.getItem("is-muted");
   if (storedMuteState !== null) {
     isMuted = JSON.parse(storedMuteState);
   }
-  
+
   muteBtn.setAttribute("data-is-muted", String(isMuted));
   setMuted(isMuted);
 
   muteBtn.addEventListener("click", () => {
+    if (audioContext.state === "suspended") audioContext.resume();
     isMuted = !isMuted;
     muteBtn.setAttribute("data-is-muted", String(isMuted));
     localStorage.setItem("is-muted", String(isMuted));
-
     setMuted(isMuted);
   });
 }
