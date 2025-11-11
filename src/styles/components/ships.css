@@ -7,7 +7,6 @@
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  cursor: pointer;
   margin: 4px;
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   opacity: 0.85;
@@ -141,8 +140,7 @@
 [data-ship].is-disabled,
 .is-disabled {
   opacity: 0.6;
-  box-shadow: none !important;
-  cursor: not-allowed !important;
+  box-shadow: none;
 }
 
 .ship-merge-vibrate {
@@ -176,10 +174,6 @@
 .board .cell.is-predicted:has(.ta-bump)::before,
 .board .cell.is-predicted:has(.ta-bump)::after {
   display: none;
-}
-
-.board .cell:has(.ta-bump) {
-  cursor: pointer;
 }
 
 .cell-btn.swap-out {
@@ -225,7 +219,6 @@ body.side-right .cell-btn[data-side="left"],
 body.side-right .hand-grid .cell-btn[data-side="left"] {
   pointer-events: none;
   opacity: 0.6;
-  cursor: not-allowed;
 }
 
 body.not-my-turn .cell-btn[data-side],

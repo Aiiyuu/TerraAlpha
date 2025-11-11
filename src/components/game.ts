@@ -39,13 +39,12 @@ import { HelperTypes, triggerHelper } from "./helper";
 import {
   helper,
   HELPER_END_TURN_DURATION,
-  HELPER_NOT_YOUR_TURN_DURATION,
   HELPER_WELCOME_DURATION,
 } from "../config";
 import { ActionTypes } from "../types/action";
 import { getEndDate } from "../utility/getEndDate";
 import { initAutoEndTurnProbe } from "../utility/autoEndTurn";
-import { fireLoserScreen, fireWinnerScreen } from "./endGame";
+import { getBlockedCursor, getPointerCursor } from "./cursor";
 
 type Side = "left" | "right";
 type FirebasePatch = Record<string, unknown>;
@@ -78,6 +77,7 @@ let autoProbe: ReturnType<typeof initAutoEndTurnProbe> | null = null;
 let autoDiceDuplicated = false;
 let stopWatchLeft: (() => void) | null = null;
 let stopWatchRight: (() => void) | null = null;
+let gameIsFinished = false;
 
 const { startSound: startBgMusic } = createSound({
   src: bgMusicSrc,
@@ -145,7 +145,7 @@ function updateEndTurnDisabled(roomState: Room, mySide: Side | null) {
   if (mainBtn.getAttribute("data-type") === "end-turn") {
     mainBtn.disabled = hasSteps;
     mainBtn.classList.toggle("disabled", hasSteps);
-    mainBtn.style.cursor = hasSteps ? "not-allowed" : "pointer";
+    mainBtn.style.cursor = hasSteps ? getBlockedCursor() : getPointerCursor();
   }
 }
 
@@ -204,7 +204,6 @@ export function startGame(room: RoomEntry) {
 
   stopMainPrediction = initMainPrediction(roomId);
   stopPlayerBlockedInfo = initPlayerBlockedInfo(roomId);
-  stopPlayerWin = initPlayerWin(roomId);
 
   window.addEventListener(
     "beforeunload",
@@ -313,6 +312,11 @@ export function startGame(room: RoomEntry) {
       document.body.setAttribute("data-opponent-side", oppSide);
     }
 
+    if (!gameIsFinished) {
+      stopPlayerWin = initPlayerWin(roomId, currentPlayerSide as Side);
+      gameIsFinished = true;
+    }
+
     if (
       roomState.suggestRestartSide &&
       roomState.timeWhenSuggestRestart &&
@@ -404,12 +408,6 @@ export function startGame(room: RoomEntry) {
       flipCoin(side);
       setTimeout(() => {
         coinEnd();
-
-        if (side === currentPlayerSide) {
-          fireWinnerScreen();
-        } else {
-          fireLoserScreen();
-        }
       }, COIN_ANIMATION_DURATION);
     }
 
@@ -511,14 +509,6 @@ export function startGame(room: RoomEntry) {
       mainBtn.classList.contains("disabled") ||
       previousRoomState?.players.length !== 2
     ) {
-      triggerHelper({
-        duration: HELPER_NOT_YOUR_TURN_DURATION,
-        text: helper("helper.notYourTurn"),
-        type: HelperTypes.HELPER_WARNING,
-        priority: -1,
-        dedupeKey: "not-your-turn",
-        delayBeforeShow: 0,
-      });
       return;
     }
 
@@ -583,7 +573,7 @@ export function startGame(room: RoomEntry) {
       mainBtn.setAttribute("data-type", "dice");
       mainBtn.disabled = false;
       mainBtn.classList.remove("disabled");
-      mainBtn.style.cursor = "pointer";
+      mainBtn.style.cursor = getPointerCursor();
       void addActionToRoom(roomId, {
         type: ActionTypes.HINT,
         endsAt: getEndDate(HELPER_END_TURN_DURATION),

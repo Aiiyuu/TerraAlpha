@@ -79,6 +79,7 @@ export interface Room {
 
   actions?: Action[];
   gameStarted?: boolean;
+  gameIsFinished?: boolean;
   isDiceRolling?: boolean;
   phrases?: Phrase[];
   lastDiceResult?: number;

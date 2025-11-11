@@ -1,6 +1,8 @@
 import { HelperRobotType, helperSVG } from "./helperSVG";
 import helperSoundSrc from "../assets/sounds/helper.mp3";
 import { createSound } from "./sound";
+import helperOn from "../assets/icons/helper-on.png";
+import helperOff from "../assets/icons/helper-off.png";
 
 const helper = document.getElementById("helper-container") as HTMLElement;
 const helperIcon = document.getElementById("helper-icon") as HTMLElement;
@@ -58,14 +60,22 @@ let current: {
 const dedupeMap = new Map<string, number>();
 
 export function setUpHelperBtn() {
-  const isOff = getIsDisabled();
   const helperBtn = document.getElementById("helper-btn") as HTMLElement;
-  if (isOff) helperBtn.classList.add("is-off");
+
   helperBtn.addEventListener("click", () => {
     const isDisabled = getIsDisabled();
     localStorage.setItem("helperIsDisabled", String(!isDisabled));
-    if (!isDisabled) helperBtn.classList.add("is-off");
-    else helperBtn.classList.remove("is-off");
+
+    const img: HTMLImageElement | null = helperBtn.querySelector("img");
+
+    console.log(img, helperBtn)
+    if (!img) return;
+
+    if (!isDisabled) {
+      img.src = helperOff;
+    } else {
+      img.src = helperOn;
+    }
   });
 }
 
@@ -158,7 +168,12 @@ function showNow(args: HelperArgs) {
     hideAndNext();
   }, args.duration);
 
-  current = { timeoutId, onAccept: onAcceptClick, onReject: onRejectClick, args };
+  current = {
+    timeoutId,
+    onAccept: onAcceptClick,
+    onReject: onRejectClick,
+    args,
+  };
 }
 
 function hideAndNext() {
@@ -184,7 +199,9 @@ function cleanupChoiceListeners(onAccept?: () => void, onReject?: () => void) {
 }
 
 function setHelperState(type: HelperRobotType) {
-  Object.values(HelperRobotType).forEach((value) => helperIcon.classList.remove(value));
+  Object.values(HelperRobotType).forEach((value) =>
+    helperIcon.classList.remove(value)
+  );
   helperIcon.classList.add(type);
   helperIcon.innerHTML = helperSVG(type);
 }

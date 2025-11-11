@@ -18,7 +18,6 @@
 .rooms-table tbody tr {
   text-align: start;
   position: relative;
-  cursor: pointer;
   transition: background-color var(--base-transition-duration) ease;
 }
 

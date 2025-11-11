@@ -19,26 +19,28 @@
     "gameLoser": "💀 Not this time — try again! 🍀",
     "restart": "Restart",
     "exit": "Exit",
+    "gameMenu": "Game Menu",
+    "yes": "Yes",
+    "no": "No",
     "helper": {
-      "welcome": "🤖 Welcome, Commander! I’m your navigator-bot, ready to guide the fleet through the stars! 🚀\n\n🎲 Roll the dice to see how many steps you’ll take.\n🛰️ Move your ships from start to finish.\n💫 Whoever completes the fleet first rules the galaxy!\n\nIf something goes wrong — we’ll blame Sergey! 😉",
-      "restartGame": "🛰️ Signal from {name}: game restart initiated 🔄. Prepare for system reboot ⚡...",
-      "acceptRestart": "✅ Data confirmed: {name} approved your game restart proposal 🔄. Reboot starting 🚀!",
-      "rejectRestart": "⚠️ Alarm! {name} rejected your game restart proposal ❌. System continues in current mode 🛸!",
+      "welcome": "🤖 Welcome, Commander! Roll the dice and move your ships to the finish. First to finish wins! 🚀",
+      "acceptRestart": "✅ {name} accepted the restart. Rebooting!",
+      "rejectRestart": "❌ {name} rejected the restart.",
       "coinWinner": {
-        "current": "🤖 Beep-beep! You won the coin toss ☘️! It’s your turn now 🎲. Don’t delay!",
-        "other": "🛰️ Signal from {name}: won the coin toss ☘️. Their turn now!"
+        "current": "☘️ You won the coin toss! Your turn 🎲",
+        "other": "☘️ {name} won the coin toss. Their turn."
       },
       "diceStreak": {
-        "current": "🎲 Bingo! You rolled a 6️⃣! Roll again 🤖",
-        "other": "🎲 Oh! Opponent rolled a 6️⃣! Their turn 🚀"
+        "current": "🎲 You rolled a 6! Roll again!",
+        "other": "🎲 Opponent rolled a 6! They roll again!"
       },
       "diceRes": {
-        "current": "🎲 You rolled {res}️⃣. Your turn ⚡",
-        "other": "🎲 Opponent rolled {res}️⃣. Their turn 🛸"
+        "current": "🎲 You rolled {res}.",
+        "other": "🎲 Opponent rolled {res}."
       },
-      "notYourTurn": "🚨ERROR! Unauthorized action! It’s not your turn, organic being!",
-      "timerWarning": "🚨Your seconds burn faster than a meteor in the atmosphere! MOVE!",
-      "otherPlayerTurnEnded": "⚡ Opponent ended their turn 🛸. Your turn to roll the dice 🎲! Don’t delay, earthling 🤖"
+      "notYourTurn": "🚫 Not your turn!",
+      "timerWarning": "⏰ Hurry up!",
+      "otherPlayerTurnEnded": "✅ Opponent finished their turn. Your move!"
     },
     "phrases": {
       "1": "Oh, lucky, lucky!",
@@ -68,26 +70,28 @@
     "gameLoser": "💀 Цього разу не вийшло — спробуй ще! 🍀",
     "restart": "Перезапустити",
     "exit": "Вийти",
+    "gameMenu": "Ігрове Меню",
+    "yes": "Так",
+    "no": "Ні",
     "helper": {
-      "welcome": "🤖 Вітаю, командире! Я — твій навігатор-бот, готовий вести флот серед зірок! 🚀\n\n🎲 Кинь кубик, щоб дізнатись, скільки кроків зробиш.\n🛰️ Рухай кораблі від старту до фінішу.\n💫 Хто першим проведе весь флот — той володар галактики!\n\nЯкщо щось піде не так — звинуватимо Сергія! 😉",
-      "restartGame": "🛰️ Сигнал від {name}: ініційовано перезапуск гри 🔄. Готуйтеся до перезавантаження системи ⚡...",
-      "acceptRestart": "✅ Дані підтверджено: {name} схвалив(ла) вашу пропозицію перезапустити гру 🔄. Перезавантаження починається 🚀!",
-      "rejectRestart": "⚠️ Аларм! {name} відхилив(ла) вашу пропозицію перезапустити гру ❌. Система продовжує роботу в поточному режимі 🛸!",
+      "welcome": "🤖 Вітаю, командире! Кинь кубик і веди флот до фінішу. Хто перший — той чемпіон! 🚀",
+      "acceptRestart": "✅ {name} погодив(ла) перезапуск. Перезавантаження!",
+      "rejectRestart": "❌ {name} відхилив(ла) перезапуск.",
       "coinWinner": {
-        "current": "🤖 Біп-біп! Ти виграв у монетку ☘️! Твій хід зараз 🎲. Не зволікай!",
-        "other": "🛰️ Сигнал від {name}: виграв у монетку ☘️. Черга за ним!"
+        "current": "☘️ Ти виграв у монетку! Твій хід 🎲",
+        "other": "☘️ {name} виграв(ла) у монетку. Його(її) хід."
       },
       "diceStreak": {
-        "current": "🎲 Бінго! Тобі випало 6️⃣! Знову твоя черга кидати кубик 🤖",
-        "other": "🎲 Ой! Суперник отримав 6️⃣! Його черга кидати кубик 🚀"
+        "current": "🎲 Тобі випало 6! Кидай ще раз!",
+        "other": "🎲 Кубик кинув 6! Суперник кидає ще раз!"
       },
       "diceRes": {
-        "current": "🎲 Тобі випало {res}️⃣. Твоя черга робити хід ⚡",
-        "other": "🎲 Супернику випало {res}️⃣. Його черга робити хід 🛸"
+        "current": "🎲 Тобі випало {res}.",
+        "other": "🎲 Cуперник викинув {res}."
       },
-      "notYourTurn": "🚨ПОМИЛКА! Несанкціонована дія! Це не твій хід, органічна істото!",
-      "timerWarning": "🚨Твої секунди згорають швидше, ніж метеор у атмосфері! РУХАЙСЯ!",
-      "otherPlayerTurnEnded": "⚡ Суперник завершив свій хід 🛸. Твоя черга кидати кубик 🎲! Не зволікай, землянин 🤖"
+      "notYourTurn": "🚫 Зараз не твій хід!",
+      "timerWarning": "⏰ Швидше!",
+      "otherPlayerTurnEnded": "✅ Суперник закінчив хід. Твоя черга!"
     },
     "phrases": {
       "1": "О, повезло, повезло",
