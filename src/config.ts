@@ -50,18 +50,19 @@ export const colors: string[] = [
   "#34C759",
   "#0A84FF",
   "#AF52DE",
-  "#561530",
 ];
+
+export const colorsThatShouldUseDarkFont: string[] = ["#FFD60A"];
 
 export const RESET_BTN_COOLDOWN = 15000;
 
 export const RESET_ACTION_DURATION = 10000;
 export const INFORM_ACTION_DURATION = 5000;
-export const COIN_RESULT_DURATION = 5000;
+export const COIN_RESULT_DURATION = 3000;
 export const HEPER_WARNING_DURATION = 3000;
-export const HELPER_WELCOME_DURATION = 8000;
+export const HELPER_WELCOME_DURATION = 4000;
 export const HELPER_NOT_YOUR_TURN_DURATION = 5000;
-export const HELPER_END_TURN_DURATION = 5000;
+export const HELPER_END_TURN_DURATION = 3000;
 
 export const HELPER_TIMER_WARNING_THRESHOLD = 10000;
 export const TIMER_DELAY_TO_CALL_HELPER = 10000;

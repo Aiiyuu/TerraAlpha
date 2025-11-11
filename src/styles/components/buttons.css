@@ -1,5 +1,4 @@
 .btn {
-  cursor: pointer;
   padding: 15px 20px;
   border-radius: 10px;
 
@@ -91,29 +90,9 @@
   height: 50px;
 }
 
-#mute-btn::after,
-#helper-btn::after {
-  content: "";
-
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  width: 30px;
-  height: 30px;
-
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-
-#helper-btn::after {
-  width: 40px;
-  height: 40px;
-}
-
-#reset-btn img {
+#reset-btn img,
+#mute-btn img,
+#helper-btn img {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -123,7 +102,9 @@
   height: 30px;
 }
 
-#lng-btn {
+#lng-btn,
+#mute-btn,
+#helper-btn {
   display: flex;
   justify-content: center;
   align-items: center;

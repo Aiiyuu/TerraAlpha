@@ -20,7 +20,6 @@
   border: 1px solid #bbb;
   background: #fff;
   box-shadow: 0 0 3px #ccc inset;
-  cursor: pointer;
   transition: all .15s ease-in-out;
 }
 
@@ -43,7 +42,6 @@
   opacity: 0.55;
   filter: grayscale(0.3);
   pointer-events: none;
-  cursor: not-allowed;
 }
 
 .cell-btn[data-ship="mother"][disabled]:hover,
@@ -54,5 +52,4 @@
   background: inherit;
   outline: none;
   box-shadow: none;
-  cursor: not-allowed;
 }

@@ -300,9 +300,11 @@ export async function clearOutdatedRooms(): Promise<void> {
   const ttl = 60 * 60 * 1000;
 
   const deletions = Object.entries(rooms)
-    .filter(
-      ([, room]) => room.date && now - new Date(room.date).getTime() > ttl
-    )
+    .filter(([, room]) => {
+      const isOld = room.date && now - new Date(room.date).getTime() > ttl;
+      const isFinished = room.gameIsFinished === true;
+      return isOld || isFinished;
+    })
     .map(([roomId]) => remove(ref(database, `rooms/${roomId}`)));
 
   await Promise.all(deletions);

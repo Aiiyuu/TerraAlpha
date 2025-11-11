@@ -1,4 +1,4 @@
-import { listeToRoomById } from "../server/server";
+import { listeToRoomById, updateRoom } from "../server/server";
 import type { Room } from "../types/room";
 import type { Side, ShipPos } from "../types/room";
 import { fireLoserScreen, fireWinnerScreen } from "./endGame";
@@ -43,9 +43,7 @@ export function initPlayerWin(
     else if (rightWon) winner = "right";
 
     if (winner && !gameIsFinished) {
-      console.log(
-        `Winner: ${winner}, Typeof Winner: ${typeof winner}\nCurrent Player Side: ${currentPlayerSide}, Type of player side: ${typeof currentPlayerSide}`
-      );
+      updateRoom(roomId, { gameIsFinished: true });
 
       if (winner === currentPlayerSide) {
         fireWinnerScreen();

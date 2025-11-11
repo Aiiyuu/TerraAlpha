@@ -4,7 +4,7 @@ import type { Phrase } from "../types/phrase.ts";
 import arrowIcon from "../assets/icons/arrow.png";
 import {
   addPhraseToRoom,
-  getCurrentPlayerName,
+  getCurrentPlayerInfo,
   getCurrentRoomId,
 } from "../server/server.ts";
 import { getRandomId } from "../utility/getRandomId.ts";
@@ -144,9 +144,16 @@ export function renderPhrases() {
       const randomX =
         Math.floor(Math.random() * (MAX_X_POS - MIN_X_POS + 1)) + MIN_X_POS;
 
+      const currentPlayer = getCurrentPlayerInfo();
+      let playerName = "Anonym";
+
+      if (currentPlayer) {
+        playerName = currentPlayer.name || "Anonym";
+      }
+
       const newPhrase: Phrase = {
         id: getRandomId(),
-        userName: getCurrentPlayerName(),
+        userName: playerName,
         index: phrase.id,
         img: phrase.img,
         x: randomX,

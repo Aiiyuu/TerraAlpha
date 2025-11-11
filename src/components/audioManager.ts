@@ -1,5 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const AudioContextClass = window.AudioContext ?? (window as any).webkitAudioContext;
+import mutedIcon from "../assets/icons/muted.png";
+import unmutedIcon from "../assets/icons/unmuted.png";
+
+const AudioContextClass =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  window.AudioContext ?? (window as any).webkitAudioContext;
 
 const audioContext: AudioContext = new AudioContextClass();
 const masterGain = audioContext.createGain();
@@ -20,7 +24,9 @@ function setMuted(muted: boolean): void {
 }
 
 export function setupMuteBtn() {
-  const muteBtn = document.getElementById("mute-btn") as HTMLButtonElement | null;
+  const muteBtn = document.getElementById(
+    "mute-btn"
+  ) as HTMLButtonElement | null;
   if (!muteBtn) return; // 🔹 якщо кнопки немає — не виконуємо нічого
 
   let isMuted = false;
@@ -30,14 +36,20 @@ export function setupMuteBtn() {
     isMuted = JSON.parse(storedMuteState);
   }
 
-  muteBtn.setAttribute("data-is-muted", String(isMuted));
   setMuted(isMuted);
 
   muteBtn.addEventListener("click", () => {
     if (audioContext.state === "suspended") audioContext.resume();
     isMuted = !isMuted;
-    muteBtn.setAttribute("data-is-muted", String(isMuted));
+
     localStorage.setItem("is-muted", String(isMuted));
     setMuted(isMuted);
+
+    const img: HTMLImageElement | null = muteBtn.querySelector("img");
+
+    if (!img) return;
+
+    if (isMuted) img.src = mutedIcon;
+    else img.src = unmutedIcon;
   });
 }

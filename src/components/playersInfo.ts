@@ -15,7 +15,7 @@ export function setupLeftPlayer(player: Player, currentPlayer?: Side) {
   document.body.style.setProperty("--player1-color", player.color!);
   changePlayerNameAndAvatar(playerSection1, player);
 
-  setUpPlayerBtns(currentPlayer);
+  setUpPlayerBtns(currentPlayer, player.color);
 }
 
 /**
@@ -28,7 +28,7 @@ export function setupRightPlayer(player: Player, currentPlayer?: Side) {
   playerSection2.classList.add("is-visible");
   changePlayerNameAndAvatar(playerSection2, player);
 
-  setUpPlayerBtns(currentPlayer);
+  setUpPlayerBtns(currentPlayer, player.color);
 }
 
 export function setupPlayerColors(

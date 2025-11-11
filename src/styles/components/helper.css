@@ -6,6 +6,7 @@
 }
 
 .helper {
+  pointer-events: none;
   position: fixed;
   z-index: 100;
   bottom: 20px;
@@ -38,7 +39,7 @@
   color: var(--green-color);
   font-size: 24px;
 
-  width: 500px;
+  width: 350px;
   font-family: 'Helper', serif;
 }
 

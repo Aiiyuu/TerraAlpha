@@ -36,7 +36,6 @@
   background: transparent;
   font-size: 18px;
   line-height: 1;
-  cursor: pointer;
   padding: 4px 6px;
   border-radius: 8px;
   transition: background var(--base-transition-duration) ease, opacity var(--base-transition-duration) ease;
@@ -59,7 +58,6 @@
   border-radius: 8px;
   padding: 8px 10px;
   font-weight: 600;
-  cursor: pointer;
   color: var(--light-color);
   transition: opacity var(--base-transition-duration) ease, transform var(--base-transition-duration) ease;
 }

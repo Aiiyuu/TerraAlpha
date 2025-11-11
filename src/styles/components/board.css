@@ -27,9 +27,9 @@
   color: var(--text-color);
   background-color: var(--regular-cell);
   border-radius: var(--base-radius);
-  border: none !important;
-  outline: none !important;
-  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #C9E8FF !important;
+  border: none;
+  outline: none;
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #C9E8FF;
 }
 
 .cell.cell--empty { visibility: hidden; }
@@ -39,7 +39,7 @@
   justify-content: center;
   align-items: center;
   background-color: var(--yellow-cell);
-  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #fff9eb !important;
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #fff9eb;
 }
 
 .cell.cell--arrow img,
@@ -51,13 +51,13 @@
 .cell.cell--red {
   border-radius: 50%;
   background-color: var(--red-cell);
-  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #ffc7c7 !important;
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #ffc7c7;
 }
 
 .cell.cell--white {
   border-radius: 50%;
   background-color: var(--white-cell);
-  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #fff !important;
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #fff;
 }
 
 .cell.cell--final {
@@ -65,8 +65,8 @@
   justify-content: center;
   align-items: center;
   background: transparent;
-  border: solid 3px var(--yellow-cell) !important;
-  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #fff8f3 !important;
+  border: solid 3px var(--yellow-cell);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) #fff8f3;
 }
 
 .cell.cell--final::after {
@@ -75,7 +75,7 @@
   width: var(--circle-size);
   height: var(--circle-size);
   border-radius: 50%;
-  border: solid 3px var(--yellow-cell) !important;
+  border: solid 3px var(--yellow-cell);
 }
 
 .cell.cell--final-1,
@@ -102,7 +102,7 @@
 .board [data-qa^="field-"].is-predicted,
 .board .cell.is-predicted {
   position: relative;
-  box-shadow: 0 0 0 3px #22c55e inset, 0 0 6px rgba(34, 197, 94, 0.6) !important;
+  box-shadow: 0 0 0 3px #22c55e inset, 0 0 6px rgba(34, 197, 94, 0.6);
   outline: none;
   transition: box-shadow 0.2s ease;
 }
@@ -145,7 +145,6 @@
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  cursor: pointer;
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   will-change: transform;
 }
@@ -153,7 +152,7 @@
 .board .cell > .cell-btn.is-disabled {
   opacity: 0.5;
   pointer-events: none;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 

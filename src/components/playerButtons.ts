@@ -5,58 +5,112 @@ import { setUpHelperBtn } from "./helper";
 import { setupLanguage } from "./language";
 import { setupResetBtn } from "./reset";
 import resetIcon from "../assets/icons/reset.png";
+import muted from "../assets/icons/muted.png";
+import unMuted from "../assets/icons/unmuted.png";
+import helperOn from "../assets/icons/helper-on.png";
+import helperOff from "../assets/icons/helper-off.png";
+import { colorsThatShouldUseDarkFont } from "../config";
 
 const section1 = document.querySelector("#player1") as HTMLElement;
 const section2 = document.querySelector("#player2") as HTMLElement;
 
-const navigationBtns = `
-  <div class="btn-group" style="position: relative; z-index: 50">
-    <button id="lng-btn" class="btn btn--purple"></button>
-    <button id="helper-btn" class="btn btn--purple"></button>
-    <button id="reset-btn" class="btn btn--purple">
-      <img src="${resetIcon}" alt="reset" />
-      <div id="reset-cooldown" class="reset-cooldown"></div>
-    </button>
-    <button id="mute-btn" class="btn btn--purple"></button>
-  </div>
+export const navigationBtns = (
+  isMuted?: boolean,
+  isHelperDisabled?: boolean,
+  shouldBeDark?: boolean
+) => {
+  const iconColor = shouldBeDark ? "invert(1)" : "invert(0)";
+  const helperIcon = isHelperDisabled ? helperOn : helperOff;
+  const muteIcon = isMuted ? muted : unMuted;
 
-  <div class="game-menu is-hidden" role="dialog" aria-label="Game Menu" aria-hidden="true">
-    <div class="gm-header">
-      <span class="gm-title">Game Menu</span>
-      <button class="gm-close" aria-label="Close">×</button>
+  return `
+    <div class="btn-group" style="position: relative; z-index: 50">
+      <button id="lng-btn" class="btn btn--purple"></button>
+
+      <button id="helper-btn" class="btn btn--purple">
+        <img src="${helperIcon}" style="filter: ${iconColor}" alt="reset" />
+      </button>
+
+      <button id="reset-btn" class="btn btn--purple">
+        <img src="${resetIcon}" style="filter: ${iconColor}" alt="reset" />
+        <div id="reset-cooldown" class="reset-cooldown"></div>
+      </button>
+
+      <button id="mute-btn" class="btn btn--purple">
+        <img src="${muteIcon}" style="filter: ${iconColor}" alt="mute" />
+      </button>
     </div>
 
-    <div class="gm-actions">
-      <button class="gm-btn gm-exit">Exit</button>
-      <button class="gm-btn gm-restart">Restart</button>
-      <button class="gm-btn gm-yes is-hidden">Yes</button>
-      <button class="gm-btn gm-no is-hidden">No</button>
+    <div class="game-menu is-hidden" role="dialog" aria-label="Game Menu" aria-hidden="true">
+      <div class="gm-header">
+        <span class="gm-title" data-lng="gameMenu"></span>
+        <button class="gm-close" aria-label="Close">×</button>
+      </div>
+
+      <div class="gm-actions">
+        <button class="gm-btn gm-exit" data-lng="exit"></button>
+        <button class="gm-btn gm-restart" data-lng="restart"></button>
+        <button class="gm-btn gm-yes is-hidden" data-lng="yes"></button>
+        <button class="gm-btn gm-no is-hidden" data-lng="no"></button>
+      </div>
+
+      <div class="gm-timer is-hidden">10</div>
     </div>
+  `;
+};
 
-    <div class="gm-timer is-hidden">10</div>
-  </div>
-`;
+const dialogBtn = (shouldBeDark?: boolean) => {
+  const textColor = shouldBeDark ? "#000" : "#fff";
 
-const dialogBtn = `
-  <div class="dialog">
-    <div class="btn dialog-button" data-lng="throwPhrase"></div>
-    <ul class="dialog-list"></ul>
-  </div>
-`;
+  return `
+    <div class="dialog">
+      <div class="btn dialog-button ${
+        shouldBeDark && "is-dark"
+      }" data-lng="throwPhrase" style="color: ${textColor}"></div>
+      <ul class="dialog-list" style="color: ${textColor}"></ul>
+    </div>
+  `;
+};
 
-export function setUpPlayerBtns(currentPlayerSide?: Side) {
+let prevColor: string | undefined;
+
+export function setUpPlayerBtns(currentPlayerSide?: Side, color?: string) {
   const wrapper1 = section1?.querySelector(".player-navigation") as HTMLElement;
   const wrapper2 = section2?.querySelector(".player-navigation") as HTMLElement;
+
+  const isMuted = localStorage.getItem("is-muted") === "true";
+  const isHelperDisabled = localStorage.getItem("helperIsDisabled") === "false";
+
+  if (prevColor === undefined && color) {
+    prevColor = color;
+  }
+
+  let isIconDark = false;
+  let isColorDark = false;
 
   switch (currentPlayerSide) {
     default:
     case "left":
-      wrapper1.innerHTML = navigationBtns;
-      wrapper2.innerHTML = dialogBtn;
+      isIconDark = colorsThatShouldUseDarkFont.includes(prevColor || "");
+      isColorDark = colorsThatShouldUseDarkFont.includes(color || "");
+
+      wrapper1.innerHTML = navigationBtns(
+        isMuted,
+        isHelperDisabled,
+        isIconDark
+      );
+      wrapper2.innerHTML = dialogBtn(isColorDark);
       break;
     case "right":
-      wrapper1.innerHTML = dialogBtn;
-      wrapper2.innerHTML = navigationBtns;
+      isIconDark = colorsThatShouldUseDarkFont.includes(color || "");
+      isColorDark = colorsThatShouldUseDarkFont.includes(prevColor || "");
+
+      wrapper1.innerHTML = dialogBtn(isColorDark);
+      wrapper2.innerHTML = navigationBtns(
+        isMuted,
+        isHelperDisabled,
+        isIconDark
+      );
       break;
   }
 
@@ -64,6 +118,5 @@ export function setUpPlayerBtns(currentPlayerSide?: Side) {
   setUpHelperBtn();
   setupResetBtn(currentPlayerSide);
   setupDialog();
-
   setupMuteBtn();
 }

@@ -27,7 +27,6 @@
   align-items: center;
 
   padding: 10px 5px;
-  cursor: pointer;
   background-color: var(--not-current-player-color);
 
   font-weight: bold;
@@ -48,6 +47,10 @@
   background-size: contain;
 }
 
+.dialog-button.is-dark::after {
+  filter: invert(1);
+}
+
 .dialog-list {
   top: calc(100% + 10px);
 
@@ -64,7 +67,6 @@
 }
 
 .dialog-list-item {
-  cursor: pointer;
   display: flex;
   justify-content: flex-start;
   background: var(--not-current-player-color);
