@@ -1,4 +1,4 @@
-import 'emoji-picker-element';
+// import 'emoji-picker-element';
 
 type Options = {
   input: HTMLInputElement | string;
