@@ -1,8 +1,7 @@
 import { listeToRoomById } from "../server/server";
 import type { Room } from "../types/room";
 import type { Side, ShipPos } from "../types/room";
-import { HelperTypes, triggerHelper } from "./helper";
-import { helper } from "../config";
+import { fireLoserScreen, fireWinnerScreen } from "./endGame";
 
 type Unsubscribe = (() => void) | undefined;
 
@@ -25,37 +24,36 @@ function allShipsInFinal0(room: RoomWithShips, side: Side): boolean {
   return values.every((v) => v === "final-0");
 }
 
-export function initPlayerWin(roomId: Room["id"]): () => void {
-  let prevWinner: Side | null = null;
+let gameIsFinished = false;
 
+export function initPlayerWin(
+  roomId: Room["id"],
+  currentPlayerSide: Side
+): () => void {
   const off = listeToRoomById(roomId, (room: Room | undefined) => {
-    if (!room) {
-      prevWinner = null;
-      return;
-    }
+    if (!room) return;
 
     const r = room as RoomWithShips;
     const leftWon = allShipsInFinal0(r, "left");
     const rightWon = allShipsInFinal0(r, "right");
 
     let winner: Side | null = null;
+
     if (leftWon) winner = "left";
     else if (rightWon) winner = "right";
 
-    if (winner && prevWinner !== winner) {
-      triggerHelper({
-        duration: 4000,
-        text: helper("helper.win", { side: winner }),
-        type: HelperTypes.HELPER_INFORM,
-        priority: 10,
-        dedupeKey: `win:${winner}`,
-        delayBeforeShow: 0,
-      });
-      prevWinner = winner;
-    }
+    if (winner && !gameIsFinished) {
+      console.log(
+        `Winner: ${winner}, Typeof Winner: ${typeof winner}\nCurrent Player Side: ${currentPlayerSide}, Type of player side: ${typeof currentPlayerSide}`
+      );
 
-    if (!winner) {
-      prevWinner = null;
+      if (winner === currentPlayerSide) {
+        fireWinnerScreen();
+      } else {
+        fireLoserScreen();
+      }
+
+      gameIsFinished = true;
     }
   }) as Unsubscribe;
 
