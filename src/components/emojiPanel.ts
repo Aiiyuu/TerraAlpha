@@ -1,7 +1,5 @@
 import 'emoji-picker-element';
 
-type El<T extends HTMLElement> = T | null;
-
 type Options = {
   input: HTMLInputElement | string;
   button: HTMLButtonElement | string;
