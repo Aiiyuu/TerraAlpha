@@ -40,7 +40,12 @@ function timeFromTs(ts: number | null) {
   return `${fmt(d.getHours())}:${fmt(d.getMinutes())}:${fmt(d.getSeconds())}`;
 }
 
-function createItem(ts: number | null, name: string, text: string, color: string) {
+function createItem(
+  ts: number | null,
+  name: string,
+  text: string,
+  color: string
+) {
   const li = document.createElement("li");
   li.className = "gchat-log__item";
 
@@ -73,12 +78,19 @@ export function initGlobalChat() {
     const frag = document.createDocumentFragment();
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
-      frag.appendChild(createItem(m.ts ?? null, m.name, m.text, m.color));
+      const li = createItem(m.ts ?? null, m.name, m.text, m.color);
+
+      if (i === messages.length - 1) {
+        li.style.animation = "slideIn 500ms ease forwards";
+      } else {
+        li.style.animation = "none";
+      }
+
+      frag.appendChild(li);
     }
+
     list.innerHTML = "";
     list.appendChild(frag);
-
-    logPanel.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   input.addEventListener("input", updateBtn);
