@@ -15,7 +15,8 @@
     "date": "Date",
     "playersCount": "Players",
     "throwPhrase": "Throw Phrase",
-    "game-won": "🎉 Congratulations! You did it — you won the game! 🏆",
+    "gameWinner": "🎉 Congrats! You won the game! 🏆",
+    "gameLoser": "💀 Not this time — try again! 🍀",
     "restart": "Restart",
     "exit": "Exit",
     "helper": {
@@ -63,7 +64,8 @@
     "date": "Дата",
     "playersCount": "Ігроки",
     "throwPhrase": "Кинути Фразу",
-    "game-won": "🎉 Вітаємо! Ти це зробив — ти виграв гру! 🏆",
+    "gameWinner": "🎉 Вітаємо! Ви виграли гру! 🏆",
+    "gameLoser": "💀 Цього разу не вийшло — спробуй ще! 🍀",
     "restart": "Перезапустити",
     "exit": "Вийти",
     "helper": {

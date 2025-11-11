@@ -1,9 +1,4 @@
-.winner-robot {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
+.navigation-robot {
   /* ROBOT COLORS */
   --robot-color-regular: var(--green-color);
   --robot-color-angry: #FF3C3C;
@@ -12,32 +7,50 @@
 
   --robot-color: var(--robot-color-offer);
 
-  /* ROBOT BODY VALUES */
+  /* HAPPY ROBOT */
+  /* Robot body */
   --robot-body-animation-duration: 2s;
   --robot-body-offset: 20px;
 
-  /* HEAD VALUES */
+  /* Roboy head */
   --head-animation-duration: 1s;
   --head-rotation: 5deg;
 
-  /* HAND VALUES */
+  /* Robot hand */
   --hand-animation-duration: 1.5s;
   --hand-rotation-max: 45deg;
   --hand-ration-min: -45deg;
   --hand-initial-rotation: 0deg;
+
+  /* Sad ROBOT */
+  /* Robot hand */
+  --cry-hand-rotation-max: 220deg;
+  --cry-hand-ration-min: 185deg;
+  --cry-hand-initial-rotation: 180deg;
 }
 
-.winner-robot svg {
+.winner-robot,
+.loser-robot {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.winner-robot svg,
+.loser-robot svg {
   width: 250px;
 }
 
-.winner-robot #robot {
+.winner-robot #robot,
+.loser-robot #robot {
   transform-origin: center center;
   transform-box: fill-box;
   animation: robot var(--robot-body-animation-duration) ease infinite alternate;
 }
 
-.winner-robot #head {
+.winner-robot #head,
+.loser-robot #head {
   transform-origin: bottom center;
   transform-box: fill-box;
   animation: head var(--head-animation-duration) ease infinite alternate;
@@ -46,19 +59,31 @@
 .winner-robot #hand-right {
   transform-origin: top left;
   transform-box: fill-box;
-  animation: hand-right var(--hand-animation-duration) ease infinite alternate;
+  animation: hand-right var(--hand-animation-duration) ease infinite;
 }
 
 .winner-robot #hand-left {
   transform-origin: top right;
   transform-box: fill-box;
-  animation: hand-left var(--hand-animation-duration) ease infinite alternate;
+  animation: hand-left var(--hand-animation-duration) ease infinite;
 }
 
-.winner-robot #changing-line,
-.winner-robot #face path,
-.winner-robot #face circle,
-.winner-robot #face rect {
+.loser-robot #hand-right {
+  transform-origin: top left;
+  transform-box: fill-box;
+  animation: cry-hand-right var(--hand-animation-duration) ease infinite alternate;
+}
+
+.loser-robot #hand-left {
+  transform-origin: top right;
+  transform-box: fill-box;
+  animation: cry-hand-left var(--hand-animation-duration) ease infinite alternate;
+}
+
+.navigation-robot #changing-line,
+.navigation-robot #face path,
+.navigation-robot #face circle,
+.navigation-robot #face rect {
   fill: var(--robot-color);
 }
 
@@ -113,5 +138,39 @@
 
   75% {
     transform: rotate(var(--hand-rotation-max));
+  }
+}
+
+@keyframes cry-hand-right {
+
+  0%,
+  50%,
+  100% {
+    transform: rotate(var(--cry-hand-initial-rotation));
+  }
+
+  25% {
+    transform: rotate(var(--cry-hand-rotation-max));
+  }
+
+  75% {
+    transform: rotate(var(--cry-hand-ration-min));
+  }
+}
+
+@keyframes cry-hand-left {
+
+  0%,
+  50%,
+  100% {
+    transform: rotate(calc(-1 * var(--cry-hand-initial-rotation)));
+  }
+
+  25% {
+    transform: rotate(calc(-1 * var(--cry-hand-rotation-max)));
+  }
+
+  75% {
+    transform: rotate(calc(-1 * var(--cry-hand-ration-min)));
   }
 }

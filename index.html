@@ -329,24 +329,30 @@
     </div>
 
     <div class="end-game-section is-hidden">
-      <div id="winner-section" class="winner-section is-hidden">
+      <div class="winner-section is-hidden">
         <canvas id="fireworks"></canvas>
+      </div>
+
+      <div class="loser-section is-hidden">
+        <canvas id="storm"></canvas>
       </div>
 
       <div class="navigation-block">
         <div class="navigation-wrapper">
           <div class="navigation-top">
-            <h3 data-lng="game-won">You won the game</h3>
+            <h3 class="winner-msg is-hidden" data-lng="gameWinner"></h3>
+            <h3 class="loser-msg is-hidden" data-lng="gameLoser"></h3>
           </div>
 
           <div class="navigation-bottom">
-            <button class="btn btn--red" data-lng="exit"></button>
+            <button id="end-game-exit" class="btn btn--red" data-lng="exit"></button>
 
-            <div>
+            <div class="navigation-robot">
               <div class="winner-robot is-hidden"></div>
+              <div class="loser-robot is-hidden"></div>
             </div>
 
-            <button class="btn btn--green" data-lng="restart"></button>
+            <button id="end-game-restart" class="btn btn--green" data-lng="restart"></button>
           </div>
         </div>
       </div>

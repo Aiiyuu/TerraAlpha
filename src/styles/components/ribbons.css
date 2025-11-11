@@ -44,6 +44,6 @@
 }
 
 .ribbons.is-active .ribbon {
-  width: 100% !important;
+  width: 100%;
   transition-delay: 0s;
 }

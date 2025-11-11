@@ -42,7 +42,7 @@
 }
 
 #gchat-send:hover {
-  box-shadow: var(--border) !important;
+  box-shadow: var(--border);
   opacity: 1;
 }
 

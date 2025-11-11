@@ -15,7 +15,6 @@ import { setUpPlayerBtns } from "./components/playerButtons.ts";
 import { setupPlayerNameField } from "./components/nameField.ts";
 import { setupRestartRedirect } from "./components/reset.ts";
 import { initGlobalChat } from "./components/globalChat.ts";
-import { fireWinnerSection } from "./components/winner.ts";
 
 window.addEventListener("load", () => {
   setupRestartRedirect();
@@ -34,6 +33,4 @@ window.addEventListener("load", () => {
   loadImages();
   clearOutdatedRooms();
   initGlobalChat();
-
-  // fireWinnerSection();
 });
