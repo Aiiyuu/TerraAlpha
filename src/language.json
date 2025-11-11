@@ -15,6 +15,9 @@
     "date": "Date",
     "playersCount": "Players",
     "throwPhrase": "Throw Phrase",
+    "game-won": "🎉 Congratulations! You did it — you won the game! 🏆",
+    "restart": "Restart",
+    "exit": "Exit",
     "helper": {
       "welcome": "🤖 Welcome, Commander! I’m your navigator-bot, ready to guide the fleet through the stars! 🚀\n\n🎲 Roll the dice to see how many steps you’ll take.\n🛰️ Move your ships from start to finish.\n💫 Whoever completes the fleet first rules the galaxy!\n\nIf something goes wrong — we’ll blame Sergey! 😉",
       "restartGame": "🛰️ Signal from {name}: game restart initiated 🔄. Prepare for system reboot ⚡...",
@@ -60,6 +63,9 @@
     "date": "Дата",
     "playersCount": "Ігроки",
     "throwPhrase": "Кинути Фразу",
+    "game-won": "🎉 Вітаємо! Ти це зробив — ти виграв гру! 🏆",
+    "restart": "Перезапустити",
+    "exit": "Вийти",
     "helper": {
       "welcome": "🤖 Вітаю, командире! Я — твій навігатор-бот, готовий вести флот серед зірок! 🚀\n\n🎲 Кинь кубик, щоб дізнатись, скільки кроків зробиш.\n🛰️ Рухай кораблі від старту до фінішу.\n💫 Хто першим проведе весь флот — той володар галактики!\n\nЯкщо щось піде не так — звинуватимо Сергія! 😉",
       "restartGame": "🛰️ Сигнал від {name}: ініційовано перезапуск гри 🔄. Готуйтеся до перезавантаження системи ⚡...",

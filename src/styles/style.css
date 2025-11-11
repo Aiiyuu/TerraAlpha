@@ -19,6 +19,8 @@
 @import url('./components/helper.css');
 @import url('./components/helperRobot.css');
 @import url('./components/gameMenu.css');
+@import url('./components/winner.css');
+@import url('./components/endGameSection.css');
 
 body {
   position: fixed;

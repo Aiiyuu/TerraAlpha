@@ -1,33 +1,44 @@
 <!DOCTYPE html>
 <html lang="uk">
-<head>
-  <meta charset="utf-8" />
-  <title>Terra Alpha</title>
-  <link rel="icon" type="image/png" href="/public/favicon3.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./src/styles/style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
-    rel="stylesheet"
-  />
-</head>
-
+  <head>
+    <meta charset="utf-8" />
+    <title>Terra Alpha</title>
+    <link rel="icon" type="image/png" href="/public/favicon3.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./src/styles/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
   <body>
     <header id="home" class="header">
-
       <div class="header-wrapper">
         <h1 class="header-title">Terra Alpha</h1>
 
         <div class="header-quick-actions">
-          <button id="header-lng-btn" class="btn btn--purple btn--icon" aria-label="Language"></button>
+          <button
+            id="header-lng-btn"
+            class="btn btn--purple btn--icon"
+            aria-label="Language"
+          ></button>
         </div>
 
         <div class="form-field form-field--floating">
-          <input type="text" id="player-name" class="form-field-input" placeholder=" " />
-          <label for="player-name" class="form-field-label" data-lng="playerNameInput"></label>
+          <input
+            type="text"
+            id="player-name"
+            class="form-field-input"
+            placeholder=" "
+          />
+          <label
+            for="player-name"
+            class="form-field-label"
+            data-lng="playerNameInput"
+          ></label>
         </div>
 
         <div class="form-field form-field-color">
@@ -41,23 +52,44 @@
         </div>
 
         <div class="header-button-group">
-          <button id="navigation-fast-game-btn" class="btn btn--purple" data-lng="fastGameBtn"></button>
-          <button id="navigation-select-room-btn" class="btn btn--purple" data-lng="selectRoomBtn"></button>
-          <button id="navigation-create-room-btn" class="btn btn--purple" data-lng="createRoomBtn"></button>
+          <button
+            id="navigation-fast-game-btn"
+            class="btn btn--purple"
+            data-lng="fastGameBtn"
+          ></button>
+          <button
+            id="navigation-select-room-btn"
+            class="btn btn--purple"
+            data-lng="selectRoomBtn"
+          ></button>
+          <button
+            id="navigation-create-room-btn"
+            class="btn btn--purple"
+            data-lng="createRoomBtn"
+          ></button>
         </div>
 
         <div class="gchat" aria-label="Global chat input">
-          <input type="text" 
-          id="gchat-message" 
-          class="gchat__message" 
-          placeholder="Type a message…" 
-          minlength="1" 
-          maxlength="40" 
-          required />
-          <button id="gchat-send" class="gchat__send btn btn--purple">Send</button>
+          <input
+            type="text"
+            id="gchat-message"
+            class="gchat__message"
+            placeholder="Type a message…"
+            minlength="1"
+            maxlength="40"
+            required
+          />
+          <button id="gchat-send" class="gchat__send btn btn--purple">
+            Send
+          </button>
         </div>
 
-        <div class="gchat-log" id="gchat-log" aria-live="polite" aria-label="Chat messages">
+        <div
+          class="gchat-log"
+          id="gchat-log"
+          aria-live="polite"
+          aria-label="Chat messages"
+        >
           <ul class="gchat-log__list" id="gchat-log-list"></ul>
         </div>
       </div>
@@ -80,16 +112,35 @@
 
             <div class="form-field-group">
               <div id="room-field" class="form-field form-field--floating">
-                <input type="text" id="room-name" class="form-field-input" placeholder=" " />
-                <label for="room-name" class="form-field-label" data-lng="roomNameInput"></label>
+                <input
+                  type="text"
+                  id="room-name"
+                  class="form-field-input"
+                  placeholder=" "
+                />
+                <label
+                  for="room-name"
+                  class="form-field-label"
+                  data-lng="roomNameInput"
+                ></label>
               </div>
             </div>
 
             <div id="table"></div>
           </div>
 
-          <button type="submit" id="create-room-btn" class="btn btn--purple" data-lng="createRoomBtn"></button>
-          <button type="button" id="back-to-home" class="btn btn--purple" data-lng="backToHomePageBtn"></button>
+          <button
+            type="submit"
+            id="create-room-btn"
+            class="btn btn--purple"
+            data-lng="createRoomBtn"
+          ></button>
+          <button
+            type="button"
+            id="back-to-home"
+            class="btn btn--purple"
+            data-lng="backToHomePageBtn"
+          ></button>
         </form>
       </section>
 
@@ -119,15 +170,27 @@
             <button class="cell-btn" data-qa="p1-cell-5"></button>
             <button class="cell-btn" data-qa="p1-cell-6"></button>
             <button class="cell-btn" data-qa="p1-cell-7"></button>
-            <button class="cell-btn cell-btn-main" data-qa="p1-cell-8" data-ship="mother"></button>
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p1-cell-8"
+              data-ship="mother"
+            ></button>
           </div>
         </section>
 
         <section class="middle-section">
           <div class="game-header">
             <div class="timer" id="timer">
-              <svg width="206" height="70" viewBox="0 0 206 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z" />
+              <svg
+                width="206"
+                height="70"
+                viewBox="0 0 206 70"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"
+                />
               </svg>
             </div>
           </div>
@@ -188,7 +251,10 @@
             <div class="cell" data-qa="field-21"><span>21</span></div>
             <div class="cell" data-qa="field-22"><span>22</span></div>
             <div class="cell" data-qa="field-23"><span>23</span></div>
-            <div class="cell cell--arrow cell--white" data-qa="field-24-0"></div>
+            <div
+              class="cell cell--arrow cell--white"
+              data-qa="field-24-0"
+            ></div>
             <div class="cell cell--start" data-qa="field-1"><span>1</span></div>
             <div class="cell" data-qa="field-2"><span>2</span></div>
             <div class="cell" data-qa="field-3"><span>3</span></div>
@@ -219,7 +285,11 @@
             <button class="cell-btn" data-qa="p2-cell-5"></button>
             <button class="cell-btn" data-qa="p2-cell-6"></button>
             <button class="cell-btn" data-qa="p2-cell-7"></button>
-            <button class="cell-btn cell-btn-main" data-qa="p2-cell-8" data-ship="mother"></button>
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p2-cell-8"
+              data-ship="mother"
+            ></button>
           </div>
         </section>
       </div>
@@ -229,8 +299,12 @@
 
     <div class="coin-container">
       <div class="coin">
-        <div class="coin-face"><img src="./src/assets/icons/point.png" alt="" /></div>
-        <div class="coin-back"><img src="./src/assets/icons/point.png" alt="" /></div>
+        <div class="coin-face">
+          <img src="./src/assets/icons/point.png" alt="" />
+        </div>
+        <div class="coin-back">
+          <img src="./src/assets/icons/point.png" alt="" />
+        </div>
       </div>
     </div>
 
@@ -249,6 +323,30 @@
           </button>
         </div>
         <div id="helper-progress-bar" class="helper-progress-bar"></div>
+      </div>
+    </div>
+
+    <div class="end-game-section is-hidden">
+      <div id="winner-section" class="winner-section is-hidden">
+        <canvas id="fireworks"></canvas>
+      </div>
+
+      <div class="navigation-block">
+        <div class="navigation-wrapper">
+          <div class="navigation-top">
+            <h3 data-lng="game-won">You won the game</h3>
+          </div>
+
+          <div class="navigation-bottom">
+            <button class="btn btn--red" data-lng="exit"></button>
+
+            <div>
+              <div class="winner-robot is-hidden"></div>
+            </div>
+
+            <button class="btn btn--green" data-lng="restart"></button>
+          </div>
+        </div>
       </div>
     </div>
 

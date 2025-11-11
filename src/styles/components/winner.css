@@ -1,0 +1,117 @@
+.winner-robot {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* ROBOT COLORS */
+  --robot-color-regular: var(--green-color);
+  --robot-color-angry: #FF3C3C;
+  --robot-color-inform: #FFE100;
+  --robot-color-offer: #7FD5DC;
+
+  --robot-color: var(--robot-color-offer);
+
+  /* ROBOT BODY VALUES */
+  --robot-body-animation-duration: 2s;
+  --robot-body-offset: 20px;
+
+  /* HEAD VALUES */
+  --head-animation-duration: 1s;
+  --head-rotation: 5deg;
+
+  /* HAND VALUES */
+  --hand-animation-duration: 1.5s;
+  --hand-rotation-max: 45deg;
+  --hand-ration-min: -45deg;
+  --hand-initial-rotation: 0deg;
+}
+
+.winner-robot svg {
+  width: 250px;
+}
+
+.winner-robot #robot {
+  transform-origin: center center;
+  transform-box: fill-box;
+  animation: robot var(--robot-body-animation-duration) ease infinite alternate;
+}
+
+.winner-robot #head {
+  transform-origin: bottom center;
+  transform-box: fill-box;
+  animation: head var(--head-animation-duration) ease infinite alternate;
+}
+
+.winner-robot #hand-right {
+  transform-origin: top left;
+  transform-box: fill-box;
+  animation: hand-right var(--hand-animation-duration) ease infinite alternate;
+}
+
+.winner-robot #hand-left {
+  transform-origin: top right;
+  transform-box: fill-box;
+  animation: hand-left var(--hand-animation-duration) ease infinite alternate;
+}
+
+.winner-robot #changing-line,
+.winner-robot #face path,
+.winner-robot #face circle,
+.winner-robot #face rect {
+  fill: var(--robot-color);
+}
+
+@keyframes robot {
+  from {
+    transform: translateY(calc(var(--robot-body-offset) * -1));
+  }
+
+  to {
+    transform: translateY(var(--robot-body-offset));
+  }
+}
+
+@keyframes head {
+  from {
+    transform: rotate(var(--head-rotation));
+  }
+
+  to {
+    transform: rotate(calc(var(--head-rotation) * -1));
+  }
+}
+
+@keyframes hand-right {
+
+  0%,
+  50%,
+  100% {
+    transform: rotate(var(--hand-initial-rotation));
+  }
+
+  25% {
+    transform: rotate(var(--hand-ration-min));
+  }
+
+  75% {
+    transform: rotate(var(--hand-rotation-max));
+  }
+}
+
+@keyframes hand-left {
+
+  0%,
+  50%,
+  100% {
+    transform: rotate(var(--hand-initial-rotation));
+  }
+
+  25% {
+    transform: rotate(var(--hand-ration-min));
+  }
+
+  75% {
+    transform: rotate(var(--hand-rotation-max));
+  }
+}
