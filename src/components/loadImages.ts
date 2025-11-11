@@ -8,14 +8,29 @@ import mutedIcon from "../assets/icons/muted.png";
 import unMutedIcon from "../assets/icons/unmuted.png";
 import helperOnIcon from "../assets/icons/helper-on.png";
 import helperOffIcon from "../assets/icons/helper-off.png";
+import resetIcon from "../assets/icons/reset.png";
+import bgImage from "../assets/images/bg_main.jpg";
 
 const astronaut: HTMLElement | null = document.querySelector(".astronaut");
 const planet1: HTMLElement | null = document.querySelector(".planet-1");
 const comet: HTMLElement | null = document.querySelector(".comet");
 const rocket: HTMLElement | null = document.querySelector(".rocket");
 const star: HTMLElement | null = document.querySelector(".star");
+const restartBtn: HTMLElement | null = document.querySelector("#reset-btn");
+const game: HTMLElement | null = document.querySelector('#game');
 
 export function loadImages() {
+  if (game) {
+    game.style.backgroundImage = `url(${bgImage})`;
+  }
+  
+  if (restartBtn) {
+    const img = document.createElement("img");
+    img.src = resetIcon;
+
+    restartBtn.append(img);
+  }
+
   if (astronaut) {
     astronaut.style.backgroundImage = `url(${astronautImg})`;
   }

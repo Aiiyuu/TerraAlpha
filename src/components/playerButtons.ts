@@ -4,6 +4,7 @@ import { setupDialog } from "./dialog";
 import { setUpHelperBtn } from "./helper";
 import { setupLanguage } from "./language";
 import { setupResetBtn } from "./reset";
+import resetIcon from "../assets/icons/reset.png";
 
 const section1 = document.querySelector("#player1") as HTMLElement;
 const section2 = document.querySelector("#player2") as HTMLElement;
@@ -13,7 +14,7 @@ const navigationBtns = `
     <button id="lng-btn" class="btn btn--purple"></button>
     <button id="helper-btn" class="btn btn--purple"></button>
     <button id="reset-btn" class="btn btn--purple">
-      <img src="./src/assets/icons/reset.png" alt="reset" />
+      <img src="${resetIcon}" alt="reset" />
       <div id="reset-cooldown" class="reset-cooldown"></div>
     </button>
     <button id="mute-btn" class="btn btn--purple"></button>
