@@ -4,11 +4,11 @@
   border-radius: 10px;
 
   transition: opacity var(--base-transition-duration) ease;
-  border: none !important;
+  border: none;
 }
 
 .btn:hover {
-  opacity: 0.7 !important;
+  opacity: 0.7;
 }
 
 .btn.btn-sm {
@@ -27,6 +27,11 @@
 
 .btn.btn--green {
   background: var(--green-color);
+  color: var(--light-color)
+}
+
+.btn.btn--dark {
+  background: var(--dark-color);
   color: var(--light-color)
 }
 
@@ -136,7 +141,7 @@
 
 .reset-cooldown {
   --cooldown-color: rgba(0, 0, 0, 0.7);
-  
+
   position: absolute;
   top: 0;
   left: 0;

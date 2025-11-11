@@ -4,10 +4,10 @@ let ctx: CanvasRenderingContext2D | null = null;
 const fireworks: Firework[] = [];
 const particles: Particle[] = [];
 
-const FIREWORK_PARTICLE_COUNT = 150; // Increase for more particles
+const FIREWORK_PARTICLE_COUNT = 300; // Increase for more particles
 const FIREWORK_PARTICLE_SPEED = 4; //  Increase for larger spread
-const FIREWORK_PARTICLE_SIZE = 3; // Size of each spark
-const FIREWORK_LAUNCH_SPEED = 6; // Speed of the rockets
+const FIREWORK_PARTICLE_SIZE = 4; // Size of each spark
+const FIREWORK_LAUNCH_SPEED = 12; // Speed of the rockets
 
 export function setupFireworks() {
   canvas = document.getElementById("fireworks") as HTMLCanvasElement;

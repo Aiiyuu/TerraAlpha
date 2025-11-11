@@ -21,6 +21,7 @@
 @import url('./components/gameMenu.css');
 @import url('./components/winner.css');
 @import url('./components/endGameSection.css');
+@import url('./components/globalChat.css');
 
 body {
   position: fixed;
@@ -43,6 +44,7 @@ body {
   --page-margin: 40px;
   --base-text-color: #A4B7C7;
   --purple-color: #DD7BDF;
+  --dark-color: #43334C;
   --red-color: #EA2F14;
   --green-color: #2A8153;
   --light-color: #FBFDFE;

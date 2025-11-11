@@ -35,5 +35,5 @@ window.addEventListener("load", () => {
   clearOutdatedRooms();
   initGlobalChat();
 
-  fireWinnerSection();
+  // fireWinnerSection();
 });
