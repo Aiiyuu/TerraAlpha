@@ -195,3 +195,7 @@
   color: #999;
   letter-spacing: 0.3px;
 }
+
+#online-count {
+  margin-right: 6px;
+}

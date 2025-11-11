@@ -37,9 +37,9 @@ window.addEventListener("load", () => {
 
   const playerName = localStorage.getItem("playerName") || "Player";
   addPlayerOnline(playerName);
-  listenOnlineCount(count => {
+  listenOnlineCount((count) => {
     const el = document.getElementById("online-count");
-    if (el) el.textContent = `${count} гравців онлайн`;
+    if (el) el.textContent = `${count}`;
   });
 
   initEmojiPanel({

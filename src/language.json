@@ -22,6 +22,7 @@
     "gameMenu": "Game Menu",
     "yes": "Yes",
     "no": "No",
+    "playersOnline": "players online",
     "helper": {
       "welcome": "🤖 Welcome, Commander! Roll the dice and move your ships to the finish. First to finish wins! 🚀",
       "acceptRestart": "✅ {name} accepted the restart. Rebooting!",
@@ -73,6 +74,7 @@
     "gameMenu": "Ігрове Меню",
     "yes": "Так",
     "no": "Ні",
+    "playersOnline": "гравців онлайн",
     "helper": {
       "welcome": "🤖 Вітаю, командире! Кинь кубик і веди флот до фінішу. Хто перший — той чемпіон! 🚀",
       "acceptRestart": "✅ {name} погодив(ла) перезапуск. Перезавантаження!",
