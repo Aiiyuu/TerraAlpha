@@ -10,7 +10,7 @@ const section1 = document.querySelector("#player1") as HTMLElement;
 const section2 = document.querySelector("#player2") as HTMLElement;
 
 const navigationBtns = `
-  <div class="btn-group">
+  <div class="btn-group" style="position: relative; z-index: 50">
     <button id="lng-btn" class="btn btn--purple"></button>
     <button id="helper-btn" class="btn btn--purple"></button>
     <button id="reset-btn" class="btn btn--purple">

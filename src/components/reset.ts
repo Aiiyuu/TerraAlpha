@@ -111,20 +111,11 @@ export function setupResetBtn(currentPlayerSide?: Side) {
 
   const closeBtn = panel.querySelector(".gm-close") as HTMLButtonElement | null;
   const exitBtn = panel.querySelector(".gm-exit") as HTMLButtonElement | null;
-  const endGameExitBtn = document.querySelector(
-    "#end-game-exit"
-  ) as HTMLButtonElement;
   const restartBtn = panel.querySelector(
     ".gm-restart"
   ) as HTMLButtonElement | null;
-  const endGameRestartBtn = document.querySelector(
-    "#end-game-restart"
-  ) as HTMLButtonElement;
   const yesBtn = panel.querySelector(".gm-yes") as HTMLButtonElement | null;
   const noBtn = panel.querySelector(".gm-no") as HTMLButtonElement | null;
-
-  const restartBtns = [restartBtn, endGameRestartBtn];
-  const exitBtns = [exitBtn, endGameExitBtn];
 
   resetBtn.addEventListener("click", () => {
     if (resetBtn?.classList.contains("is-off")) return;
@@ -141,21 +132,17 @@ export function setupResetBtn(currentPlayerSide?: Side) {
     resetRestartState(panel);
   });
 
-  for (const btn of restartBtns) {
-    btn?.addEventListener("click", async () => {
-      showMenu(panel);
-      startTimer(panel, Date.now(), 10000, false);
-      await setSuggestRestart(getCurrentRoomId(), mySide as Side);
-    });
-  }
+  restartBtn?.addEventListener("click", async () => {
+    showMenu(panel);
+    startTimer(panel, Date.now(), 10000, false);
+    await setSuggestRestart(getCurrentRoomId(), mySide as Side);
+  });
 
-  for (const btn of exitBtns) {
-    btn?.addEventListener("click", () => {
-      hideMenu(panel);
-      resetRestartState(panel);
-      window.location.reload();
-    });
-  }
+  exitBtn?.addEventListener("click", () => {
+    hideMenu(panel);
+    resetRestartState(panel);
+    window.location.reload();
+  });
 
   yesBtn?.addEventListener("click", async () => {
     hideMenu(panel);
