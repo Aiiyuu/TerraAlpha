@@ -53,7 +53,9 @@
 }
 
 .header-wrapper>* {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+
 }
 
 .header-title {
@@ -183,4 +185,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.online-counter {
+  text-align: center;
+  margin-top: 6px;
+  font-family: "Outfit", sans-serif;
+  font-size: 20px;
+  color: #999;
+  letter-spacing: 0.3px;
 }

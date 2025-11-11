@@ -15,6 +15,7 @@ import { setupPlayerNameField } from "./components/nameField.ts";
 import { setupRestartRedirect } from "./components/reset.ts";
 import { initGlobalChat } from "./components/globalChat.ts";
 import { initEmojiPanel } from "./components/emojiPanel.ts";
+import { listenOnlineCount, addPlayerOnline } from "./server/online.ts";
 
 window.addEventListener("load", () => {
   setupRestartRedirect();
@@ -33,6 +34,14 @@ window.addEventListener("load", () => {
   loadImages();
   clearOutdatedRooms();
   initGlobalChat();
+
+  const playerName = localStorage.getItem("playerName") || "Player";
+  addPlayerOnline(playerName);
+  listenOnlineCount(count => {
+    const el = document.getElementById("online-count");
+    if (el) el.textContent = `${count} гравців онлайн`;
+  });
+
   initEmojiPanel({
     input: "#gchat-message",
     button: "#gchat-emoji",
