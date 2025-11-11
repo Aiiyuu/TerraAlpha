@@ -5,7 +5,6 @@ import { setupRibbons } from "./components/ribbons.ts";
 import { setupDice } from "./components/dice";
 import { setupTimer } from "./components/timer.ts";
 import { loadCellIcons } from "./components/cells.ts";
-
 import { loadImages } from "./components/loadImages.ts";
 import { setupColorPalette } from "./components/colorPalette.ts";
 import { setupShipImages } from "./components/shipImages.ts";
@@ -15,6 +14,7 @@ import { setUpPlayerBtns } from "./components/playerButtons.ts";
 import { setupPlayerNameField } from "./components/nameField.ts";
 import { setupRestartRedirect } from "./components/reset.ts";
 import { initGlobalChat } from "./components/globalChat.ts";
+import { initEmojiPanel } from "./components/emojiPanel.ts";
 
 window.addEventListener("load", () => {
   setupRestartRedirect();
@@ -33,4 +33,8 @@ window.addEventListener("load", () => {
   loadImages();
   clearOutdatedRooms();
   initGlobalChat();
+  initEmojiPanel({
+    input: "#gchat-message",
+    button: "#gchat-emoji",
+  });
 });

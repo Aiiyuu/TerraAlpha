@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
+    "emoji-picker-element": "^1.27.0",
     "firebase": "^12.4.0"
   }
 }
