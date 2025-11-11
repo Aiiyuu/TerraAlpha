@@ -1,4 +1,9 @@
-import { listenGlobalChat, sendGlobalMessage, getCurrentPlayerName } from "../server/server";
+import {
+  listenGlobalChat,
+  sendGlobalMessage,
+  getCurrentPlayerName,
+  getCurrentPlayerInfo,
+} from "../server/server";
 
 function $(s: string) {
   const el = document.querySelector(s);
@@ -7,9 +12,23 @@ function $(s: string) {
 }
 
 function getName(): string {
-  const input = document.getElementById("player-name") as HTMLInputElement | null;
+  const input = document.getElementById(
+    "player-name"
+  ) as HTMLInputElement | null;
   const v = (input?.value ?? "").trim();
   return v.length >= 3 ? v.slice(0, 14) : getCurrentPlayerName();
+}
+
+function getColor(): string {
+  const currentPlayer = getCurrentPlayerInfo();
+
+  if (currentPlayer) {
+    if (currentPlayer?.color) {
+      return currentPlayer.color;
+    }
+  }
+
+  return "#ffffff";
 }
 
 function fmt(n: number) {
@@ -21,13 +40,14 @@ function timeFromTs(ts: number | null) {
   return `${fmt(d.getHours())}:${fmt(d.getMinutes())}:${fmt(d.getSeconds())}`;
 }
 
-function createItem(ts: number | null, name: string, text: string) {
+function createItem(ts: number | null, name: string, text: string, color: string) {
   const li = document.createElement("li");
   li.className = "gchat-log__item";
 
   const nm = document.createElement("span");
   nm.className = "gchat-log__name";
   nm.textContent = `[${timeFromTs(ts)}] ${name}:`;
+  nm.style.color = color;
 
   const msg = document.createElement("span");
   msg.className = "gchat-log__msg";
@@ -53,7 +73,7 @@ export function initGlobalChat() {
     const frag = document.createDocumentFragment();
     for (let i = messages.length - 1; i >= 0; i--) {
       const m = messages[i];
-      frag.appendChild(createItem(m.ts ?? null, m.name, m.text));
+      frag.appendChild(createItem(m.ts ?? null, m.name, m.text, m.color));
     }
     list.innerHTML = "";
     list.appendChild(frag);
@@ -71,7 +91,7 @@ export function initGlobalChat() {
     if (!text) return;
     btn.disabled = true;
     try {
-      await sendGlobalMessage(getName(), text);
+      await sendGlobalMessage(getName(), text, getColor());
       input.value = "";
       input.focus();
 

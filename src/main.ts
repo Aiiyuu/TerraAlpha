@@ -32,5 +32,5 @@ window.addEventListener("load", () => {
   setupShipImages();
   loadImages();
   clearOutdatedRooms();
-    initGlobalChat();
+  initGlobalChat();
 });

@@ -45,6 +45,7 @@ import {
 import { ActionTypes } from "../types/action";
 import { getEndDate } from "../utility/getEndDate";
 import { initAutoEndTurnProbe } from "../utility/autoEndTurn";
+import { fireLoserScreen, fireWinnerScreen } from "./endGame";
 
 type Side = "left" | "right";
 type FirebasePatch = Record<string, unknown>;
@@ -401,7 +402,15 @@ export function startGame(room: RoomEntry) {
       coinStart();
       declareCoinResult(side, currentPlayerSide || "left", roomState);
       flipCoin(side);
-      setTimeout(() => coinEnd(), COIN_ANIMATION_DURATION);
+      setTimeout(() => {
+        coinEnd();
+
+        if (side === currentPlayerSide) {
+          fireWinnerScreen();
+        } else {
+          fireLoserScreen();
+        }
+      }, COIN_ANIMATION_DURATION);
     }
 
     if (roomState.phrases) {

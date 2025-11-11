@@ -27,6 +27,7 @@ export type GlobalChatMessage = {
   ts: number | null;
   name: string;
   text: string;
+  color: string;
 };
 
 const GLOBAL_CHAT_LIMIT = 20;
@@ -439,7 +440,11 @@ export async function clearRestartConfirmation(
   });
 }
 
-export async function sendGlobalMessage(name: string, text: string): Promise<string> {
+export async function sendGlobalMessage(
+  name: string,
+  text: string,
+  color: string = "#ffffff"
+): Promise<string> {
   const cleanName = name.trim().slice(0, 14);
   const cleanText = text.trim().slice(0, 200);
   if (!cleanName || cleanName.length < 3) throw new Error("Invalid name");
@@ -449,29 +454,40 @@ export async function sendGlobalMessage(name: string, text: string): Promise<str
     ts: serverTimestamp(),
     name: cleanName,
     text: cleanText,
+    color: color,
   });
 
   await pruneGlobalChat(GLOBAL_CHAT_LIMIT);
   return newRef.key as string;
 }
 
-export async function pruneGlobalChat(limit = GLOBAL_CHAT_LIMIT): Promise<void> {
+export async function pruneGlobalChat(
+  limit = GLOBAL_CHAT_LIMIT
+): Promise<void> {
   const snap = await get(globalChatMessagesRef);
   if (!snap.exists()) return;
 
-  const entries = Object.entries(snap.val() as Record<string, GlobalChatMessage>);
+  const entries = Object.entries(
+    snap.val() as Record<string, GlobalChatMessage>
+  );
   entries.sort((a, b) => (a[1].ts ?? 0) - (b[1].ts ?? 0));
   const extra = entries.length - limit;
   if (extra <= 0) return;
 
-  const toRemove = entries.slice(0, extra).map(([key]) => remove(child(globalChatMessagesRef, key)));
+  const toRemove = entries
+    .slice(0, extra)
+    .map(([key]) => remove(child(globalChatMessagesRef, key)));
   await Promise.all(toRemove);
 }
 
 export function listenGlobalChat(
   callback: (messages: GlobalChatMessage[]) => void
 ): () => void {
-  const q = query(globalChatMessagesRef, orderByChild("ts"), limitToLast(GLOBAL_CHAT_LIMIT));
+  const q = query(
+    globalChatMessagesRef,
+    orderByChild("ts"),
+    limitToLast(GLOBAL_CHAT_LIMIT)
+  );
   const unsub = onValue(q, (snap) => {
     if (!snap.exists()) {
       callback([]);
