@@ -149,6 +149,15 @@ function updateEndTurnDisabled(roomState: Room, mySide: Side | null) {
   }
 }
 
+function setStepsDisabledAttr(disabled: boolean) {
+  const box = document.getElementById("steps-container");
+  if (!box) return;
+  box.setAttribute("aria-disabled", String(disabled));
+  box
+    .querySelectorAll<HTMLButtonElement>(".steps-btn")
+    .forEach((b) => (b.disabled = disabled));
+}
+
 export function getCurrentTurnSide(): Side {
   return currentPlayerSide ?? "left";
 }
@@ -476,11 +485,19 @@ export function startGame(room: RoomEntry) {
         turnIndex !== -1 &&
         myIndex === turnIndex &&
         !roomState.isDiceRolling &&
+        roomState.lastDiceResult !== 6 &&
         !!raw &&
         (Array.isArray(raw) ? raw.length > 0 : Object.keys(raw).length > 0);
       Steps.render(strike, canUseSteps);
+      const shouldDisablePanel =
+        roomState.lastDiceResult === 6 &&
+        haveTwoPlayers &&
+        turnIndex !== -1 &&
+        myIndex === turnIndex;
+      setStepsDisabledAttr(shouldDisablePanel);
     } else {
       Steps.clear();
+      setStepsDisabledAttr(false);
     }
 
     updateEndTurnDisabled(roomState, mySideByIndex);
@@ -546,6 +563,7 @@ export function startGame(room: RoomEntry) {
           if (previousRoomState && currentPlayerSide) {
             updateEndTurnDisabled(previousRoomState, currentPlayerSide);
           }
+          setStepsDisabledAttr(false);
         } else {
           if (previousRoomState?.timerState) {
             updateRoom(roomId, {
@@ -555,6 +573,7 @@ export function startGame(room: RoomEntry) {
               ),
             });
           }
+          setStepsDisabledAttr(true);
         }
       }, HIDE_DICE_DELAY);
     } else if (btnType === "end-turn") {
@@ -563,6 +582,7 @@ export function startGame(room: RoomEntry) {
       });
       void updateRoom(roomId, { currentStepsStrike: { left: [], right: [] } });
       Steps.clear();
+      setStepsDisabledAttr(false);
       const nextTurn: Side =
         previousRoomState?.isTurn === "left" ? "right" : "left";
       void safeUpdate(roomId, {

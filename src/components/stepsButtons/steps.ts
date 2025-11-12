@@ -12,17 +12,15 @@ let selectedValue: number | null = null;
 
 export function initStepsUI() {
   if (isInitialized) return;
-
   const mainBtn = document.getElementById("main-btn");
   if (!mainBtn || !mainBtn.parentElement) {
     throw new Error("[steps] main-btn not found or has no parent");
   }
-
   container = document.createElement("div");
   container.id = "steps-container";
   container.className = "steps-container";
+  container.setAttribute("aria-disabled", "false");
   mainBtn.parentElement.insertBefore(container, mainBtn);
-
   isInitialized = true;
 }
 
@@ -32,6 +30,7 @@ export function clearStepsButtons() {
   lastButtons = [];
   selectedIndex = null;
   selectedValue = null;
+  setStepsDisabled(false);
 }
 
 function clearSelection() {
@@ -61,7 +60,6 @@ export function consumeStep(n: number) {
 export function renderStepsButtons(streak: number[], enabled: boolean, onClick: OnStepClick) {
   initStepsUI();
   if (!container) return;
-
   clearStepsButtons();
   if (!streak.length) return;
 
@@ -94,6 +92,7 @@ export function renderStepsButtons(streak: number[], enabled: boolean, onClick: 
   });
 
   container.appendChild(wrap);
+  setStepsDisabled(!enabled);
 }
 
 export function consumeStepAt(index: number) {
@@ -114,4 +113,12 @@ export async function clearStreakOnServer(room: Room) {
   if (meIndex < 0) return;
   const side: "left" | "right" = meIndex === 0 ? "left" : "right";
   await updatePlayer(getCurrentRoomId(), side, { diceStreak: [] });
+}
+
+export function setStepsDisabled(disabled: boolean) {
+  if (!container) return;
+  container.setAttribute("aria-disabled", String(disabled));
+  lastButtons.forEach(b => {
+    b.disabled = disabled;
+  });
 }

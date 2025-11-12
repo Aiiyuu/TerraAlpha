@@ -1,5 +1,6 @@
 #steps-container {
   margin-bottom: 12px;
+  transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
 .steps-wrap {
@@ -36,13 +37,11 @@
 .steps-btn--left {
   background-color: var(--player1-color);
   color: #fff;
-  
 }
 
 .steps-btn--right {
   background-color: var(--player2-color);
   color: #fff;
-  
 }
 
 body.steps-hidden #steps-container {
@@ -50,4 +49,14 @@ body.steps-hidden #steps-container {
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.3s ease;
+}
+
+#steps-container[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.55;
+  filter: grayscale(10%);
+}
+
+#steps-container[aria-disabled="true"] .steps-btn {
+  cursor: not-allowed;
 }
