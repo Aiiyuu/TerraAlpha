@@ -4,112 +4,134 @@
     <meta charset="utf-8" />
     <title>Terra Alpha</title>
     <link rel="icon" type="image/png" href="/TerraAlpha/assets/favicon3-L3CZqgeG.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Momo+Signature&family=Oswald:wght@200..700&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
-    <script type="module" crossorigin src="/TerraAlpha/assets/index-BVfmRUxB.js"></script>
-    <link rel="stylesheet" crossorigin href="/TerraAlpha/assets/index-wELtUvkE.css">
+    <script type="module" crossorigin src="/TerraAlpha/assets/index-C8ab2_pK.js"></script>
+    <link rel="stylesheet" crossorigin href="/TerraAlpha/assets/index-CyUELAp0.css">
   </head>
 
   <body>
-    <header id="home" class="header">
+    <header id="home" class="header theme-font-size theme-font-size">
       <div class="header-wrapper">
-        <h1 class="header-title">Terra Alpha</h1>
+        <section class="header-section">
+          <h1 class="header-title">Terra Alpha</h1>
 
-        <div class="online-counter">
-          <p>
-            <span id="online-count">0</span>
-            <span data-lng="playersOnline"></span>
-          </p>
-        </div>
+          <div class="header-quick-actions">
+            <button
+              id="header-lng-btn"
+              class="btn btn--icon theme-color"
+              aria-label="Language"
+            ></button>
 
-        <div class="header-quick-actions">
-          <button
-            id="header-lng-btn"
-            class="btn btn--purple btn--icon"
-            aria-label="Language"
-          ></button>
-        </div>
+            <div class="dropdown-wrapper">
+              <div id="theme-font-family-dropdown" class="dropdown">
+                <button class="dropdown-btn theme-icon">lorem</button>
+                <div class="dropdown-list-wrapper">
+                  <ul class="dropdown-list"></ul>
+                </div>
+              </div>
 
-        <div class="form-field form-field--floating">
-          <input
-            type="text"
-            id="player-name"
-            class="form-field-input"
-            placeholder=" "
-          />
-          <label
-            for="player-name"
-            class="form-field-label"
-            data-lng="playerNameInput"
-          ></label>
-        </div>
+              <div id="theme-font-size-dropdown" class="dropdown">
+                <button class="dropdown-btn theme-icon">lorem</button>
+                <div class="dropdown-list-wrapper">
+                  <ul class="dropdown-list"></ul>
+                </div>
+              </div>
 
-        <div class="form-field form-field-color">
-          <h4 class="form-field-label" data-lng="playerColorInput"></h4>
-          <div id="color-palette"></div>
-        </div>
+              <div id="theme-dropdown" class="dropdown">
+                <button class="dropdown-btn theme-icon">lorem</button>
+                <div class="dropdown-list-wrapper">
+                  <ul class="dropdown-list"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <div id="avatars" class="avatars">
-          <h4 class="form-field-label" data-lng="playerAvatarInput"></h4>
-          <div id="avatar-menu"></div>
-        </div>
-
-        <div class="header-button-group">
-          <button
-            id="navigation-fast-game-btn"
-            class="btn btn--purple"
-            data-lng="fastGameBtn"
-          ></button>
-          <button
-            id="navigation-select-room-btn"
-            class="btn btn--purple"
-            data-lng="selectRoomBtn"
-          ></button>
-          <button
-            id="navigation-create-room-btn"
-            class="btn btn--purple"
-            data-lng="createRoomBtn"
-          ></button>
-        </div>
-
-        <div class="gchat-wrapper">
-          <div class="gchat" aria-label="Global chat input">
+          <div class="form-field">
             <input
               type="text"
-              id="gchat-message"
-              class="gchat__message"
-              placeholder="Type a message…"
-              minlength="1"
-              maxlength="40"
-              required
-              autocomplete="off"
+              id="player-name"
+              class="form-field-input"
+              data-lng-placeholder="playerNamePlaceholder"
             />
-            <button
-              id="gchat-emoji"
-              class="gchat__emoji btn btn--dark"
-              aria-label="Emoji picker"
-            >
-              😊
-            </button>
-            <button id="gchat-send" class="gchat__send btn btn--dark">
-              Send
-            </button>
           </div>
 
-          <div
-            class="gchat-log"
-            id="gchat-log"
-            aria-live="polite"
-            aria-label="Chat messages"
-          >
-            <ul class="gchat-log__list" id="gchat-log-list"></ul>
+          <div class="form-field form-field-color">
+            <h4 class="form-field-label" data-lng="playerColorInput"></h4>
+            <div id="color-palette"></div>
           </div>
-        </div>
+
+          <div id="avatars" class="avatars">
+            <h4 class="form-field-label" data-lng="playerAvatarInput"></h4>
+            <div id="avatar-menu"></div>
+          </div>
+
+          <div class="header-button-group">
+            <button
+              id="navigation-fast-game-btn"
+              class="btn theme-color"
+              data-lng="fastGameBtn"
+            ></button>
+            <button
+              id="navigation-select-room-btn"
+              class="btn theme-color"
+              data-lng="selectRoomBtn"
+            ></button>
+            <button
+              id="navigation-create-room-btn"
+              class="btn theme-color"
+              data-lng="createRoomBtn"
+            ></button>
+          </div>
+
+          <div class="online-counter">
+            <p>
+              <span id="online-count">0</span>
+              <span data-lng="playersOnline"></span>
+            </p>
+          </div>
+
+          <div class="gchat-wrapper">
+            <div class="gchat" aria-label="Global chat input">
+              <input
+                type="text"
+                id="gchat-message"
+                class="gchat__message theme-color"
+                data-lng-placeholder="typeAMessage"
+                minlength="1"
+                maxlength="800"
+                required
+                autocomplete="off"
+              />
+              <button
+                id="gchat-emoji"
+                class="gchat__emoji btn theme-color"
+                aria-label="Emoji picker"
+              >
+                😊
+              </button>
+              <button
+                id="gchat-send"
+                class="gchat__send btn theme-color theme-icon"
+              ></button>
+            </div>
+
+            <div
+              class="gchat-log"
+              id="gchat-log"
+              aria-live="polite"
+              aria-label="Chat messages"
+            >
+              <ul class="gchat-log__list theme-color" id="gchat-log-list"></ul>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div class="astronaut"></div>
@@ -118,7 +140,10 @@
     </header>
 
     <main>
-      <section id="form-section" class="form-section is-hidden">
+      <section
+        id="form-section"
+        class="form-section is-hidden theme-font-size theme-font-size"
+      >
         <div class="decorations">
           <div class="rocket"></div>
           <div class="star"></div>
@@ -129,18 +154,13 @@
             <a href="#" class="form-brand" data-lng="logo"></a>
 
             <div class="form-field-group">
-              <div id="room-field" class="form-field form-field--floating">
+              <div id="room-field" class="form-field">
                 <input
                   type="text"
                   id="room-name"
                   class="form-field-input"
-                  placeholder=" "
+                  data-lng-placeholder="roomNamePlaceholder"
                 />
-                <label
-                  for="room-name"
-                  class="form-field-label"
-                  data-lng="roomNameInput"
-                ></label>
               </div>
             </div>
 
@@ -150,13 +170,13 @@
           <button
             type="submit"
             id="create-room-btn"
-            class="btn btn--purple"
+            class="btn theme-color"
             data-lng="createRoomBtn"
           ></button>
           <button
             type="button"
             id="back-to-home"
-            class="btn btn--purple"
+            class="btn theme-color"
             data-lng="backToHomePageBtn"
           ></button>
         </form>
@@ -355,6 +375,6 @@
       </div>
     </div>
 
-    <div id="ribbons-container" class="ribbons"></div>
+    <div id="ribbons-container" class="ribbons"></div>
   </body>
 </html>
