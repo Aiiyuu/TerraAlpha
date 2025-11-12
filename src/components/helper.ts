@@ -3,6 +3,7 @@ import helperSoundSrc from "../assets/sounds/helper.mp3";
 import { createSound } from "./sound";
 import helperOn from "../assets/icons/helper-on.png";
 import helperOff from "../assets/icons/helper-off.png";
+import { helper as getHelperText, HELPER_INTRODUCTION_DURATION } from "../config";
 
 const helper = document.getElementById("helper-container") as HTMLElement;
 const helperIcon = document.getElementById("helper-icon") as HTMLElement;
@@ -68,7 +69,6 @@ export function setUpHelperBtn() {
 
     const img: HTMLImageElement | null = helperBtn.querySelector("img");
 
-    console.log(img, helperBtn)
     if (!img) return;
 
     if (!isDisabled) {
@@ -208,4 +208,18 @@ function setHelperState(type: HelperRobotType) {
 
 function getIsDisabled(): boolean {
   return localStorage.getItem("helperIsDisabled") === "true";
+}
+
+export function runIntroductionHelper() {
+  const blocks = 9;
+
+  for (let i = 0; i < blocks; i++) {
+    console.log(i);
+
+    triggerHelper({
+      duration: HELPER_INTRODUCTION_DURATION,
+      text: getHelperText(`helper.blocks.${i + 1}`),
+      type: HelperTypes.HELPER_HINT,
+    });
+  }
 }

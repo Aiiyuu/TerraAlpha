@@ -4,8 +4,11 @@ const playerNameInput = document.getElementById(
   "player-name"
 ) as HTMLInputElement;
 
+const MAX_PLAYER_NAME_SIZE = 15;
+
 export function setupPlayerNameField() {
   const currentPlayerInfo = getCurrentPlayerInfo();
+  playerNameInput.maxLength = MAX_PLAYER_NAME_SIZE;
 
   if (currentPlayerInfo) {
     const name = currentPlayerInfo.name?.trim() ?? "";
@@ -17,11 +20,12 @@ export function setupPlayerNameField() {
 
   playerNameInput.addEventListener("input", (event: Event) => {
     const target = event.target as HTMLInputElement;
+    const name = target.value?.trim() ?? "";
     const currentPlayer = getCurrentPlayerInfo();
 
     setCurrentPlayerInfo({
       ...currentPlayer,
-      name: target.value?.trim() ?? "",
+      name,
     });
   });
 }

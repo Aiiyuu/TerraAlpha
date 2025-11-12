@@ -7,7 +7,7 @@
   max-width: var(--max-page-width);
   margin-inline: auto;
 
-  padding: 50px var(--page-margin);
+  padding: 50px var(--page-margin-x);
 }
 
 .nav-brand {

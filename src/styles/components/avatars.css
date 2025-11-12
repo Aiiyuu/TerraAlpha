@@ -8,7 +8,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  max-width: var(--max-section-width);
 }
 
 #avatar-menu .avatar-item {
