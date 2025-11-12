@@ -1,0 +1,23 @@
+.theme-color,
+.theme-color::placeholder {
+  background-color: var(--theme-bg);
+  color: var(--theme-color);
+  caret: var(--theme-color);
+}
+
+.theme-font-size *,
+.theme-font-size input,
+.theme-font-size label {
+  font-size: var(--theme-font-size);
+}
+
+.theme-font-size *,
+.theme-font-size input,
+.theme-font-size label,
+.theme-font-size input::placeholder {
+  font-family: var(--theme-font-family);
+}
+
+.theme-icon * {
+  fill: var(--theme-color)
+}

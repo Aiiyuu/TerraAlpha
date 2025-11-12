@@ -14,7 +14,6 @@ const dialogContainer = document.getElementById(
   "dialog-container"
 ) as HTMLElement;
 
-let computedStyles: CSSStyleDeclaration;
 
 /**
  * This function is responsible for creating the phrase element
@@ -84,14 +83,10 @@ export function setupDialog() {
 
   function showDialog() {
     dialog.classList.add("dialog--active");
-
-    const height = parseFloat(computedStyles.height);
-    dialogList.style.height = `${height * phrases.length}px`;
   }
 
   function hideDialog() {
     dialog.classList.remove("dialog--active");
-    dialogList.style.height = "0px";
   }
 
   function toggleDialog() {
@@ -115,13 +110,11 @@ export function renderPhrases() {
 
   function hideDialog() {
     dialog.classList.remove("dialog--active");
-    dialogList.style.height = "0px";
   }
 
   phrases.forEach((phrase) => {
     const li = document.createElement("li");
     li.classList.add("dialog-list-item");
-    computedStyles = window.getComputedStyle(li);
 
     const img = document.createElement("img");
     img.src = phrase.img;

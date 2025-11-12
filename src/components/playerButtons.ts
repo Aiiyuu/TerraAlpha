@@ -59,7 +59,7 @@ export const navigationBtns = (
   `;
 };
 
-const dialogBtn = (shouldBeDark?: boolean) => {
+const dialogBtn = (shouldBeDark?: boolean, isRight?: boolean) => {
   const textColor = shouldBeDark ? "#000" : "#fff";
 
   return `
@@ -67,7 +67,7 @@ const dialogBtn = (shouldBeDark?: boolean) => {
       <div class="btn dialog-button ${
         shouldBeDark && "is-dark"
       }" data-lng="throwPhrase" style="color: ${textColor}"></div>
-      <ul class="dialog-list" style="color: ${textColor}"></ul>
+      <ul class="dialog-list ${isRight && 'is-right'}" style="color: ${textColor}"></ul>
     </div>
   `;
 };
@@ -99,7 +99,7 @@ export function setUpPlayerBtns(currentPlayerSide?: Side, color?: string) {
         isHelperDisabled,
         isIconDark
       );
-      wrapper2.innerHTML = dialogBtn(isColorDark);
+      wrapper2.innerHTML = dialogBtn(isColorDark, true);
       break;
     case "right":
       isIconDark = colorsThatShouldUseDarkFont.includes(color || "");

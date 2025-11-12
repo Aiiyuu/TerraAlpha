@@ -3,6 +3,9 @@ import ukFlag from "../assets/icons/United-Kingdom.svg";
 import uaFlag from "../assets/icons/Ukraine.svg";
 import language from "../language.json";
 import { renderPhrases } from "./dialog";
+import { setupTheme } from "./theme";
+import { setupThemeFontSizes } from "./fontSizes";
+import { setupThemeFontFamilies } from "./fontFamilies";
 
 let langBtns: HTMLButtonElement[] = [];
 
@@ -27,6 +30,9 @@ function switchLanguage() {
   setLanguage(nextLng);
   translatePage();
   renderPhrases();
+  setupTheme();
+  setupThemeFontSizes();
+  setupThemeFontFamilies();
 }
 
 function updateLangBtns(lng: Language) {
@@ -37,13 +43,25 @@ function updateLangBtns(lng: Language) {
 
 function switchLanguageText(lng: Language) {
   const text = language[lng];
-  const elements = [...document.querySelectorAll("[data-lng]")] as HTMLElement[];
+  const elementsText = [
+    ...document.querySelectorAll("[data-lng]"),
+  ] as HTMLElement[];
+  const elementsPlaceholder = [
+    ...document.querySelectorAll("[data-lng-placeholder]"),
+  ] as HTMLInputElement[];
 
-  elements.forEach((element) => {
+  elementsText.forEach((element) => {
     const textId = element.getAttribute("data-lng");
     const content =
       textId && textId in text ? text[textId as keyof typeof text] : "unknown";
     element.innerHTML = `${content}`;
+  });
+
+  elementsPlaceholder.forEach((element) => {
+    const textId = element.getAttribute("data-lng-placeholder");
+    const content =
+      textId && textId in text ? text[textId as keyof typeof text] : "unknown";
+    element.placeholder = `${content}`;
   });
 }
 

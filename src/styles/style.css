@@ -22,13 +22,14 @@
 @import url('./components/endGameRobot.css');
 @import url('./components/endGameSection.css');
 @import url('./components/globalChat.css');
+@import url('./components/dropdown.css');
+@import url('./components/theme.css');
 
 body {
   position: fixed;
   max-height: 100vh;
   overflow: hidden;
 
-  font-family: "Outfit", sans-serif;
   padding-top: 0;
   background-size: cover;
   background-color: #270057;
@@ -40,13 +41,14 @@ body {
   background-attachment: fixed;
 
   --max-page-width: 1400px;
-  --max-section-width: 600px;
-  --page-margin: 40px;
+  --max-section-width: 700px;
+  --page-margin-x: 10px;
+  --page-margin-y: 30px;
   --base-text-color: #A4B7C7;
   --purple-color: #DD7BDF;
   --dark-color: #43334C;
   --red-color: #EA2F14;
-  --green-color: #2A8153;
+  --green-color: #34C759;
   --light-color: #FBFDFE;
   --dark-color: #132440;
   --base-transition-duration: 300ms;

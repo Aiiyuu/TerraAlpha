@@ -3,7 +3,7 @@ import { HelperTypes, triggerHelper } from "./helper";
 
 const timer: HTMLElement | null = document.getElementById("timer");
 let timerSpanList: HTMLElement[] = [];
-const SPAN_HEIGHT = 38;
+const SPAN_HEIGHT = 34.5;
 if (!timer) throw new Error("Timer is not found");
 
 export function setupTimer() {

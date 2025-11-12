@@ -66,7 +66,9 @@ export function loadImages() {
     .rooms-table tbody tr,
     .hand-grid .cell-btn,
     .board .cell:has(.ta-bump),
-    .avatar-item {
+    .avatar-item,
+    .dropdown-btn,
+    .dropdown-item {
       cursor: ${getPointerCursor()};
     }
 

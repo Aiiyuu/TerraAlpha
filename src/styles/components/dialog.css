@@ -7,6 +7,10 @@
   --dialog-radius: 10px;
 }
 
+.dialog.dialog--active .dialog-list {
+  display: grid;
+}
+
 .dialog.dialog-red,
 .dialog.dialog-red .dialog-list-item {
   background-color: var(--player1-color);
@@ -52,34 +56,38 @@
 }
 
 .dialog-list {
-  top: calc(100% + 10px);
-
   position: absolute;
+  top: calc(100% + 10px);
+  overflow-y: hidden;
   z-index: 2;
 
-  overflow-y: hidden;
-  height: 0;
   margin-bottom: 25px;
+  max-height: 400px;
+  padding: 20px;
+  border-radius: var(--dialog-radius);
+  border: 1px solid var(--dark-color);
+  background-color: #43334Ca0;
+  backdrop-filter: blur(20px);
+
+  display: none;
+  grid-template-columns: repeat(2, 200px);
+  gap: 20px;
 
   transition: all var(--transition-time) ease;
-
-  border-radius: var(--dialog-radius);
 }
 
 .dialog-list-item {
   display: flex;
   justify-content: flex-start;
-  background: var(--not-current-player-color);
   align-items: center;
-  padding: 20px 20px;
 }
 
-.dialog.dialog-blue .dialog-list {
-  right: var(--base-padding);
+.dialog-list.is-right {
+  right: 0;
 }
 
 .dialog-list-item img {
-  height: 50px;
+  width: 60px;
 }
 
 .dialog-list-item p {

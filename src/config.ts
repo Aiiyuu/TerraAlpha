@@ -3,6 +3,10 @@ import looserImg from "./assets/images/phrases/looser.png";
 import angryImg from "./assets/images/phrases/angry.png";
 import winImg from "./assets/images/phrases/win.png";
 import laughImg from "./assets/images/phrases/laugh.png";
+import shockedImg from "./assets/images/phrases/shocked.png";
+import cunningImg from "./assets/images/phrases/cunning.png";
+import epicImg from "./assets/images/phrases/epic.png";
+import touchingImg from "./assets/images/phrases/touching.png";
 
 import avatar1 from "./assets/images/avatars/avatar-1.png";
 import avatar2 from "./assets/images/avatars/avatar-2.png";
@@ -20,6 +24,8 @@ import type { Avatar } from "./types/avatar.ts";
 import lngJSON from "./language.json";
 import { getLanguage } from "./components/language.ts";
 import { Language } from "./types/language.ts";
+import type { Theme } from "./types/theme.ts";
+import type { FontFamily, FontSize } from "./types/font.ts";
 
 export const PHRASE_REMOVAL_DELAY = 15000;
 export const phrases: Phrase[] = [
@@ -28,6 +34,10 @@ export const phrases: Phrase[] = [
   { id: 3, img: angryImg },
   { id: 4, img: winImg },
   { id: 5, img: laughImg },
+  { id: 6, img: shockedImg },
+  { id: 7, img: cunningImg },
+  { id: 8, img: epicImg },
+  { id: 9, img: touchingImg },
 ];
 
 export const avatars: Avatar[] = [
@@ -45,14 +55,37 @@ export const avatars: Avatar[] = [
 export const colors: string[] = [
   "#FF2D55",
   "#FF9500",
-  "#FFD60A",
   "#7B542F",
   "#34C759",
   "#0A84FF",
   "#AF52DE",
 ];
 
-export const colorsThatShouldUseDarkFont: string[] = ["#FFD60A"];
+export const colorsThatShouldUseDarkFont: string[] = [];
+
+export const themes: Theme[] = [
+  { name: "dark", bgColor: "#313647", textColor: "#F9F8F6" },
+  { name: "light", bgColor: "#F9F8F6", textColor: "#313647" },
+  { name: "green", bgColor: "#D6F4ED", textColor: "#313647" },
+  { name: "pink", bgColor: "#ffcfdfff", textColor: "#313647" },
+  { name: "orange", bgColor: "#FFDBB6", textColor: "#313647" },
+];
+
+export const fontSizes: FontSize[] = [
+  { name: "small", size: "12px" },
+  { name: "base", size: "14px" },
+  { name: "medium", size: "16px" },
+  { name: "large", size: "20px" },
+  { name: "extra-large", size: "22px" },
+];
+
+export const fontFamilies: FontFamily[] = [
+  { name: "roboto", font: "'Roboto', sans-serif" },
+  { name: "outfit", font: "'Outfit', sans-serif" },
+  { name: "oswald", font: "'Oswald', sans-serif" },
+  { name: "digital", font: "'Helper', serif" },
+  { name: "momo-signature", font: "'Momo Signature', cursive" },
+];
 
 export const RESET_BTN_COOLDOWN = 15000;
 
@@ -63,6 +96,7 @@ export const HEPER_WARNING_DURATION = 3000;
 export const HELPER_WELCOME_DURATION = 4000;
 export const HELPER_NOT_YOUR_TURN_DURATION = 5000;
 export const HELPER_END_TURN_DURATION = 3000;
+export const HELPER_INTRODUCTION_DURATION = 4000;
 
 export const HELPER_TIMER_WARNING_THRESHOLD = 10000;
 export const TIMER_DELAY_TO_CALL_HELPER = 10000;

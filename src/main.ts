@@ -13,9 +13,13 @@ import { translatePage } from "./components/language.ts";
 import { setUpPlayerBtns } from "./components/playerButtons.ts";
 import { setupPlayerNameField } from "./components/nameField.ts";
 import { setupRestartRedirect } from "./components/reset.ts";
-import { initGlobalChat } from "./components/globalChat.ts";
+import { initGlobalChat, loadSendBtnIcon } from "./components/globalChat.ts";
 import { initEmojiPanel } from "./components/emojiPanel.ts";
 import { listenOnlineCount, addPlayerOnline } from "./server/online.ts";
+import { setupTheme } from "./components/theme.ts";
+import { setupThemeFontSizes } from "./components/fontSizes.ts";
+import { setupThemeFontFamilies } from "./components/fontFamilies.ts";
+import { runIntroductionHelper } from "./components/helper.ts";
 
 window.addEventListener("load", () => {
   setupRestartRedirect();
@@ -34,6 +38,12 @@ window.addEventListener("load", () => {
   loadImages();
   clearOutdatedRooms();
   initGlobalChat();
+  loadSendBtnIcon()
+  setupTheme();
+  setupThemeFontSizes();
+  setupThemeFontFamilies();
+
+  runIntroductionHelper();
 
   const playerName = localStorage.getItem("playerName") || "Player";
   addPlayerOnline(playerName);
