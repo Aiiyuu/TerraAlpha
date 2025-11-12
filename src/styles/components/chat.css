@@ -31,7 +31,7 @@
 .chat-item {
   color: white;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   align-self: flex-start;
   animation: slide-fade 300ms ease;
 }

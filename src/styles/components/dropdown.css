@@ -3,12 +3,12 @@
   white-space: nowrap;
 
   --font-size: 16px;
-  --radius: 10px;
   --bg: var(--theme-bg);
   --color: var(--theme-color);
 }
 
-.dropdown-wrapper {
+.dropdown-wrapper,
+.navigation-btns-wrapper {
   display: flex;
   align-items: center;
   gap: 10px;

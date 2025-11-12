@@ -78,7 +78,7 @@
   width: 44px;
   height: 36px;
   padding: 0;
-  border-radius: 10px;
+  border-radius: var(--radius);
   opacity: 0;
   animation: slide-fade-up var(--scroll-animation-duration) forwards ease;
   transition: transform .15s ease;

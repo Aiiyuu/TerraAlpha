@@ -91,7 +91,7 @@
 .form-field-input:focus {
   border: 1px solid var(--base-text-color);
   padding: 10px 20px;
-  border-radius: 10px;
+  border-radius: var(--radius);
 }
 
 .form-field-label {

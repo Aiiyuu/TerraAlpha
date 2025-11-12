@@ -7,9 +7,8 @@ import { setupResetBtn } from "./reset";
 import resetIcon from "../assets/icons/reset.png";
 import muted from "../assets/icons/muted.png";
 import unMuted from "../assets/icons/unmuted.png";
-import helperOn from "../assets/icons/helper-on.png";
-import helperOff from "../assets/icons/helper-off.png";
 import { colorsThatShouldUseDarkFont } from "../config";
+import { helperOffSVG, helperOnSVG } from "./helperSVG";
 
 const section1 = document.querySelector("#player1") as HTMLElement;
 const section2 = document.querySelector("#player2") as HTMLElement;
@@ -20,7 +19,7 @@ export const navigationBtns = (
   shouldBeDark?: boolean
 ) => {
   const iconColor = shouldBeDark ? "invert(1)" : "invert(0)";
-  const helperIcon = isHelperDisabled ? helperOn : helperOff;
+  const helperIcon = isHelperDisabled ? helperOnSVG : helperOffSVG;
   const muteIcon = isMuted ? muted : unMuted;
 
   return `
@@ -28,7 +27,7 @@ export const navigationBtns = (
       <button id="lng-btn" class="btn btn--purple"></button>
 
       <button id="helper-btn" class="btn btn--purple">
-        <img src="${helperIcon}" style="filter: ${iconColor}" alt="reset" />
+        ${helperIcon}
       </button>
 
       <button id="reset-btn" class="btn btn--purple">
@@ -67,7 +66,9 @@ const dialogBtn = (shouldBeDark?: boolean, isRight?: boolean) => {
       <div class="btn dialog-button ${
         shouldBeDark && "is-dark"
       }" data-lng="throwPhrase" style="color: ${textColor}"></div>
-      <ul class="dialog-list ${isRight && 'is-right'}" style="color: ${textColor}"></ul>
+      <ul class="dialog-list ${
+        isRight && "is-right"
+      }" style="color: ${textColor}"></ul>
     </div>
   `;
 };

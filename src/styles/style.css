@@ -53,6 +53,7 @@ body {
   --dark-color: #132440;
   --base-transition-duration: 300ms;
   --scroll-animation-duration: 800ms;
+  --radius: 6px;
 
   --player1-color: var(--purple-color);
   --player2-color: var(--purple-color);

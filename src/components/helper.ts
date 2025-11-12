@@ -1,9 +1,15 @@
-import { HelperRobotType, helperSVG } from "./helperSVG";
+import {
+  helperOffSVG,
+  helperOnSVG,
+  HelperRobotType,
+  helperSVG,
+} from "./helperSVG";
 import helperSoundSrc from "../assets/sounds/helper.mp3";
 import { createSound } from "./sound";
-import helperOn from "../assets/icons/helper-on.png";
-import helperOff from "../assets/icons/helper-off.png";
-import { helper as getHelperText, HELPER_INTRODUCTION_DURATION } from "../config";
+import {
+  helper as getHelperText,
+  HELPER_INTRODUCTION_DURATION,
+} from "../config";
 
 const helper = document.getElementById("helper-container") as HTMLElement;
 const helperIcon = document.getElementById("helper-icon") as HTMLElement;
@@ -60,23 +66,32 @@ let current: {
 
 const dedupeMap = new Map<string, number>();
 
+let isCalledOnce = false;
+
 export function setUpHelperBtn() {
   const helperBtn = document.getElementById("helper-btn") as HTMLElement;
+  const headerHelperBtn = document.getElementById(
+    "header-hint-btn"
+  ) as HTMLElement;
 
-  helperBtn.addEventListener("click", () => {
+  const toggleHelperState = (btn: HTMLElement) => {
     const isDisabled = getIsDisabled();
     localStorage.setItem("helperIsDisabled", String(!isDisabled));
+    
+    btn.innerHTML = isDisabled ? helperOnSVG : helperOffSVG;
+  };
 
-    const img: HTMLImageElement | null = helperBtn.querySelector("img");
+  helperBtn.addEventListener("click", () => toggleHelperState(helperBtn));
 
-    if (!img) return;
+  if (!isCalledOnce) {
+    headerHelperBtn.addEventListener("click", () =>
+      toggleHelperState(headerHelperBtn)
+    );
+    isCalledOnce = true;
+  }
 
-    if (!isDisabled) {
-      img.src = helperOff;
-    } else {
-      img.src = helperOn;
-    }
-  });
+  const isDisabled = getIsDisabled();
+  headerHelperBtn.innerHTML = isDisabled ? helperOffSVG : helperOnSVG;
 }
 
 export function triggerHelper(rawArgs: HelperArgs) {
@@ -214,8 +229,6 @@ export function runIntroductionHelper() {
   const blocks = 9;
 
   for (let i = 0; i < blocks; i++) {
-    console.log(i);
-
     triggerHelper({
       duration: HELPER_INTRODUCTION_DURATION,
       text: getHelperText(`helper.blocks.${i + 1}`),

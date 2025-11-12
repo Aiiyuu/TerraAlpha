@@ -20,6 +20,7 @@ import { setupTheme } from "./components/theme.ts";
 import { setupThemeFontSizes } from "./components/fontSizes.ts";
 import { setupThemeFontFamilies } from "./components/fontFamilies.ts";
 import { runIntroductionHelper } from "./components/helper.ts";
+import { setupFullScreenBtn } from "./components/fullScreen.ts";
 
 window.addEventListener("load", () => {
   setupRestartRedirect();
@@ -42,6 +43,7 @@ window.addEventListener("load", () => {
   setupTheme();
   setupThemeFontSizes();
   setupThemeFontFamilies();
+  setupFullScreenBtn();
 
   runIntroductionHelper();
 
