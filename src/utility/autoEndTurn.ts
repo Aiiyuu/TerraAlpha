@@ -14,7 +14,7 @@ type ProbeApi = {
 };
 
 export function initAutoEndTurnProbe(opts: ProbeOptions): ProbeApi {
-  const threshold = Math.max(0, opts.thresholdSec ?? 20);
+  const threshold = Math.max(0, opts.thresholdSec ?? 50);
   let logged = false;
   let lastRemaining = Number.POSITIVE_INFINITY;
   let destroyed = false;
@@ -37,7 +37,6 @@ export function initAutoEndTurnProbe(opts: ProbeOptions): ProbeApi {
     const isEndTurn = btn.getAttribute("data-type") === "end-turn";
     if (isDisabled || !isEndTurn) return;
 
-    console.log("WE CAN END TURN");
     logged = true;
     btn.click();
   };

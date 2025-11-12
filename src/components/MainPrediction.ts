@@ -161,6 +161,7 @@ function canShipMove(
   opp: Record<string, ShipPos>,
   motherActive: boolean,
 ): boolean {
+  if (String(from) === "final-0") return false;
   if (from === "hand" && !motherActive && isMother(id)) return false;
   const mineByPos = makePosIndexMap(mine);
   const oppByPos = makePosIndexMap(opp);

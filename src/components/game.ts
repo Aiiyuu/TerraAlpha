@@ -222,7 +222,7 @@ export function startGame(room: RoomEntry) {
   if (!autoProbe) {
     autoProbe = initAutoEndTurnProbe({
       mainBtn,
-      thresholdSec: 20,
+      thresholdSec: 50,
       getIsMyTurn: () => {
         if (!previousRoomState || !currentPlayerSide) return false;
         return previousRoomState.isTurn === currentPlayerSide;
