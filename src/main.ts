@@ -8,7 +8,7 @@ import { loadCellIcons } from "./components/cells.ts";
 import { loadImages } from "./components/loadImages.ts";
 import { setupColorPalette } from "./components/colorPalette.ts";
 import { setupShipImages } from "./components/shipImages.ts";
-import { clearOutdatedRooms } from "./server/server.ts";
+import { clearOutdatedRooms, getCurrentPlayerInfo } from "./server/server.ts";
 import { translatePage } from "./components/language.ts";
 import { setUpPlayerBtns } from "./components/playerButtons.ts";
 import { setupPlayerNameField } from "./components/nameField.ts";
@@ -35,7 +35,10 @@ window.addEventListener("load", () => {
   clearOutdatedRooms();
   initGlobalChat();
 
-  const playerName = localStorage.getItem("playerName") || "Player";
+  const currentPlayer = getCurrentPlayerInfo() || "Player";
+  let playerName = '';
+
+if (currentPlayer) playerName = currentPlayer.name || 'Player'
   addPlayerOnline(playerName);
   listenOnlineCount((count) => {
     const el = document.getElementById("online-count");
