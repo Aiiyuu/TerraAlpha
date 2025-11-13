@@ -48,7 +48,7 @@
       "blocks": {
         "1": "🤖 1. Intro Initialization\n\nWelcome, Commander. I am the navigation intelligence of your fleet.\nTwo fleets of colonists have embarked on a quest to find a new home.\nRoll the dice. Move your fleet. Be the first to reach the Finish — and the Galaxy will recognize you as the leader.",
         "2": "🎲 2. Dice Roll\n\nAnalyzing the roll...\nEach number represents the number of steps forward.\nIf you roll a six — you'll get five steps and an additional roll.\nAnother six? The system confirms — another bonus.\nExample calculation: 6 + 6 + 3 = 5 + 5 + 3 steps.",
-        "3": "🪙 3. Mission Start\n\nInitialization of the start.\nThe first player is chosen by the coin.\nToss it — and let fate start the simulation.",
+        "3": "📅 3. Mission Start\n\nInitialization of the start.\nThe first player is chosen by the coin.\nToss it — and let fate start the simulation.",
         "4": "🚀 4. Piece Movement\n\nActivate your ship from 'Start' and move counterclockwise.\nYou can control one or several ships. You can combine moves.\n5+5+3 = 10+3 = 8+5 = 13.\nWarning: finishing the turn on an occupied space is forbidden by protocol.",
         "5": "⚠️ 5. Trap Field\n\nWarning! The gravity trap field is activated.\nYour ship is being pulled deeper...\nIf both slots are occupied — the sector is blocked for movement.",
         "6": "🌌 6. Spaceport ⚪️🔘\n\nTransport zone — 'Spaceport'.\nMovement through the near tunnel, then the far one.\nIf both are occupied — the sector closes until further notice.",
@@ -139,13 +139,13 @@
       "blocks": {
         "1": "🤖 1. Вступна ініціалізація\n\nВітаю, командире. Я — навігаційний інтелект вашої флотилії.\nДва флоти колоністів вирушили на пошуки нової домівки.\nКидай кубик. Рухай флот. Досягни Фінішу першим — і Галактика визнає тебе лідером.",
         "2": "🎲 2. Кидок кубика\n\nАналізую результат кидка...\nКожне число — кількість кроків уперед.\nЯкщо випала шістка — отримаєш п’ять кроків і додатковий кидок.\nПовторна шістка? Система підтверджує — ще один бонус.\nПриклад обчислення: 6 + 6 + 3 = 5 + 5 + 3 кроки.",
-        "3": "🪙 3. Початок місії\n\nІніціалізація старту.\nПершим діє той, кого обере монетка.\nПідкинь її — і дозволь долі запустити симуляцію.",
+        "3": "📅 3. Початок місії\n\nІніціалізація старту.\nПершим діє той, кого обере монетка.\nПідкинь її — і дозволь долі запустити симуляцію.",
         "4": "🚀 4. Рух фігур\n\nАктивуй свій корабель зі «Старта» та рухайся проти годинникової стрілки.\nМожеш керувати одним або кількома кораблями. Можеш комбінувати ходи.\n5+5+3 = 10+3 = 8+5 = 13.\nПопередження: завершення ходу на зайнятому полі — заборонено протоколом.",
         "5": "⚠️ 5. Поле “Пастка”\n\nУвага! Активовано гравітаційне поле пастки.\nТвій корабель затягує все глибше...\nЯкщо обидва слоти зайняті — сектор заблоковано для переміщення.",
         "6": "🌌 6. Космопорт ⚪️🔘\n\nЗона транспортування — “Космопорт”.\nПереміщення через ближній тунель, потім дальній.\nЯкщо обидва зайняті — сектор закривається до подальшого повідомлення.",
         "7": "🛸 7. Крейсер\n\nВиявлено флагман — Крейсер.\nЙого поява дозволена лише після виведення інших кораблів флоту.\nКрейсер може об’єднувати флот — інші твої кораблі приєднуються й рухаються разом.\nТакож його можуть наздоганяти дружні кораблі.",
         "8": "🏁 8. Фініш⬜️\n\nСканую координати Фінішу...\nДля входу достатньо викинути потрібну або більшу кількість кроків.\nТочне число не обов’язкове.\nМета — досягнути цілі першим. Пріоритет — максимальний.",
-        "9": "💥 9. Блокування\n\nПомилка рух⛔️. Доступні кроки неможливо виконати.\nСтатус: блокування.\nНевикористані кроки анульовано.\nХід передано супротивнику.\nРекомендація: змиритися."
+        "9": "💥 9. Блокування\n\nПомилка руху⛔️. Доступні кроки неможливо виконати.\nСтатус: блокування.\nНевикористані кроки анульовано.\nХід передано супротивнику.\nРекомендація: змиритися."
       }
     },
     "phrases": {

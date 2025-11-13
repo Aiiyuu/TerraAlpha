@@ -67,6 +67,7 @@ let current: {
 const dedupeMap = new Map<string, number>();
 
 let isCalledOnce = false;
+let introShown = false; // NEW
 
 export function setUpHelperBtn() {
   const helperBtn = document.getElementById("helper-btn") as HTMLElement;
@@ -226,13 +227,22 @@ function getIsDisabled(): boolean {
 }
 
 export function runIntroductionHelper() {
+  if (introShown) { // NEW
+    return; // NEW
+  } // NEW
+
+  introShown = true; // NEW
+
   const blocks = 9;
+  const stepDelay =
+    HELPER_INTRODUCTION_DURATION + INTERVAL_BETWEEN; // NEW
 
   for (let i = 0; i < blocks; i++) {
     triggerHelper({
       duration: HELPER_INTRODUCTION_DURATION,
       text: getHelperText(`helper.blocks.${i + 1}`),
       type: HelperTypes.HELPER_HINT,
+      delayBeforeShow: i * stepDelay, // NEW
     });
   }
 }
