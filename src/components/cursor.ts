@@ -22,7 +22,6 @@ export function setupThemeCursors() {
 
   const onThemeSelect = (theme: Cursor) => {
     localStorage.setItem("theme-cursor", theme.name);
-    console.log("Selected cursor:", theme.name);
 
     document
       .querySelectorAll(".cursorly, .cursorly-cursor, .cursorly-wrapper")

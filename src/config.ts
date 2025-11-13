@@ -81,16 +81,16 @@ export const fontSizes: FontSize[] = [
 ];
 
 export const fontFamilies: FontFamily[] = [
-  { name: "roboto", font: "'Roboto', sans-serif" },
-  { name: "outfit", font: "'Outfit', sans-serif" },
   { name: "oswald", font: "'Oswald', sans-serif" },
-  { name: "digital", font: "'Helper', serif" },
-  { name: "momo-signature", font: "'Momo Signature', cursive" },
+  { name: "outfit", font: "'Outfit', sans-serif" },
+  { name: "roboto", font: "'Roboto', sans-serif" },
+  { name: "pacifico", font: "'Pacifico', cursive" },
+  { name: "rubik", font: "'Rubik Mono One', monospace" },
 ];
 
 export const cursors: Cursor[] = [
   { name: "trail", effect: "trail", color: "rainbow", cursor: 16 },
-  { name: "sparkle", effect: "sparkle", color: "#ffb9b9ff", cursor: 16 },
+  { name: "sparkle", effect: "sparkle", color: "#f8e85aff", cursor: 16 },
   { name: "firing", effect: "firing", cursor: 16 },
   { name: "rainbow", effect: "emoji", shape: "🌈", cursor: 16 },
   { name: "fireworks", effect: "fireworks", cursor: 16 },

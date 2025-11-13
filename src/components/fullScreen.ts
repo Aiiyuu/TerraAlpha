@@ -16,11 +16,16 @@ const disabledFullScreenSVG = `
 </svg>
 `;
 
+let headerBtnEventListenerIsSet = false;
+let isFullScreen = false;
+
 export function setupFullScreenBtn() {
-  const btn = document.querySelector(
+  const btnHeader = document.querySelector(
     "#header-full-screen-btn"
   ) as HTMLButtonElement | null;
-  if (!btn) return;
+  const btnInGame = document.querySelector(
+    "#full-screen-btn"
+  ) as HTMLElement | null;
 
   const docEl = document.documentElement as HTMLElement;
   const doc = document as Document & {
@@ -44,6 +49,8 @@ export function setupFullScreenBtn() {
     } else if (el.msRequestFullscreen) {
       el.msRequestFullscreen();
     }
+
+    isFullScreen = true;
   };
 
   const disableFullScreen = () => {
@@ -56,19 +63,52 @@ export function setupFullScreenBtn() {
     } else if (doc.msExitFullscreen) {
       doc.msExitFullscreen();
     }
+
+    isFullScreen = false;
   };
 
   const toggleFullScreen = () => {
+    console.log("Toggling fullscreen...");
+
     if (!document.fullscreenElement) {
       enableFullScreen();
-      btn.innerHTML = enabledFullScreenSVG;
+
+      if (btnInGame) {
+        btnInGame.innerHTML = enabledFullScreenSVG;
+      }
+
+      console.log(btnHeader, btnInGame);
+      if (btnHeader) {
+        btnHeader.innerHTML = enabledFullScreenSVG;
+      }
     } else {
       disableFullScreen();
-      btn.innerHTML = disabledFullScreenSVG;
+
+      if (btnInGame) {
+        btnInGame.innerHTML = disabledFullScreenSVG;
+      }
+      if (btnHeader) {
+        btnHeader.innerHTML = disabledFullScreenSVG;
+      }
     }
   };
 
-  btn.innerHTML = disabledFullScreenSVG;
+  if (btnHeader) {
+    btnHeader.innerHTML = isFullScreen
+      ? enabledFullScreenSVG
+      : disabledFullScreenSVG;
 
-  btn.addEventListener("click", toggleFullScreen);
+    if (!headerBtnEventListenerIsSet) {
+      btnHeader.addEventListener("click", toggleFullScreen);
+      headerBtnEventListenerIsSet = true;
+    }
+  }
+
+  if (btnInGame) {
+    btnInGame.innerHTML = isFullScreen
+      ? enabledFullScreenSVG
+      : disabledFullScreenSVG;
+
+    btnInGame.addEventListener("click", toggleFullScreen);
+  }
 }

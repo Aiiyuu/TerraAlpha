@@ -83,11 +83,11 @@
       "extra-large": "Extra Large"
     },
     "font-families": {
-      "momo-signature": "Momo Signature",
+      "roboto": "Roboto",
       "oswald": "Oswald",
       "outfit": "Outfit",
-      "roboto": "Roboto",
-      "digital": "Digital"
+      "pacifico": "Pacifico",
+      "rubik": "Rubik"
     },
     "cursors": {
       "trail": "Trail",
@@ -96,7 +96,7 @@
       "rainbow": "Rainbow",
       "fireworks": "Fireworks",
       "snowfall": "Snowfall",
-      "aura": "Aura",
+      "aura": "Confetti",
       "comet": "Comet"
     }
   },
@@ -184,20 +184,20 @@
       "extra-large": "Дуже великий"
     },
     "font-families": {
-      "momo-signature": "Підпис Momo",
+      "roboto": "Робото",
       "oswald": "Осуальд",
       "outfit": "Аутфіт",
-      "roboto": "Робото",
-      "digital": "Цифровий"
+      "pacifico": "Пасифіко",
+      "rubik": "Рубік"
     },
     "cursors": {
       "trail": "Слід",
       "sparkle": "Іскри",
-      "firing": "Постріл",
+      "firing": "Вогник",
       "rainbow": "Веселка",
       "fireworks": "Феєрверк",
       "snowfall": "Снігопад",
-      "aura": "Аура",
+      "aura": "Комфеті",
       "comet": "Комета"
     }
   }

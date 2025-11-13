@@ -78,7 +78,7 @@ export function setUpHelperBtn() {
   const toggleHelperState = (btn: HTMLElement) => {
     const isDisabled = getIsDisabled();
     localStorage.setItem("helperIsDisabled", String(!isDisabled));
-    
+
     btn.innerHTML = isDisabled ? helperOnSVG : helperOffSVG;
   };
 
@@ -227,22 +227,33 @@ function getIsDisabled(): boolean {
 }
 
 export function runIntroductionHelper() {
-  if (introShown) { // NEW
-    return; // NEW
-  } // NEW
-
-  introShown = true; // NEW
+  if (introShown) return;
+  introShown = true;
 
   const blocks = 9;
-  const stepDelay =
-    HELPER_INTRODUCTION_DURATION + INTERVAL_BETWEEN; // NEW
+  const stepDelay = HELPER_INTRODUCTION_DURATION + INTERVAL_BETWEEN;
 
-  for (let i = 0; i < blocks; i++) {
+  let currentBlock = 0;
+
+  triggerHelper({
+    duration: HELPER_INTRODUCTION_DURATION,
+    text: getHelperText(`helper.blocks.${currentBlock + 1}`),
+    type: HelperTypes.HELPER_HINT,
+  });
+
+  currentBlock++;
+
+  const intervalId = setInterval(() => {
     triggerHelper({
       duration: HELPER_INTRODUCTION_DURATION,
-      text: getHelperText(`helper.blocks.${i + 1}`),
+      text: getHelperText(`helper.blocks.${currentBlock + 1}`),
       type: HelperTypes.HELPER_HINT,
-      delayBeforeShow: i * stepDelay, // NEW
     });
-  }
+
+    currentBlock++;
+
+    if (currentBlock >= blocks) {
+      clearInterval(intervalId);
+    }
+  }, stepDelay);
 }

@@ -9,6 +9,7 @@ import muted from "../assets/icons/muted.png";
 import unMuted from "../assets/icons/unmuted.png";
 import { colorsThatShouldUseDarkFont } from "../config";
 import { helperOffSVG, helperOnSVG } from "./helperSVG";
+import { setupFullScreenBtn } from "./fullScreen";
 
 const section1 = document.querySelector("#player1") as HTMLElement;
 const section2 = document.querySelector("#player2") as HTMLElement;
@@ -39,6 +40,9 @@ export const navigationBtns = (
 
       <button id="mute-btn" class="btn btn--purple">
         <img src="${muteIcon}" style="filter: ${iconColor}" alt="mute" />
+      </button>
+
+      <button id="full-screen-btn" class="btn btn--purple">
       </button>
     </div>
 
@@ -94,12 +98,12 @@ export function setUpPlayerBtns(currentPlayerSide?: Side, color?: string) {
         isHelperDisabled,
         isIconDark
       );
-      wrapper2.innerHTML = '';
+      wrapper2.innerHTML = "";
       break;
     case "right":
       isIconDark = colorsThatShouldUseDarkFont.includes(color || "");
 
-      wrapper1.innerHTML = '';
+      wrapper1.innerHTML = "";
       wrapper2.innerHTML = navigationBtns(
         isMuted,
         isHelperDisabled,
@@ -114,4 +118,5 @@ export function setUpPlayerBtns(currentPlayerSide?: Side, color?: string) {
   setupResetBtn(currentPlayerSide);
   setupDialog();
   setupMuteBtn();
+  setupFullScreenBtn();
 }

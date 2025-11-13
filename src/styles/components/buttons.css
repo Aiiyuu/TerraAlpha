@@ -38,7 +38,8 @@
 #reset-btn,
 #helper-btn,
 #mute-btn,
-#lng-btn {
+#lng-btn,
+#full-screen-btn {
   background-color: var(--current-player-color);
   color: #fff;
 }
@@ -83,7 +84,8 @@
 #mute-btn,
 #reset-btn,
 #helper-btn,
-#lng-btn {
+#lng-btn,
+#full-screen-btn {
   position: relative;
   overflow: hidden;
   padding: 0;
@@ -107,12 +109,14 @@
   height: 35px;
 }
 
-#header-full-screen-btn svg {
+#header-full-screen-btn svg,
+#full-screen-btn svg {
   width: 25px;
   height: 25px;
 }
 
-#helper-btn svg * {
+#helper-btn svg *,
+#full-screen-btn svg * {
   fill: var(--light-color);
 }
 
