@@ -6,6 +6,7 @@ import { renderPhrases } from "./dialog";
 import { setupTheme } from "./theme";
 import { setupThemeFontSizes } from "./fontSizes";
 import { setupThemeFontFamilies } from "./fontFamilies";
+import { setupThemeCursors } from "./cursor";
 
 let langBtns: HTMLButtonElement[] = [];
 
@@ -33,6 +34,7 @@ function switchLanguage() {
   setupTheme();
   setupThemeFontSizes();
   setupThemeFontFamilies();
+  setupThemeCursors();
 }
 
 function updateLangBtns(lng: Language) {

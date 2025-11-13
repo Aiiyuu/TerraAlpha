@@ -44,7 +44,7 @@ import {
 import { ActionTypes } from "../types/action";
 import { getEndDate } from "../utility/getEndDate";
 import { initAutoEndTurnProbe } from "../utility/autoEndTurn";
-import { getBlockedCursor, getPointerCursor } from "./cursor";
+// import { getBlockedCursor, getPointerCursor } from "./cursor";
 
 type Side = "left" | "right";
 type FirebasePatch = Record<string, unknown>;
@@ -145,7 +145,7 @@ function updateEndTurnDisabled(roomState: Room, mySide: Side | null) {
   if (mainBtn.getAttribute("data-type") === "end-turn") {
     mainBtn.disabled = hasSteps;
     mainBtn.classList.toggle("disabled", hasSteps);
-    mainBtn.style.cursor = hasSteps ? getBlockedCursor() : getPointerCursor();
+    // mainBtn.style.cursor = hasSteps ? getBlockedCursor() : getPointerCursor();
   }
 }
 
@@ -593,7 +593,7 @@ export function startGame(room: RoomEntry) {
       mainBtn.setAttribute("data-type", "dice");
       mainBtn.disabled = false;
       mainBtn.classList.remove("disabled");
-      mainBtn.style.cursor = getPointerCursor();
+      // mainBtn.style.cursor = getPointerCursor();
       void addActionToRoom(roomId, {
         type: ActionTypes.HINT,
         endsAt: getEndDate(HELPER_END_TURN_DURATION),

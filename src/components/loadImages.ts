@@ -6,7 +6,6 @@ import starImg from "../assets/images/decorations/star.png";
 import diceIcon from "../assets/icons/dice.png";
 import resetIcon from "../assets/icons/reset.png";
 import bgImage from "../assets/images/bg_main.jpg";
-import { getBlockedCursor, getPointerCursor, getRegularCursor } from "./cursor";
 
 const astronaut: HTMLElement | null = document.querySelector(".astronaut");
 const planet1: HTMLElement | null = document.querySelector(".planet-1");
@@ -50,47 +49,6 @@ export function loadImages() {
 
   const style = document.createElement("style");
   style.textContent = `
-    body {
-      cursor: ${getRegularCursor()};
-    }
-
-    .steps-btn,
-    .board .cell > .cell-btn,
-    .btn,
-    .dialog-button,
-    .dialog-list-item,
-    .gm-close,
-    .gm-btn,
-    .cell-btn,
-    .rooms-table tbody tr,
-    .hand-grid .cell-btn,
-    .board .cell:has(.ta-bump),
-    .avatar-item,
-    .dropdown-btn,
-    .dropdown-item,
-    .color-item {
-      cursor: ${getPointerCursor()};
-    }
-
-    .steps-btn:disabled,
-    #main-btn.disabled,
-    .cell-btn[data-ship="mother"][disabled],
-    .cell-btn[data-ship="mother"][disabled]:hover,
-    .cell-btn[data-ship="mother"][disabled]:focus,
-    .cell-btn[data-ship="mother"][disabled]:focus-visible,
-    .cell-btn[data-ship="mother"][disabled]:active,
-    .hand-grid .cell-btn.is-disabled,
-    .board .cell > .cell-btn.is-disabled,
-    .ship.is-disabled,
-    [data-ship].is-disabled,
-    .is-disabled,
-    body.side-left .cell-btn[data-side="right"],
-    body.side-left .hand-grid .cell-btn[data-side="right"],
-    body.side-right .cell-btn[data-side="left"],
-    body.side-right .hand-grid .cell-btn[data-side="left"] {
-      cursor: ${getBlockedCursor()};
-    }
-
     #main-btn[data-type="dice"]::after {
       background-image: url(${diceIcon});
     }

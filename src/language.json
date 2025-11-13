@@ -88,6 +88,16 @@
       "outfit": "Outfit",
       "roboto": "Roboto",
       "digital": "Digital"
+    },
+    "cursors": {
+      "trail": "Trail",
+      "sparkle": "Sparkle",
+      "firing": "Firing",
+      "rainbow": "Rainbow",
+      "fireworks": "Fireworks",
+      "snowfall": "Snowfall",
+      "aura": "Aura",
+      "comet": "Comet"
     }
   },
   "ua": {
@@ -179,6 +189,16 @@
       "outfit": "Аутфіт",
       "roboto": "Робото",
       "digital": "Цифровий"
+    },
+    "cursors": {
+      "trail": "Слід",
+      "sparkle": "Іскри",
+      "firing": "Постріл",
+      "rainbow": "Веселка",
+      "fireworks": "Феєрверк",
+      "snowfall": "Снігопад",
+      "aura": "Аура",
+      "comet": "Комета"
     }
   }
 }

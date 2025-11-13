@@ -21,6 +21,7 @@ import { setupThemeFontSizes } from "./components/fontSizes.ts";
 import { setupThemeFontFamilies } from "./components/fontFamilies.ts";
 import { runIntroductionHelper } from "./components/helper.ts";
 import { setupFullScreenBtn } from "./components/fullScreen.ts";
+import { setupThemeCursors } from "./components/cursor.ts";
 
 window.addEventListener("load", () => {
   setupRestartRedirect();
@@ -39,18 +40,19 @@ window.addEventListener("load", () => {
   loadImages();
   clearOutdatedRooms();
   initGlobalChat();
-  loadSendBtnIcon()
+  loadSendBtnIcon();
   setupTheme();
   setupThemeFontSizes();
   setupThemeFontFamilies();
   setupFullScreenBtn();
-
+  setupThemeCursors();
   runIntroductionHelper();
 
   const currentPlayer = getCurrentPlayerInfo() || "Player";
-  let playerName = '';
+  let playerName = "";
 
-if (currentPlayer) playerName = currentPlayer.name || 'Player'
+  if (currentPlayer) playerName = currentPlayer.name || "Player";
+
   addPlayerOnline(playerName);
   listenOnlineCount((count) => {
     const el = document.getElementById("online-count");

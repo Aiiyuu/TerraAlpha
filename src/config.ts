@@ -26,6 +26,7 @@ import { getLanguage } from "./components/language.ts";
 import { Language } from "./types/language.ts";
 import type { Theme } from "./types/theme.ts";
 import type { FontFamily, FontSize } from "./types/font.ts";
+import type { Cursor } from "./types/cursor.ts";
 
 export const PHRASE_REMOVAL_DELAY = 15000;
 export const phrases: Phrase[] = [
@@ -85,6 +86,17 @@ export const fontFamilies: FontFamily[] = [
   { name: "oswald", font: "'Oswald', sans-serif" },
   { name: "digital", font: "'Helper', serif" },
   { name: "momo-signature", font: "'Momo Signature', cursive" },
+];
+
+export const cursors: Cursor[] = [
+  { name: "trail", effect: "trail", color: "rainbow", cursor: 16 },
+  { name: "sparkle", effect: "sparkle", color: "#ffb9b9ff", cursor: 16 },
+  { name: "firing", effect: "firing", cursor: 16 },
+  { name: "rainbow", effect: "emoji", shape: "🌈", cursor: 16 },
+  { name: "fireworks", effect: "fireworks", cursor: 16 },
+  { name: "snowfall", effect: "snowfall", cursor: 16 },
+  { name: "aura", effect: "aura", cursor: 16 },
+  { name: "comet", effect: "comet", cursor: 16 },
 ];
 
 export const RESET_BTN_COOLDOWN = 15000;
