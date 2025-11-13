@@ -158,6 +158,58 @@ function setStepsDisabledAttr(disabled: boolean) {
     .forEach((b) => (b.disabled = disabled));
 }
 
+function renderStepsStrike(roomState: Room) {
+  const leftContainer = document.querySelector<HTMLElement>(
+    '[data-qa="p1-steps-strike"]'
+  );
+  const rightContainer = document.querySelector<HTMLElement>(
+    '[data-qa="p2-steps-strike"]'
+  );
+
+  if (leftContainer) {
+    leftContainer.innerHTML = "";
+  }
+
+  if (rightContainer) {
+    rightContainer.innerHTML = "";
+  }
+
+  const leftRaw = roomState.currentStepsStrike?.left;
+  const rightRaw = roomState.currentStepsStrike?.right;
+
+  const leftSteps: number[] = Array.isArray(leftRaw)
+    ? (leftRaw as number[])
+    : leftRaw
+    ? (Object.values(leftRaw as Record<string, number>) as number[])
+    : [];
+
+  const rightSteps: number[] = Array.isArray(rightRaw)
+    ? (rightRaw as number[])
+    : rightRaw
+    ? (Object.values(rightRaw as Record<string, number>) as number[])
+    : [];
+
+  if (leftContainer) {
+    leftSteps.forEach((step, index) => {
+      const el = document.createElement("div");
+      el.className = "steps-strike__item steps-strike__item--left";
+      el.textContent = String(step);
+      el.dataset.index = String(index);
+      leftContainer.appendChild(el);
+    });
+  }
+
+  if (rightContainer) {
+    rightSteps.forEach((step, index) => {
+      const el = document.createElement("div");
+      el.className = "steps-strike__item steps-strike__item--right";
+      el.textContent = String(step);
+      el.dataset.index = String(index);
+      rightContainer.appendChild(el);
+    });
+  }
+}
+
 export function getCurrentTurnSide(): Side {
   return currentPlayerSide ?? "left";
 }
@@ -320,6 +372,8 @@ export function startGame(room: RoomEntry) {
       document.body.setAttribute("data-my-side", mySide);
       document.body.setAttribute("data-opponent-side", oppSide);
     }
+
+    renderStepsStrike(roomState);
 
     if (!gameIsFinished) {
       stopPlayerWin = initPlayerWin(roomId, currentPlayerSide as Side);
