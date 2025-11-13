@@ -31,16 +31,22 @@ function calcAvailableSteps(strike: number[]): number[] {
   const set = new Set<number>();
   nums.forEach((n) => set.add(n));
   for (let i = 0; i < nums.length; i++) {
-    for (let j = i + 1; j < nums.length; j++) set.add(nums[i] + nums[j]);
+    for (let j = i + 1; j < nums.length; j++) {
+      set.add(nums[i] + nums[j]);
+    }
   }
-  if (nums.length > 1) set.add(nums.reduce((a, b) => a + b, 0));
+  if (nums.length > 1) {
+    set.add(nums.reduce((a, b) => a + b, 0));
+  }
   return Array.from(set).sort((a, b) => a - b);
 }
 
 function buildSideShips(room: Room, side: Side): Record<string, ShipPos> {
   const raw = (room.ships?.[side] || {}) as Record<string, ShipPos>;
   const map: Record<string, ShipPos> = {};
-  for (const id of SHIP_IDS[side]) map[id] = raw[id] ?? "hand";
+  for (const id of SHIP_IDS[side]) {
+    map[id] = raw[id] ?? "hand";
+  }
   return map;
 }
 
@@ -182,9 +188,13 @@ function canShipMove(
 }
 
 function canAnyMove(mine: Record<string, ShipPos>, opp: Record<string, ShipPos>, steps: number[]) {
-  const hasSimpleOnHand = Object.entries(mine).some(([id, pos]) => !isMother(id) && String(pos) === "hand");
+  const hasSimpleOnHand = Object.entries(mine).some(
+    ([id, pos]) => !isMother(id) && String(pos) === "hand",
+  );
   const motherActive = !hasSimpleOnHand;
-  return Object.entries(mine).some(([id, pos]) => canShipMove(id, pos, steps, mine, opp, motherActive));
+  return Object.entries(mine).some(([id, pos]) =>
+    canShipMove(id, pos, steps, mine, opp, motherActive),
+  );
 }
 
 function buildSnapshot(room: Room, side: Side): Snapshot {
@@ -221,8 +231,14 @@ function hashSnapshot(s: Snapshot): string {
   });
 }
 
-function buildShipStatuses(mine: Record<string, ShipPos>, opp: Record<string, ShipPos>, steps: number[]) {
-  const hasSimpleOnHand = Object.entries(mine).some(([id, pos]) => !isMother(id) && String(pos) === "hand");
+function buildShipStatuses(
+  mine: Record<string, ShipPos>,
+  opp: Record<string, ShipPos>,
+  steps: number[],
+) {
+  const hasSimpleOnHand = Object.entries(mine).some(
+    ([id, pos]) => !isMother(id) && String(pos) === "hand",
+  );
   const motherActive = !hasSimpleOnHand;
   const res: Record<string, ShipStatus> = {};
   for (const [id, pos] of Object.entries(mine)) {
@@ -240,10 +256,16 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
 
   const unsub = listeToRoomById(roomId, async (room: Room | undefined) => {
     if (!room) return;
+
     const turnSide = room.isTurn as Side | undefined;
     if (!turnSide) return;
+
+    const last = (room as RoomWithLastDice).lastDiceResult;
+    if (last === 6) return;
+
     const snap = buildSnapshot(room, turnSide);
     const h = hashSnapshot(snap);
+
     if (prevTurnSide !== snap.turnSide && prevTurnSide !== undefined) {
       await safeUpdate(roomId, {
         "shipsState/left": null,
@@ -255,15 +277,18 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
       });
       prevStatuses = null;
     }
+
     prevTurnSide = snap.turnSide;
+
     const nowJson = JSON.stringify(snap.stepsStrike);
     if (!lastSentSteps || lastSentSteps.side !== turnSide || lastSentSteps.json !== nowJson) {
-      await safeUpdate(roomId, { [`currentStepsStrike/${turnSide}`]: snap.stepsStrike } as FirebasePatch);
+      await safeUpdate(roomId, {
+        [`currentStepsStrike/${turnSide}`]: snap.stepsStrike,
+      } as FirebasePatch);
       lastSentSteps = { side: turnSide, json: nowJson };
     }
-    const last = (room as RoomWithLastDice).lastDiceResult;
-    const finalized = last !== 6;
-    if (finalized && snap.stepsStrike.length > 0) {
+
+    if (snap.stepsStrike.length > 0) {
       const statuses = buildShipStatuses(snap.shipsMine, snap.shipsOpp, snap.availableSteps);
       const patch: FirebasePatch = {};
       for (const [shipId, status] of Object.entries(statuses)) {
@@ -276,9 +301,14 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
         prevStatuses = statuses;
       }
       const can = Object.values(statuses).some((s) => s === "canMove");
-      await safeUpdate(roomId, { [`canPlayerMoveShips/${turnSide}`]: can } as FirebasePatch);
+      await safeUpdate(roomId, {
+        [`canPlayerMoveShips/${turnSide}`]: can,
+      } as FirebasePatch);
     }
-    if (prevHash !== h) prevHash = h;
+
+    if (prevHash !== h) {
+      prevHash = h;
+    }
   });
 
   return typeof unsub === "function" ? unsub : () => {};
