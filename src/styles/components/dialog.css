@@ -11,27 +11,18 @@
   display: grid;
 }
 
-.dialog.dialog-red,
-.dialog.dialog-red .dialog-list-item {
-  background-color: var(--player1-color);
-}
-
-.dialog.dialog-blue,
-.dialog.dialog-blue .dialog-list-item {
-  background-color: var(--player2-color);
-}
-
 .dialog.dialog--active .dialog-button::after {
   transform: rotate(-90deg);
 }
 
 .dialog-button {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 
   padding: 10px 5px;
-  background-color: var(--not-current-player-color);
+  background-color: var(--current-player-color);
 
   font-weight: bold;
 }

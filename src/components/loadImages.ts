@@ -59,7 +59,6 @@ export function loadImages() {
     .btn,
     .dialog-button,
     .dialog-list-item,
-    .form-field,
     .gm-close,
     .gm-btn,
     .cell-btn,
@@ -68,7 +67,8 @@ export function loadImages() {
     .board .cell:has(.ta-bump),
     .avatar-item,
     .dropdown-btn,
-    .dropdown-item {
+    .dropdown-item,
+    .color-item {
       cursor: ${getPointerCursor()};
     }
 

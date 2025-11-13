@@ -16,11 +16,13 @@ const section2 = document.querySelector("#player2") as HTMLElement;
 export const navigationBtns = (
   isMuted?: boolean,
   isHelperDisabled?: boolean,
-  shouldBeDark?: boolean
+  shouldBeDark?: boolean,
+  isRight?: boolean
 ) => {
   const iconColor = shouldBeDark ? "invert(1)" : "invert(0)";
   const helperIcon = isHelperDisabled ? helperOnSVG : helperOffSVG;
   const muteIcon = isMuted ? muted : unMuted;
+  const textColor = shouldBeDark ? "#000" : "#fff";
 
   return `
     <div class="btn-group" style="position: relative; z-index: 50">
@@ -55,13 +57,7 @@ export const navigationBtns = (
 
       <div class="gm-timer is-hidden">10</div>
     </div>
-  `;
-};
 
-const dialogBtn = (shouldBeDark?: boolean, isRight?: boolean) => {
-  const textColor = shouldBeDark ? "#000" : "#fff";
-
-  return `
     <div class="dialog">
       <div class="btn dialog-button ${
         shouldBeDark && "is-dark"
@@ -87,30 +83,28 @@ export function setUpPlayerBtns(currentPlayerSide?: Side, color?: string) {
   }
 
   let isIconDark = false;
-  let isColorDark = false;
 
   switch (currentPlayerSide) {
     default:
     case "left":
       isIconDark = colorsThatShouldUseDarkFont.includes(prevColor || "");
-      isColorDark = colorsThatShouldUseDarkFont.includes(color || "");
 
       wrapper1.innerHTML = navigationBtns(
         isMuted,
         isHelperDisabled,
         isIconDark
       );
-      wrapper2.innerHTML = dialogBtn(isColorDark, true);
+      wrapper2.innerHTML = '';
       break;
     case "right":
       isIconDark = colorsThatShouldUseDarkFont.includes(color || "");
-      isColorDark = colorsThatShouldUseDarkFont.includes(prevColor || "");
 
-      wrapper1.innerHTML = dialogBtn(isColorDark);
+      wrapper1.innerHTML = '';
       wrapper2.innerHTML = navigationBtns(
         isMuted,
         isHelperDisabled,
-        isIconDark
+        isIconDark,
+        true
       );
       break;
   }

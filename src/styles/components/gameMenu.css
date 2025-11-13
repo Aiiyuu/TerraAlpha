@@ -1,4 +1,9 @@
-/* Game Menu panel */
+.player-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .player-navigation .game-menu {
   width: 100%;
   max-width: 260px;
