@@ -44,7 +44,6 @@ import {
 import { ActionTypes } from "../types/action";
 import { getEndDate } from "../utility/getEndDate";
 import { initAutoEndTurnProbe } from "../utility/autoEndTurn";
-// import { getBlockedCursor, getPointerCursor } from "./cursor";
 
 type Side = "left" | "right";
 type FirebasePatch = Record<string, unknown>;
@@ -99,29 +98,33 @@ const safeUpdatePlayer = (
 
 function updateMotherLockByDOM(side: Side) {
   const prefix = side === "left" ? "p1" : "p2";
-  const hand = document.querySelector(`[data-qa="${prefix}-hand"]`);
+  const hand = document.querySelector<HTMLElement>(`[data-qa="${prefix}-hand"]`);
   if (!hand) return;
-  const hasSimple =
-    !!hand.querySelector(
-      `.cell-btn:not([data-ship="mother"]) .ship, .cell-btn[data-ship="simple"], .cell-btn:not([data-ship="mother"])[data-has-ship="1"], .cell-btn:not([data-ship="mother"])[data-occupied="1"]`
-    ) ||
-    Array.from(hand.querySelectorAll<HTMLButtonElement>(".cell-btn")).some(
-      (b) =>
-        b.getAttribute("data-ship") !== "mother" &&
-        b.innerHTML.trim().length > 0
-    );
+
   const motherBtn = hand.querySelector<HTMLButtonElement>(
-    `.cell-btn[data-ship="mother"]`
+    '.cell-btn[data-ship="mother"]'
   );
-  if (!motherBtn) return;
-  motherBtn.toggleAttribute("disabled", hasSimple);
+
+  const hasMother = !!motherBtn;
+
+  hand.style.border = hasMother ? "2px solid #444" : "none";
+
+  if (!motherBtn) {
+    return;
+  }
+
+  const hasSimple = Array.from(
+    hand.querySelectorAll<HTMLButtonElement>(".cell-btn")
+  ).some((btn) => btn !== motherBtn && btn.innerHTML.trim().length > 0);
+
+  motherBtn.disabled = hasSimple;
   motherBtn.setAttribute("aria-disabled", hasSimple ? "true" : "false");
   motherBtn.setAttribute("data-locked", hasSimple ? "1" : "0");
 }
 
 function watchHand(side: Side) {
   const prefix = side === "left" ? "p1" : "p2";
-  const hand = document.querySelector(`[data-qa="${prefix}-hand"]`);
+  const hand = document.querySelector<HTMLElement>(`[data-qa="${prefix}-hand"]`);
   if (!hand) return () => {};
   const observer = new MutationObserver(() => updateMotherLockByDOM(side));
   observer.observe(hand, {
@@ -145,7 +148,6 @@ function updateEndTurnDisabled(roomState: Room, mySide: Side | null) {
   if (mainBtn.getAttribute("data-type") === "end-turn") {
     mainBtn.disabled = hasSteps;
     mainBtn.classList.toggle("disabled", hasSteps);
-    // mainBtn.style.cursor = hasSteps ? getBlockedCursor() : getPointerCursor();
   }
 }
 
@@ -174,6 +176,16 @@ function renderStepsStrike(roomState: Room) {
     rightContainer.innerHTML = "";
   }
 
+  if (roomState.isDiceRolling) {
+    return;
+  }
+
+  const mySideAttr = document.body.getAttribute("data-my-side") as
+    | Side
+    | null;
+  const showLeft = !mySideAttr || mySideAttr !== "left";
+  const showRight = !mySideAttr || mySideAttr !== "right";
+
   const leftRaw = roomState.currentStepsStrike?.left;
   const rightRaw = roomState.currentStepsStrike?.right;
 
@@ -189,7 +201,7 @@ function renderStepsStrike(roomState: Room) {
     ? (Object.values(rightRaw as Record<string, number>) as number[])
     : [];
 
-  if (leftContainer) {
+  if (leftContainer && showLeft) {
     leftSteps.forEach((step, index) => {
       const el = document.createElement("div");
       el.className = "steps-strike__item steps-strike__item--left";
@@ -199,7 +211,7 @@ function renderStepsStrike(roomState: Room) {
     });
   }
 
-  if (rightContainer) {
+  if (rightContainer && showRight) {
     rightSteps.forEach((step, index) => {
       const el = document.createElement("div");
       el.className = "steps-strike__item steps-strike__item--right";
@@ -647,7 +659,6 @@ export function startGame(room: RoomEntry) {
       mainBtn.setAttribute("data-type", "dice");
       mainBtn.disabled = false;
       mainBtn.classList.remove("disabled");
-      // mainBtn.style.cursor = getPointerCursor();
       void addActionToRoom(roomId, {
         type: ActionTypes.HINT,
         endsAt: getEndDate(HELPER_END_TURN_DURATION),
