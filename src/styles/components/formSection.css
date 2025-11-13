@@ -15,6 +15,7 @@
 }
 
 .decorations .rocket {
+  z-index: 10;
   top: 35%;
   right: 20%;
   width: 172px;

@@ -11,7 +11,7 @@
 }
 
 #avatar-menu .avatar-item {
-  --block-size: 70px;
+  --block-size: 60px;
 
   position: relative;
   display: flex;

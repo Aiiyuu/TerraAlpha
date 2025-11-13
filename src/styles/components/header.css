@@ -23,8 +23,8 @@
 }
 
 .header .planet-1 {
-  top: 80%;
-  left: 40%;
+  top: 60%;
+  left: 80%;
   width: 150px;
   height: 150px;
   animation: rotation 40s linear infinite;
@@ -37,6 +37,7 @@
   height: 113px;
   animation: rotation 50s linear infinite;
 }
+
 
 .header-wrapper {
   overflow-y: scroll;
