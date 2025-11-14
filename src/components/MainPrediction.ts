@@ -291,19 +291,29 @@ export function initMainPrediction(roomId: Room["id"]): () => void {
     if (snap.stepsStrike.length > 0) {
       const statuses = buildShipStatuses(snap.shipsMine, snap.shipsOpp, snap.availableSteps);
       const patch: FirebasePatch = {};
+
       for (const [shipId, status] of Object.entries(statuses)) {
         if (!prevStatuses || prevStatuses[shipId] !== status) {
           (patch as Record<string, ShipStatus>)[`shipsState/${turnSide}/${shipId}`] = status;
         }
       }
+
+      const can = Object.values(statuses).some((s) => s === "canMove");
+      patch[`canPlayerMoveShips/${turnSide}`] = can;
+
+      if (!can) {
+        patch[`currentStepsStrike/${turnSide}`] = [];
+        const idx = turnSide === "left" ? 0 : 1;
+        if (Array.isArray(room.players) && room.players[idx]) {
+          patch[`players/${idx}/diceStreak`] = [];
+        }
+        lastSentSteps = { side: turnSide, json: "[]" };
+      }
+
       if (Object.keys(patch).length) {
         await safeUpdate(roomId, patch);
         prevStatuses = statuses;
       }
-      const can = Object.values(statuses).some((s) => s === "canMove");
-      await safeUpdate(roomId, {
-        [`canPlayerMoveShips/${turnSide}`]: can,
-      } as FirebasePatch);
     }
 
     if (prevHash !== h) {
