@@ -1,0 +1,32 @@
+.form-field-color .form-field-label {
+  color: var(--base-text-color);
+  margin-bottom: 20px;
+}
+
+#color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+#color-palette .color-item {
+  --block-size: 50px;
+
+  position: relative;
+  width: var(--block-size);
+  height: var(--block-size);
+}
+
+#color-palette .color-item.is-selected::before {
+  content: "";
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: calc(var(--block-size) + 15px);
+  height: calc(var(--block-size) + 15px);
+
+  border: 1px solid var(--base-text-color);
+}

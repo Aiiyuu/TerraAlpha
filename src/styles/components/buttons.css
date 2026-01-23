@@ -1,0 +1,160 @@
+.btn {
+  padding: 15px 20px;
+  border-radius: var(--radius);
+
+  transition: opacity var(--base-transition-duration) ease;
+  border: none;
+}
+
+.btn:hover {
+  opacity: 0.7;
+}
+
+.btn.btn-sm {
+  padding: 10px 15px;
+}
+
+.btn.btn--purple {
+  background: var(--purple-color);
+  color: var(--light-color)
+}
+
+.btn.btn--red {
+  background: var(--red-color);
+  color: var(--light-color)
+}
+
+.btn.btn--green {
+  background: var(--green-color);
+  color: var(--light-color)
+}
+
+.btn.btn--dark {
+  background: var(--dark-color);
+  color: var(--light-color)
+}
+
+#main-btn,
+#reset-btn,
+#helper-btn,
+#mute-btn,
+#lng-btn,
+#full-screen-btn {
+  background-color: var(--current-player-color);
+  color: #fff;
+}
+
+#main-btn[data-type="dice"] {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+#main-btn[data-type="dice"]::after {
+  content: "";
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 90%;
+  height: 90%;
+
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.buttons {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+#mute-btn,
+#reset-btn,
+#helper-btn,
+#lng-btn,
+#full-screen-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  width: 50px;
+  height: 50px;
+}
+
+#reset-btn img,
+#mute-btn img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 30px;
+  height: 30px;
+}
+
+#helper-btn svg {
+  width: 35px;
+  height: 35px;
+}
+
+#header-full-screen-btn svg,
+#full-screen-btn svg {
+  width: 25px;
+  height: 25px;
+}
+
+#helper-btn svg *,
+#full-screen-btn svg * {
+  fill: var(--light-color);
+}
+
+#lng-btn,
+#mute-btn,
+#helper-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#lng-btn img {
+  width: 60%;
+}
+
+@property --progress {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.reset-cooldown {
+  --cooldown-color: rgba(0, 0, 0, 0.7);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(var(--cooldown-color) 0deg, var(--cooldown-color) var(--progress, 0deg), transparent 0deg);
+}
+
+@keyframes cooldown-progress {
+  from {
+    --progress: 360deg;
+  }
+
+  to {
+    --progress: 0deg;
+  }
+}

@@ -1,0 +1,124 @@
+.dialog {
+  position: relative;
+  color: #fff;
+  border-radius: var(--dialog-radius);
+
+  --transition-time: 300ms;
+  --dialog-radius: 10px;
+}
+
+.dialog.dialog--active .dialog-list {
+  display: grid;
+}
+
+.dialog.dialog--active .dialog-button::after {
+  transform: rotate(-90deg);
+}
+
+.dialog-button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 10px 5px;
+  background-color: var(--current-player-color);
+
+  font-weight: bold;
+}
+
+.dialog-button::after {
+  display: inline-block;
+  content: "";
+
+  margin-left: 10px;
+  width: 15px;
+  height: 15px;
+  transform: rotate(90deg) scaleY(-1);
+  transition: transform var(--transition-time) ease;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.dialog-button.is-dark::after {
+  filter: invert(1);
+}
+
+.dialog-list {
+  position: absolute;
+  top: calc(100% + 10px);
+  overflow-y: hidden;
+  z-index: 2;
+
+  margin-bottom: 25px;
+  max-height: 400px;
+  padding: 20px;
+  border-radius: var(--dialog-radius);
+  border: 1px solid var(--dark-color);
+  background-color: #43334Ca0;
+  backdrop-filter: blur(20px);
+
+  display: none;
+  grid-template-columns: repeat(2, 200px);
+  gap: 20px;
+
+  transition: all var(--transition-time) ease;
+}
+
+.dialog-list-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.dialog-list.is-right {
+  right: 0;
+}
+
+.dialog-list-item img {
+  width: 60px;
+}
+
+.dialog-list-item p {
+  text-align: start;
+  font-weight: bold;
+  margin-left: 15px;
+}
+
+.dialog-phrase {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-50%);
+  animation: fly 15s forwards linear;
+}
+
+.dialog-phrase-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 15px;
+
+  color: #fff;
+  background-color: rgba(19, 36, 64, 0.4);
+  border: 1px solid #132440;
+  border-radius: 20px;
+}
+
+.dialog-phrase img {
+  margin-right: 20px;
+  height: 100px;
+}
+
+.dialog-phrase-wrapper span {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.dialog-phrase-wrapper p {
+  font-weight: normal;
+}

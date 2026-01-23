@@ -1,0 +1,228 @@
+.hand-grid .cell-btn {
+  --ship-scale: 1;
+  padding: 3px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 4px;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  opacity: 0.85;
+  outline: none;
+  transform: scale(var(--ship-scale));
+}
+
+.hand-grid .cell-btn:hover,
+.hand-grid .cell-btn:focus {
+  --ship-scale: 1.1;
+  opacity: 1;
+}
+
+.cell-btn {
+  display: grid;
+  place-items: center;
+  line-height: 0;
+  pointer-events: auto;
+}
+
+.cell-btn > * {
+  pointer-events: none;
+}
+
+.cell-btn svg {
+  display: block;
+  width: 55px;
+  height: 55px;
+}
+
+#player1 .hand-grid [data-qa$='cell-8'],
+#player2 .hand-grid [data-qa$='cell-8'],
+[data-qa='p1-cell-8']:not(.ignore-ship-style),
+[data-qa='p2-cell-8']:not(.ignore-ship-style) {
+  --ship-scale: 1.2;
+}
+
+#player1 .cell-btn svg #corpus path,
+[data-qa^="p1-"].cell-btn svg #corpus path {
+  fill: var(--player1-color);
+}
+
+#player2 .cell-btn svg #corpus path,
+[data-qa^="p2-"].cell-btn svg #corpus path {
+  fill: var(--player2-color);
+}
+
+#player1 .hand-grid .cell-btn:hover,
+#player1 .hand-grid .cell-btn:focus {
+  box-shadow: 0 0 0 2px var(--player1-color);
+}
+
+#player2 .hand-grid .cell-btn:hover,
+#player2 .hand-grid .cell-btn:focus {
+  box-shadow: 0 0 0 2px var(--player2-color);
+}
+
+#player1 .hand-grid [data-qa$='cell-8']:hover,
+#player1 .hand-grid [data-qa$='cell-8']:focus,
+#player2 .hand-grid [data-qa$='cell-8']:hover,
+#player2 .hand-grid [data-qa$='cell-8']:focus {
+  --ship-scale: 1.5;
+}
+
+.board .cell {
+  position: relative;
+}
+
+.board .cell > .cell-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  opacity: 1;
+  outline: none;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%) scale(var(--ship-scale));
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.board .cell > .cell-btn svg {
+  width: 100%;
+  height: 100%;
+}
+
+.board .cell::before,
+.board .cell::after,
+.board .cell.is-predicted::before,
+.board .cell.is-predicted::after {
+  pointer-events: none;
+}
+
+.board .cell.is-forecast > .cell-btn {
+  position: relative;
+  z-index: 3;
+}
+
+.board .cell > .cell-btn:hover:not(.is-disabled),
+.board .cell > .cell-btn:focus:not(.is-disabled) {
+  --ship-scale: 1.1;
+}
+
+.board .cell > .cell-btn[data-qa^="p1-cell-"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa^="p1-cell-"]:focus:not(.is-disabled) {
+  box-shadow: 0 0 0 2px var(--player1-color);
+}
+
+.board .cell > .cell-btn[data-qa^="p2-cell-"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa^="p2-cell-"]:focus:not(.is-disabled) {
+  box-shadow: 0 0 0 2px var(--player2-color);
+}
+
+.board .cell > .cell-btn[data-qa="p1-cell-8"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p1-cell-8"]:focus:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p2-cell-8"]:hover:not(.is-disabled),
+.board .cell > .cell-btn[data-qa="p2-cell-8"]:focus:not(.is-disabled) {
+  --ship-scale: 1.5;
+}
+
+.hand-grid .cell-btn.is-disabled,
+.board .cell > .cell-btn.is-disabled,
+.ship.is-disabled,
+[data-ship].is-disabled,
+.is-disabled {
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.ship-merge-vibrate {
+  animation: ship-vibrate 0.25s linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@keyframes ship-vibrate {
+  0% { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
+  25% { transform: translate(-50%, -50%) scale(1.5) translateX(-1px); }
+  50% { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
+  75% { transform: translate(-50%, -50%) scale(1.5) translateX(1px); }
+  100% { transform: translate(-50%, -50%) scale(1.5) translateX(0); }
+}
+
+.ta-bump {
+  animation: ta-bump 0.28s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes ta-bump {
+  0% { transform: translate(-50%, -50%) translateX(0); }
+  25% { transform: translate(-50%, -50%) translateX(-2px); }
+  50% { transform: translate(-50%, -50%) translateX(0); }
+  75% { transform: translate(-50%, -50%) translateX(2px); }
+  100% { transform: translate(-50%, -50%) translateX(0); }
+}
+
+.board .cell.is-predicted:has(.ta-bump)::before,
+.board .cell.is-predicted:has(.ta-bump)::after {
+  display: none;
+}
+
+.cell-btn.swap-out {
+  animation: ta-swap-out 0.5s ease both;
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+@keyframes ta-swap-out {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+  80% { opacity: .15; transform: translate(-50%, -50%) rotate(220deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(260deg); }
+}
+
+.cell-btn.swap-in {
+  animation: ta-swap-in 0.2s cubic-bezier(.2,.8,.3,1) both;
+  transform-origin: center center;
+}
+
+@keyframes ta-swap-in {
+  0% { transform: translate(-50%, -50%) scale(.88); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.board .cell > .cell-btn.is-overlay {
+  z-index: 5;
+}
+
+.cell-btn.over-spin {
+  animation: ta-over-spin 1.3s ease both;
+  transform-origin: center center;
+}
+
+@keyframes ta-over-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+  60% { transform: translate(-50%, -50%) rotate(220deg); opacity: .2; }
+  100% { transform: translate(-50%, -50%) rotate(350deg); opacity: 0; }
+}
+
+body.side-left .cell-btn[data-side="right"],
+body.side-left .hand-grid .cell-btn[data-side="right"],
+body.side-right .cell-btn[data-side="left"],
+body.side-right .hand-grid .cell-btn[data-side="left"] {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+body.not-my-turn .cell-btn[data-side],
+body.not-my-turn .hand-grid .cell-btn[data-side] {
+  pointer-events: none;
+  opacity: 0.4;
+}

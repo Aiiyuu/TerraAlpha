@@ -1,0 +1,38 @@
+.avatars .form-field-label {
+  font-size: 16px;
+  color: var(--base-text-color);
+  margin-bottom: 20px;
+}
+
+#avatar-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+#avatar-menu .avatar-item {
+  --block-size: 60px;
+
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#avatar-menu .avatar-item img {
+  width: var(--block-size);
+}
+
+#avatar-menu .avatar-item.is-selected::before {
+  content: "";
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: calc(var(--block-size) + 15px);
+  height: calc(var(--block-size) + 15px);
+
+  border: 1px solid var(--base-text-color);
+}

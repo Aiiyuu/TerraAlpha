@@ -1,0 +1,212 @@
+.header {
+  overflow-y: scroll;
+  width: 100vw;
+  height: 100vh;
+}
+
+.header .astronaut,
+.header .planet-1,
+.header .comet {
+  z-index: 2;
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.header .astronaut {
+  top: 35%;
+  right: 22%;
+  width: 261px;
+  height: 277px;
+  animation: vacillation 10s ease infinite alternate, slide-up 10s ease forwards;
+}
+
+.header .planet-1 {
+  top: 60%;
+  left: 80%;
+  width: 150px;
+  height: 150px;
+  animation: rotation 40s linear infinite;
+}
+
+.header .comet {
+  top: 20%;
+  right: 10%;
+  width: 114px;
+  height: 113px;
+  animation: rotation 50s linear infinite;
+}
+
+
+.header-wrapper {
+  overflow-y: scroll;
+  position: relative;
+  z-index: 3;
+  max-width: var(--max-page-width);
+  margin-inline: auto;
+  padding: var(--page-margin-y) var(--page-margin-x);
+}
+
+.header-section>* {
+  margin-bottom: 20px;
+  margin-top: 20px;
+
+}
+
+.header-title {
+  color: var(--purple-color);
+  animation: slide-fade-up var(--scroll-animation-duration) forwards ease;
+}
+
+#home .header-title {
+  font-weight: bold;
+  font-size: 64px;
+}
+
+/* quick actions instead of dots */
+.header-quick-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-quick-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius);
+  opacity: 0;
+  animation: slide-fade-up var(--scroll-animation-duration) forwards ease;
+  transition: transform .15s ease;
+}
+
+.header-quick-actions .btn:nth-child(1) {
+  animation-delay: 100ms;
+}
+
+.header-quick-actions .btn:nth-child(2) {
+  animation-delay: 180ms;
+}
+
+.header-quick-actions .btn:hover {
+  transform: translateY(-1px);
+}
+
+.header-quick-actions .btn:active {
+  transform: translateY(0);
+}
+
+.btn.btn--icon {
+  padding: 10px;
+  width: 50px;
+  height: 50px;
+}
+
+.btn.btn--icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.header-button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.header-button-group .btn {
+  opacity: 0;
+  width: 100%;
+}
+
+.header-button-group .btn:nth-child(1) {
+  animation: slide-fade-up var(--scroll-animation-duration) 200ms forwards ease;
+}
+
+.header-button-group .btn:nth-child(2) {
+  animation: slide-fade-up var(--scroll-animation-duration) 300ms forwards ease;
+}
+
+.header-button-group .btn:nth-child(3) {
+  animation: slide-fade-up var(--scroll-animation-duration) 400ms forwards ease;
+}
+
+@media (min-width: 900px) {
+  .header-text {
+    width: 40%;
+  }
+}
+
+@media (min-width: 500px) {
+  .header-button-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}
+
+@keyframes vacillation {
+  from {
+    rotate: -30deg;
+  }
+
+  to {
+    rotate: 30deg;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100vh);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotation {
+  from {
+    rotate: 0;
+  }
+
+  to {
+    rotate: -360deg;
+  }
+}
+
+@keyframes slide-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.online-counter {
+  text-align: end;
+  margin-top: 6px;
+  font-size: 20px;
+  color: var(--green-color);
+  letter-spacing: 0.3px;
+}
+
+#online-count {
+  margin-right: 6px;
+}
+
+.header-section {
+  max-width: var(--max-section-width);
+  width: 100%;
+}

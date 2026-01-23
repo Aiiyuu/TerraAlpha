@@ -1,0 +1,62 @@
+#steps-container {
+  margin-bottom: 12px;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.steps-wrap {
+  margin-top: 25px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.steps-btn {
+  min-width: 60px;
+  min-height: 60px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  border-radius: 12px;
+  background-color: var(--btn-bg, #f8f8f8);
+  color: var(--btn-text, #222);
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.steps-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.steps-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.steps-btn:disabled {
+  opacity: 0.5;
+}
+
+.steps-btn--left {
+  background-color: var(--player1-color);
+  color: #fff;
+}
+
+.steps-btn--right {
+  background-color: var(--player2-color);
+  color: #fff;
+}
+
+body.steps-hidden #steps-container {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#steps-container[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.55;
+  filter: grayscale(10%);
+}
+
+#steps-container[aria-disabled="true"] .steps-btn {
+  cursor: not-allowed;
+}

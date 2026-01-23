@@ -1,18 +1,406 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="uk">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>testing-game</title>
+    <meta charset="utf-8" />
+    <title>Terra Alpha</title>
+    <link rel="icon" type="image/png" href="/public/favicon3.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./src/styles/style.css" />
 
-    <link rel="stylesheet" href="./src/styles/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Outfit:wght@100..900&family=Pacifico&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik+Mono+One&display=swap"
+      rel="stylesheet"
+    />
   </head>
+
   <body>
-    <div id="app">
-      <h1>Check if styles are working</h1>
+    <header id="home" class="header theme-font-size theme-font-size">
+      <div class="header-wrapper">
+        <section class="header-section">
+          <h1 class="header-title">Terra Alpha</h1>
+
+          <div class="header-quick-actions">
+            <div class="navigation-btns-wrapper">
+              <button
+                id="header-lng-btn"
+                class="btn btn--icon theme-color"
+                aria-label="Language"
+              ></button>
+
+              <button
+                id="header-hint-btn"
+                class="btn btn--icon theme-color theme-icon"
+                aria-label="Hints"
+              ></button>
+
+              <button
+                id="header-full-screen-btn"
+                class="btn btn--icon theme-color theme-icon"
+                aria-label="Full Screen"
+              ></button>
+            </div>
+
+            <div class="dropdown-wrapper">
+              <div id="theme-cursor-dropdown" class="dropdown">
+                <button class="dropdown-btn theme-icon"></button>
+                <div class="dropdown-list-wrapper">
+                  <ul class="dropdown-list"></ul>
+                </div>
+              </div>
+
+              <div id="theme-font-family-dropdown" class="dropdown">
+                <button class="dropdown-btn theme-icon"></button>
+                <div class="dropdown-list-wrapper">
+                  <ul class="dropdown-list"></ul>
+                </div>
+              </div>
+
+              <div id="theme-font-size-dropdown" class="dropdown">
+                <button class="dropdown-btn theme-icon"></button>
+                <div class="dropdown-list-wrapper">
+                  <ul class="dropdown-list"></ul>
+                </div>
+              </div>
+
+              <div id="theme-dropdown" class="dropdown">
+                <button class="dropdown-btn theme-icon"></button>
+                <div class="dropdown-list-wrapper">
+                  <ul class="dropdown-list"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <input
+              type="text"
+              id="player-name"
+              class="form-field-input"
+              data-lng-placeholder="playerNamePlaceholder"
+            />
+          </div>
+
+          <div class="form-field form-field-color">
+            <h4 class="form-field-label" data-lng="playerColorInput"></h4>
+            <div id="color-palette"></div>
+          </div>
+
+          <div id="avatars" class="avatars">
+            <h4 class="form-field-label" data-lng="playerAvatarInput"></h4>
+            <div id="avatar-menu"></div>
+          </div>
+
+          <div class="header-button-group">
+            <button
+              id="navigation-fast-game-btn"
+              class="btn theme-color"
+              data-lng="fastGameBtn"
+            ></button>
+            <button
+              id="navigation-select-room-btn"
+              class="btn theme-color"
+              data-lng="selectRoomBtn"
+            ></button>
+            <button
+              id="navigation-create-room-btn"
+              class="btn theme-color"
+              data-lng="createRoomBtn"
+            ></button>
+          </div>
+
+          <div class="online-counter">
+            <p>
+              <span id="online-count">0</span>
+              <span data-lng="playersOnline"></span>
+            </p>
+          </div>
+
+          <div class="gchat-wrapper">
+            <div class="gchat" aria-label="Global chat input">
+              <input
+                type="text"
+                id="gchat-message"
+                class="gchat__message theme-color"
+                data-lng-placeholder="typeAMessage"
+                minlength="1"
+                maxlength="800"
+                required
+                autocomplete="off"
+              />
+              <button
+                id="gchat-emoji"
+                class="gchat__emoji btn theme-color"
+                aria-label="Emoji picker"
+              >
+                😊
+              </button>
+              <button
+                id="gchat-send"
+                class="gchat__send btn theme-color theme-icon"
+              ></button>
+            </div>
+
+            <div
+              class="gchat-log"
+              id="gchat-log"
+              aria-live="polite"
+              aria-label="Chat messages"
+            >
+              <ul class="gchat-log__list theme-color" id="gchat-log-list"></ul>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="astronaut"></div>
+      <div class="planet-1"></div>
+      <div class="comet"></div>
+    </header>
+
+    <main>
+      <section
+        id="form-section"
+        class="form-section is-hidden theme-font-size theme-font-size"
+      >
+        <div class="decorations">
+          <div class="rocket"></div>
+          <div class="star"></div>
+        </div>
+
+        <form id="form" class="form-wrapper">
+          <div class="form">
+            <a href="#" class="form-brand" data-lng="logo"></a>
+
+            <div class="form-field-group">
+              <div id="room-field" class="form-field">
+                <input
+                  type="text"
+                  id="room-name"
+                  class="form-field-input"
+                  data-lng-placeholder="roomNamePlaceholder"
+                />
+              </div>
+            </div>
+
+            <div id="table"></div>
+          </div>
+
+          <button
+            type="submit"
+            id="create-room-btn"
+            class="btn theme-color"
+            data-lng="createRoomBtn"
+          ></button>
+          <button
+            type="button"
+            id="back-to-home"
+            class="btn theme-color"
+            data-lng="backToHomePageBtn"
+          ></button>
+        </form>
+      </section>
+
+      <div id="game" class="is-hidden">
+        <section id="player1" class="player-section">
+          <div class="player-info">
+            <h2 class="player-name">PLAYER 1</h2>
+          </div>
+
+          <div class="player-navigation"></div>
+
+          <div class="steps-strike" data-qa="p1-steps-strike"></div>
+
+          <div class="hand-grid mx-auto" data-qa="p1-hand">
+            <button class="cell-btn" data-qa="p1-cell-1"></button>
+            <button class="cell-btn" data-qa="p1-cell-2"></button>
+            <button class="cell-btn" data-qa="p1-cell-3"></button>
+            <button class="cell-btn" data-qa="p1-cell-4"></button>
+            <button class="cell-btn" data-qa="p1-cell-5"></button>
+            <button class="cell-btn" data-qa="p1-cell-6"></button>
+            <button class="cell-btn" data-qa="p1-cell-7"></button>
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p1-cell-8"
+              data-ship="mother"
+            ></button>
+          </div>
+        </section>
+
+        <section class="middle-section">
+          <div class="game-header">
+            <div class="timer" id="timer">
+              <svg
+                width="206"
+                height="70"
+                viewBox="0 0 206 70"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.0447388 3.57628e-07H10.5384H195.102H205.445C199.449 1.1187 195.102 6.35182 195.102 12.4511V32.0748V60C195.102 65.5229 190.624 70 185.102 70H20.5384C15.0156 70 10.5384 65.5229 10.5384 60V32.0748V12.5994C10.5384 6.41789 6.12428 1.11802 0.0447388 3.57628e-07Z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div class="board" data-qa="board">
+            <div class="cell" data-qa="field-15"><span>15</span></div>
+            <div class="cell" data-qa="field-14"><span>14</span></div>
+            <div class="cell" data-qa="field-13"><span>13</span></div>
+            <div class="cell cell--red cell--arrow" data-qa="field-12-0"></div>
+            <div class="cell" data-qa="field-11"><span>11</span></div>
+            <div class="cell" data-qa="field-10"><span>10</span></div>
+            <div class="cell" data-qa="field-9"><span>9</span></div>
+            <div class="cell" data-qa="field-16"><span>16</span></div>
+
+            <div class="cell cell--empty" data-qa="r2c2"></div>
+            <div class="cell cell--empty" data-qa="r2c3"></div>
+            <div class="cell cell--arrow" data-qa="field-12-1"></div>
+            <div class="cell cell--empty" data-qa="r2c5"></div>
+            <div class="cell cell--empty" data-qa="r2c6"></div>
+
+            <div class="cell" data-qa="field-8"><span>8</span></div>
+            <div class="cell" data-qa="field-17"><span>17</span></div>
+
+            <div class="cell cell--empty" data-qa="r3c2"></div>
+            <div class="cell cell--empty" data-qa="r3c3"></div>
+            <div class="cell cell--double-arrow" data-qa="field-12-2"></div>
+            <div class="cell cell--empty" data-qa="r3c5"></div>
+            <div class="cell cell--empty" data-qa="r3c6"></div>
+
+            <div class="cell" data-qa="field-7"><span>7</span></div>
+
+            <div class="cell cell--red cell--arrow" data-qa="field-18-0"></div>
+            <div class="cell cell--arrow" data-qa="field-18-1"></div>
+            <div class="cell cell--double-arrow" data-qa="field-18-2"></div>
+            <div class="cell cell--final" data-qa="final-0"></div>
+            <div class="cell cell--double-arrow" data-qa="field-6-2"></div>
+            <div class="cell cell--arrow" data-qa="field-6-1"></div>
+            <div class="cell cell--red cell--arrow" data-qa="field-6-0"></div>
+
+            <div class="cell" data-qa="field-19"><span>19</span></div>
+
+            <div class="cell cell--empty" data-qa="r5c2"></div>
+            <div class="cell cell--empty" data-qa="r5c3"></div>
+            <div class="cell cell--final cell--final-1" data-qa="final-1"></div>
+            <div class="cell cell--empty" data-qa="r5c5"></div>
+            <div class="cell cell--empty" data-qa="r5c6"></div>
+
+            <div class="cell" data-qa="field-5"><span>5</span></div>
+            <div class="cell" data-qa="field-20"><span>20</span></div>
+
+            <div class="cell cell--empty" data-qa="r6c2"></div>
+            <div class="cell cell--empty" data-qa="r6c3"></div>
+            <div class="cell cell--final cell--final-2" data-qa="final-2"></div>
+            <div class="cell cell--empty" data-qa="r6c5"></div>
+            <div class="cell cell--empty" data-qa="r6c6"></div>
+
+            <div class="cell" data-qa="field-4"><span>4</span></div>
+            <div class="cell" data-qa="field-21"><span>21</span></div>
+            <div class="cell" data-qa="field-22"><span>22</span></div>
+            <div class="cell" data-qa="field-23"><span>23</span></div>
+            <div
+              class="cell cell--arrow cell--white"
+              data-qa="field-24-0"
+            ></div>
+            <div class="cell cell--start" data-qa="field-1"><span>1</span></div>
+            <div class="cell" data-qa="field-2"><span>2</span></div>
+            <div class="cell" data-qa="field-3"><span>3</span></div>
+          </div>
+
+          <div class="buttons">
+            <button id="main-btn" class="btn" data-type="dice"></button>
+          </div>
+        </section>
+
+        <section id="player2" class="player-section">
+          <div class="player-info">
+            <h2 class="player-name">PLAYER 2</h2>
+          </div>
+
+          <div class="player-navigation"></div>
+
+          <div class="steps-strike" data-qa="p2-steps-strike"></div>
+
+          <div class="hand-grid mx-auto" data-qa="p2-hand">
+            <button class="cell-btn" data-qa="p2-cell-1"></button>
+            <button class="cell-btn" data-qa="p2-cell-2"></button>
+            <button class="cell-btn" data-qa="p2-cell-3"></button>
+            <button class="cell-btn" data-qa="p2-cell-4"></button>
+            <button class="cell-btn" data-qa="p2-cell-5"></button>
+            <button class="cell-btn" data-qa="p2-cell-6"></button>
+            <button class="cell-btn" data-qa="p2-cell-7"></button>
+            <button
+              class="cell-btn cell-btn-main"
+              data-qa="p2-cell-8"
+              data-ship="mother"
+            ></button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div class="dice-container"></div>
+
+    <div class="coin-container">
+      <div class="coin">
+        <div class="coin-face">
+          <img src="./src/assets/icons/point.png" alt="" />
+        </div>
+        <div class="coin-back">
+          <img src="./src/assets/icons/point.png" alt="" />
+        </div>
+      </div>
     </div>
 
-    <script type="module" src="/src/main.ts"></script>
+    <div id="dialog-container" class="dialog-container"></div>
+
+    <div id="helper-container" class="helper">
+      <div id="helper-icon" class="helper-icon"></div>
+      <div class="helper-wrapper">
+        <p id="helper-text" class="helper-text"></p>
+        <div id="helper-btns" class="helper-btn-group">
+          <button id="helper-accept-btn" class="btn btn--green btn-sm">
+            <img src="./src/assets/icons/check.png" alt="accept" />
+          </button>
+          <button id="helper-reject-btn" class="btn btn--red btn-sm">
+            <img src="./src/assets/icons/cross.png" alt="reject" />
+          </button>
+        </div>
+        <div id="helper-progress-bar" class="helper-progress-bar"></div>
+      </div>
+    </div>
+
+    <div class="end-game-section is-hidden">
+      <div class="winner-section is-hidden">
+        <canvas id="fireworks"></canvas>
+      </div>
+
+      <div class="loser-section is-hidden">
+        <canvas id="storm"></canvas>
+      </div>
+
+      <div class="navigation-block">
+        <div class="navigation-wrapper">
+          <div class="navigation-top">
+            <h3 class="winner-msg is-hidden" data-lng="gameWinner"></h3>
+            <h3 class="loser-msg is-hidden" data-lng="gameLoser"></h3>
+          </div>
+
+          <div class="navigation-bottom">
+            <div class="navigation-robot">
+              <div class="winner-robot is-hidden"></div>
+              <div class="loser-robot is-hidden"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ribbons-container" class="ribbons"></div>
+
+    <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

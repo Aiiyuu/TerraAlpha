@@ -1,0 +1,204 @@
+{
+  "en": {
+    "logo": "Some <span>Logo</span>",
+    "fastGameBtn": "Fast Game",
+    "selectRoomBtn": "Select Room",
+    "createRoomBtn": "Create Room",
+    "backToHomePageBtn": "Back to home page",
+    "playerNameInput": "Player's name",
+    "playerColorInput": "Player's color",
+    "playerAvatarInput": "Player's avatar",
+    "roomNameInput": "Room's name",
+    "noRooms": "No available rooms found",
+    "name": "Name",
+    "author": "Author",
+    "date": "Date",
+    "playersCount": "Players",
+    "throwPhrase": "Throw Phrase",
+    "gameWinner": "🎉 Congrats! You won the game! 🏆",
+    "gameLoser": "💀 Not this time — try again! 🍀",
+    "restart": "Restart",
+    "exit": "Exit",
+    "gameMenu": "Game Menu",
+    "yes": "Yes",
+    "no": "No",
+    "playersOnline": "online",
+    "typeAMessage": "Type a message...",
+    "playerNamePlaceholder": "Player name...",
+    "roomNamePlaceholder": "Room name...",
+    "helper": {
+      "welcome": "🤖 Welcome, Commander! Roll the dice and move your ships to the finish. First to finish wins! 🚀",
+      "acceptRestart": "✅ {name} accepted the restart. Rebooting!",
+      "rejectRestart": "❌ {name} rejected the restart.",
+      "coinWinner": {
+        "current": "☘️ You won the coin toss! Your turn 🎲",
+        "other": "☘️ {name} won the coin toss. Their turn."
+      },
+      "diceStreak": {
+        "current": "🎲 You rolled a 6! Roll again!",
+        "other": "🎲 Opponent rolled a 6! They roll again!"
+      },
+      "diceRes": {
+        "current": "🎲 You rolled {res}.",
+        "other": "🎲 Opponent rolled {res}."
+      },
+      "notYourTurn": "🚫 Not your turn!",
+      "timerWarning": "⏰ Hurry up!",
+      "otherPlayerTurnEnded": "✅ Opponent finished their turn. Your move!",
+      "blocks": {
+        "1": "🤖 1. Intro Initialization\n\nWelcome, Commander. I am the navigation intelligence of your fleet.\nTwo fleets of colonists have embarked on a quest to find a new home.\nRoll the dice. Move your fleet. Be the first to reach the Finish — and the Galaxy will recognize you as the leader.",
+        "2": "🎲 2. Dice Roll\n\nAnalyzing the roll...\nEach number represents the number of steps forward.\nIf you roll a six — you'll get five steps and an additional roll.\nAnother six? The system confirms — another bonus.\nExample calculation: 6 + 6 + 3 = 5 + 5 + 3 steps.",
+        "3": "📅 3. Mission Start\n\nInitialization of the start.\nThe first player is chosen by the coin.\nToss it — and let fate start the simulation.",
+        "4": "🚀 4. Piece Movement\n\nActivate your ship from 'Start' and move counterclockwise.\nYou can control one or several ships. You can combine moves.\n5+5+3 = 10+3 = 8+5 = 13.\nWarning: finishing the turn on an occupied space is forbidden by protocol.",
+        "5": "⚠️ 5. Trap Field\n\nWarning! The gravity trap field is activated.\nYour ship is being pulled deeper...\nIf both slots are occupied — the sector is blocked for movement.",
+        "6": "🌌 6. Spaceport ⚪️🔘\n\nTransport zone — 'Spaceport'.\nMovement through the near tunnel, then the far one.\nIf both are occupied — the sector closes until further notice.",
+        "7": "🛸 7. Cruiser\n\nFlagship detected — Cruiser.\nIts appearance is allowed only after deploying other fleet ships.\nThe Cruiser can unite the fleet — other ships join it and move together.\nIt can also be followed by friendly ships.",
+        "8": "🏁 8. Finish⬜️\n\nScanning Finish coordinates...\nTo enter, you only need to roll the required or a higher number of steps.\nExact number is not required.\nThe goal is to reach the destination first. Priority — maximum.",
+        "9": "💥 9. Blocked\n\nMove error⛔️. The available steps cannot be executed.\nStatus: blocked.\nUnused steps are nullified.\nTurn passed to the opponent.\nRecommendation: accept it."
+      }
+    },
+    "phrases": {
+      "1": "Oh, lucky, lucky!",
+      "2": "Eh, you loser!",
+      "3": "Now I’ll show you where the crayfish winter!",
+      "4": "One more step and victory!",
+      "5": "You won’t outrun me!",
+      "6": "You're a machine!",
+      "7": "Not today, buddy",
+      "8": "That was epic!",
+      "9": "The game isn’t over yet"
+    },
+    "themes": {
+      "dark": "Dark",
+      "light": "Light",
+      "pink": "Pink",
+      "green": "Green",
+      "orange": "Orange"
+    },
+    "font-sizes": {
+      "small": "Small",
+      "base": "Base",
+      "medium": "Medium",
+      "large": "Large",
+      "extra-large": "Extra Large"
+    },
+    "font-families": {
+      "roboto": "Roboto",
+      "oswald": "Oswald",
+      "outfit": "Outfit",
+      "pacifico": "Pacifico",
+      "rubik": "Rubik"
+    },
+    "cursors": {
+      "trail": "Trail",
+      "sparkle": "Sparkle",
+      "firing": "Firing",
+      "rainbow": "Rainbow",
+      "fireworks": "Fireworks",
+      "snowfall": "Snowfall",
+      "aura": "Confetti",
+      "comet": "Comet"
+    }
+  },
+  "ua": {
+    "logo": "Якийсь <span>Логотип</span>",
+    "fastGameBtn": "Швидка Гра",
+    "selectRoomBtn": "Вибрати Кімнату",
+    "createRoomBtn": "Створити Кімнату",
+    "backToHomePageBtn": "Назад на головну сторінку",
+    "playerNameInput": "Імʼя гравця",
+    "playerColorInput": "Колір гравця",
+    "playerAvatarInput": "Аватарка гравця",
+    "roomNameInput": "Імʼя кімнати",
+    "noRooms": "Незнайдено вільних кімнат",
+    "name": "Назва",
+    "author": "Автор",
+    "date": "Дата",
+    "playersCount": "Ігроки",
+    "throwPhrase": "Кинути Фразу",
+    "gameWinner": "🎉 Вітаємо! Ви виграли гру! 🏆",
+    "gameLoser": "💀 Цього разу не вийшло — спробуй ще! 🍀",
+    "restart": "Перезапустити",
+    "exit": "Вийти",
+    "gameMenu": "Ігрове Меню",
+    "yes": "Так",
+    "no": "Ні",
+    "playersOnline": "онлайн",
+    "typeAMessage": "Напишіть повідомлення...",
+    "playerNamePlaceholder": "Імʼя гравця...",
+    "roomNamePlaceholder": "Імʼя кімнати...",
+    "helper": {
+      "welcome": "🤖 Вітаю, командире! Кинь кубик і веди флот до фінішу. Хто перший — той чемпіон! 🚀",
+      "acceptRestart": "✅ {name} погодив(ла) перезапуск. Перезавантаження!",
+      "rejectRestart": "❌ {name} відхилив(ла) перезапуск.",
+      "coinWinner": {
+        "current": "☘️ Ти виграв у монетку! Твій хід 🎲",
+        "other": "☘️ {name} виграв(ла) у монетку. Його(її) хід."
+      },
+      "diceStreak": {
+        "current": "🎲 Тобі випало 6! Кидай ще раз!",
+        "other": "🎲 Кубик кинув 6! Суперник кидає ще раз!"
+      },
+      "diceRes": {
+        "current": "🎲 Тобі випало {res}.",
+        "other": "🎲 Cуперник викинув {res}."
+      },
+      "notYourTurn": "🚫 Зараз не твій хід!",
+      "timerWarning": "⏰ Швидше!",
+      "otherPlayerTurnEnded": "✅ Суперник закінчив хід. Твоя черга!",
+      "blocks": {
+        "1": "🤖 1. Вступна ініціалізація\n\nВітаю, командире. Я — навігаційний інтелект вашої флотилії.\nДва флоти колоністів вирушили на пошуки нової домівки.\nКидай кубик. Рухай флот. Досягни Фінішу першим — і Галактика визнає тебе лідером.",
+        "2": "🎲 2. Кидок кубика\n\nАналізую результат кидка...\nКожне число — кількість кроків уперед.\nЯкщо випала шістка — отримаєш п’ять кроків і додатковий кидок.\nПовторна шістка? Система підтверджує — ще один бонус.\nПриклад обчислення: 6 + 6 + 3 = 5 + 5 + 3 кроки.",
+        "3": "📅 3. Початок місії\n\nІніціалізація старту.\nПершим діє той, кого обере монетка.\nПідкинь її — і дозволь долі запустити симуляцію.",
+        "4": "🚀 4. Рух фігур\n\nАктивуй свій корабель зі «Старта» та рухайся проти годинникової стрілки.\nМожеш керувати одним або кількома кораблями. Можеш комбінувати ходи.\n5+5+3 = 10+3 = 8+5 = 13.\nПопередження: завершення ходу на зайнятому полі — заборонено протоколом.",
+        "5": "⚠️ 5. Поле “Пастка”\n\nУвага! Активовано гравітаційне поле пастки.\nТвій корабель затягує все глибше...\nЯкщо обидва слоти зайняті — сектор заблоковано для переміщення.",
+        "6": "🌌 6. Космопорт ⚪️🔘\n\nЗона транспортування — “Космопорт”.\nПереміщення через ближній тунель, потім дальній.\nЯкщо обидва зайняті — сектор закривається до подальшого повідомлення.",
+        "7": "🛸 7. Крейсер\n\nВиявлено флагман — Крейсер.\nЙого поява дозволена лише після виведення інших кораблів флоту.\nКрейсер може об’єднувати флот — інші твої кораблі приєднуються й рухаються разом.\nТакож його можуть наздоганяти дружні кораблі.",
+        "8": "🏁 8. Фініш⬜️\n\nСканую координати Фінішу...\nДля входу достатньо викинути потрібну або більшу кількість кроків.\nТочне число не обов’язкове.\nМета — досягнути цілі першим. Пріоритет — максимальний.",
+        "9": "💥 9. Блокування\n\nПомилка руху⛔️. Доступні кроки неможливо виконати.\nСтатус: блокування.\nНевикористані кроки анульовано.\nХід передано супротивнику.\nРекомендація: змиритися."
+      }
+    },
+    "phrases": {
+      "1": "О, повезло, повезло",
+      "2": "Ех ти, лузер",
+      "3": "Зараз я тобі покажу, де раки зимують",
+      "4": "Ще один крок і перемога",
+      "5": "Ти мене не доженеш",
+      "6": "Та ти просто машина!",
+      "7": "Не сьогодні, дружок",
+      "8": "Це було епічно!",
+      "9": "В мене ще є шанси"
+    },
+    "themes": {
+      "dark": "Темна",
+      "light": "Світла",
+      "pink": "Розова",
+      "green": "Салатовий",
+      "orange": "Оранжевий"
+    },
+    "font-sizes": {
+      "small": "Маленький",
+      "base": "Базовий",
+      "medium": "Середній",
+      "large": "Великий",
+      "extra-large": "Дуже великий"
+    },
+    "font-families": {
+      "roboto": "Робото",
+      "oswald": "Осуальд",
+      "outfit": "Аутфіт",
+      "pacifico": "Пасифіко",
+      "rubik": "Рубік"
+    },
+    "cursors": {
+      "trail": "Слід",
+      "sparkle": "Іскри",
+      "firing": "Вогник",
+      "rainbow": "Веселка",
+      "fireworks": "Феєрверк",
+      "snowfall": "Снігопад",
+      "aura": "Комфеті",
+      "comet": "Комета"
+    }
+  }
+}

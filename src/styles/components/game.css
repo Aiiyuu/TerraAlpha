@@ -1,0 +1,106 @@
+#game {
+  display: flex;
+  justify-content: space-between;
+
+  width: 100vw;
+  height: 100vh;
+
+  --base-padding: 30px;
+
+  padding: var(--base-padding);
+  padding-top: 0;
+
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  background-size: cover;
+}
+
+.player-section {
+  padding-top: 30px;
+  padding-left: 5px;
+  padding-right: 5px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: left var(--base-transition-duration) ease, right var(--base-transition-duration) ease;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 30px;
+}
+
+#player1 .player-name {
+  color: var(--player1-color);
+}
+
+#player2 .player-name {
+  color: var(--player2-color);
+}
+
+#player1 .player-info {
+  flex-direction: row-reverse;
+}
+
+#player1 .player-avatar {
+  margin-right: 20px;
+}
+
+#player2 .player-avatar {
+  margin-left: 20px;
+}
+
+.player-avatar {
+  height: 60px;
+}
+
+.player-name {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#main-btn.disabled {
+  opacity: 0.4;
+}
+
+.player-navigation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.steps-strike {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+
+  flex-wrap: wrap;     
+  max-width: 100%;  
+}
+
+.steps-strike__item {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 30px;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.steps-strike__item--left {
+  background-color: var(--player1-color);
+}
+
+.steps-strike__item--right {
+  background-color: var(--player2-color);
+}
